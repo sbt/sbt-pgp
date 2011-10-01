@@ -4,11 +4,13 @@ import sbt._
 import org.bouncycastle._
 import java.io._
 import java.io.File
-import java.security.{SecureRandom,Security,KeyPairGenerator}
+import java.math.BigInteger
+import java.security.{SecureRandom,Security,KeyPairGenerator,KeyPair}
 import java.util.Date
 
 import org.bouncycastle.bcpg._
 import org.bouncycastle.jce.provider.BouncyCastleProvider
+import org.bouncycastle.jce.spec.ElGamalParameterSpec
 import org.bouncycastle.openpgp._
 
 
@@ -208,51 +210,68 @@ object BouncyCastle {
 
   /** This can load your local PGP keyring. */
   def loadPublicKeyRing(file: File) = 
-    PublicKeyRing(new PGPPublicKeyRing(PGPUtil.getDecoderStream(new FileInputStream(file))))
+    PublicKeyRing(new PGPPublicKeyRing(PGPUtil.getDecoderStream(new ArmoredInputStream(new FileInputStream(file)))))
 
-  def loadSecretKeyRing(file: File) = 
-    SecretKeyRing(new PGPSecretKeyRing(PGPUtil.getDecoderStream(new FileInputStream(file))))
+  def loadSecretKeyRing(file: File) = {
+    // TODO - Should we assume it's armored?
+    SecretKeyRing(new PGPSecretKeyRing(PGPUtil.getDecoderStream(new ArmoredInputStream(new FileInputStream(file)))))
+  }
 
- /** Creates a new public/private key pair for PGP encryption using BouncyCastle. */
- def makeKeys(identity: String, passPhrase: Array[Char], dir: File): Unit = {
-   Security addProvider new BouncyCastleProvider()
-   val kpg = KeyPairGenerator.getInstance("RSA", "BC")
-   kpg.initialize(1024)
-   val kp = kpg.generateKeyPair()
-   if (!dir.exists) { IO.createDirectory(dir) }
-   // TODO - Allow naming the output files.
-   exportKeyPair(secretOut = new FileOutputStream(dir / "secret.asc"),
-                 publicOut = new FileOutputStream(dir / "public.asc"),
-                 publicKey = kp.getPublic(),
-                 privateKey = kp.getPrivate(),
-                 identity = identity,
-                 passPhrase = passPhrase)  
+  /** Creates a new public/private key pair for PGP encryption using BouncyCastle. */
+  def makeKeys(identity: String, passPhrase: Array[Char], publicKey: File, privateKey: File): Unit = {
+    val dsaKeyPair = {
+       val generator = KeyPairGenerator.getInstance("DSA", "BC");
+       generator.initialize(1024);
+       generator.generateKeyPair()
+    }
+    val elgKeyPair = {
+      val generator = KeyPairGenerator.getInstance("ELGAMAL", "BC")
+      // TODO - Maybe we should pick these randomnly i.e. not pregenerate the parameters.
+      val g = new BigInteger("153d5d6172adb43045b68ae8e1de1070b6137005686d29d3d73a7749199681ee5b212c9b96bfdcfa5b20cd5e3fd2044895d609cf9b410b7a0f12ca1cb9a428cc", 16)
+      val p = new BigInteger("9494fec095f3b85ee286542b3836fc81a5dd0a0349b4c239dd38744d488cf8e31db8bcb7d33b41abb9e5a33cca9144b1cef332c94bf0573bf047a3aca98cdf3b", 16)
+      val elParams = new ElGamalParameterSpec(p, g)
+      generator.initialize(elParams)
+      generator.generateKeyPair()
+    }
+   
+    if (!publicKey.getParentFile.exists) { IO.createDirectory(publicKey.getParentFile) }
+    if (!privateKey.getParentFile.exists) { IO.createDirectory(privateKey.getParentFile) }
+    // TODO - Allow naming the output files.
+    exportKeyPair(secretOut = new FileOutputStream(privateKey),
+                  publicOut = new FileOutputStream(publicKey),
+                  dsa = dsaKeyPair,
+                  elg = elgKeyPair,
+                  identity = identity,
+                  passPhrase = passPhrase)  
  }
-
+ /** Writes a key pair into new key ring files. */
  private def exportKeyPair(
       secretOut: OutputStream,
       publicOut: OutputStream,
-      publicKey: java.security.PublicKey,
-      privateKey: java.security.PrivateKey,
+      dsa: KeyPair,
+      elg: KeyPair,
       identity: String,
       passPhrase: Array[Char]): Unit = {    
-    // Create a new secret key.
-    val secretKey = new PGPSecretKey(PGPSignature.DEFAULT_CERTIFICATION, 
-                                     PublicKeyAlgorithmTags.RSA_GENERAL, 
-                                     publicKey,
-                                     privateKey,
-                                     new Date(), 
-                                     identity,
-                                     SymmetricKeyAlgorithmTags.CAST5,
-                                     passPhrase,
-                                     null,
-                                     null,
-                                     new SecureRandom(),
-                                     "BC")        
-    secretKey.encode(secretOut)
-    secretOut.close()
-    val key = secretKey.getPublicKey()
-    key.encode(publicOut)        
-    publicOut.close()
+    val dsaKeyPair = new PGPKeyPair(PublicKeyAlgorithmTags.DSA, dsa, new Date());
+    val elgKeyPair = new PGPKeyPair(PublicKeyAlgorithmTags.ELGAMAL_ENCRYPT, elg, new Date());
+    // Define all the settings for our new key ring.
+    val keyRingGen = new PGPKeyRingGenerator(PGPSignature.POSITIVE_CERTIFICATION, 
+                                             dsaKeyPair,
+                                             identity,
+                                             SymmetricKeyAlgorithmTags.CAST5, // TODO - Can we use AES_256 for better encryption?
+                                             passPhrase,
+                                             true,
+                                             null,
+                                             null,
+                                             new SecureRandom(),
+                                             "BC")  
+    keyRingGen.addSubKey(elgKeyPair)
+    // Now generate the public and secret key rings and output them.
+    val armoredSecretOut = new ArmoredOutputStream(secretOut)   
+    keyRingGen.generateSecretKeyRing().encode(armoredSecretOut)
+    armoredSecretOut.close()
+    val armoredPublicOut = new ArmoredOutputStream(publicOut)
+    keyRingGen.generatePublicKeyRing().encode(armoredPublicOut)
+    armoredPublicOut.close()
   }
 }
