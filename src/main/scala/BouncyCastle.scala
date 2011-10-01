@@ -18,7 +18,26 @@ class SecretKey(val nested: PGPSecretKey) {
    def isMasterKey = nested.isMasterKey
    /** Returns the public key associated with this key. */
    def publicKey = PublicKey(nested.getPublicKey)
-   // TODO - Add a version of sign that takes an input stream, a name and a 'length' to sign. 
+   /** Creates a signature for a file and writes it to the signatureFile. */
+   def sign(file: File, signatureFile: File, pass: Array[Char]): File = {
+     val privateKey = nested.extractPrivateKey(pass, "BC")        
+     val sGen = new PGPSignatureGenerator(nested.getPublicKey().getAlgorithm(), HashAlgorithmTags.SHA1, "BC")
+     sGen.initSign(PGPSignature.BINARY_DOCUMENT, privateKey)
+     val in = new FileInputStream(file)
+     val out = new BCPGOutputStream(new ArmoredOutputStream(new FileOutputStream(signatureFile)))
+     try {
+       var ch: Int = in.read()
+       while(ch >= 0) {
+         sGen.update(ch.asInstanceOf[Byte])
+         ch = in.read()
+       }
+       sGen.generate().encode(out);
+     } finally {
+       in.close()
+       out.close()
+     }
+     signatureFile
+   }
    /** Signs an input stream of bytes and writes it to the output stream. */
    def encryptAndSignFile(file: File, out: OutputStream, pass: Array[Char]): Unit = {
     // TODO - get secret key
@@ -101,12 +120,12 @@ object PublicKey {
 class PublicKeyRing(val nested: PGPPublicKeyRing) {
   /** Adds a key to this key ring and returns the new key ring. */
   def +:(key: PGPPublicKey): PublicKeyRing = 
-    PublicKeyRing(PGPPublicKey.insertPublicKey(key))
+    PublicKeyRing(PGPPublicKeyRing.insertPublicKey(nested, key))
   /** Adds a key to this key ring and returns the new key ring. */
   def :+(key: PGPPublicKey): PublicKeyRing = key +: this
   /** Removes a key from this key ring and returns the new key ring. */
-  def removeKey(key: PGPublicKey): PublicKeyRing =
-    PublicKeyRing(PGPPublicKey.removePublicKey(key))
+  def removeKey(key: PGPPublicKey): PublicKeyRing =
+    PublicKeyRing(PGPPublicKeyRing.removePublicKey(nested, key))
   /** A collection that will traverse all public keys in this key ring. */
   def publicKeys = new Traversable[PublicKey] {
     def foreach[U](f: PublicKey => U): Unit = {
@@ -121,7 +140,7 @@ class PublicKeyRing(val nested: PGPPublicKeyRing) {
   def defaultEncryptionKey = encryptionKeys.headOption getOrElse error("No encryption key found.")
 
   /** Returns true if a signature is valid. */
-  def verifySignature(input: InputStream): Boolean = {
+  def extractAndVerify(input: InputStream, dir: File): Boolean = {
     val in = PGPUtil.getDecoderStream(input)
     val pgpFact = {
       val tmp = new PGPObjectFactory(in)
@@ -134,15 +153,15 @@ class PublicKeyRing(val nested: PGPPublicKeyRing) {
     val dIn = p2.getInputStream()
     val key = nested.getPublicKey(ops.getKeyID())
     // TODO - Optionally write the file...
-    //val out = new FileOutputStream(p2.getFileName());
+    val out = new FileOutputStream(new File(dir, p2.getFileName()));
     ops.initVerify(key, "BC");
     var ch = dIn.read()
     while (ch >= 0) {
       ops.update(ch.asInstanceOf[Byte])
-      //out.write(ch)
+      out.write(ch)
       ch = dIn.read()
     }
-    //out.close()
+    out.close()
     val p3 = pgpFact.nextObject().asInstanceOf[PGPSignatureList]
     ops.verify(p3.get(0))
   }
