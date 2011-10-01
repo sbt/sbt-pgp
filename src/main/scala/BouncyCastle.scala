@@ -12,7 +12,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.openpgp._
 
 
-class PrivateKey(val nested: PGPSecretKey) {
+class SecretKey(val nested: PGPSecretKey) {
 
    def isSigningKey = nested.isSigningKey
    def isMasterKey = nested.isMasterKey
@@ -20,7 +20,7 @@ class PrivateKey(val nested: PGPSecretKey) {
    def publicKey = PublicKey(nested.getPublicKey)
    // TODO - Add a version of sign that takes an input stream, a name and a 'length' to sign. 
    /** Signs an input stream of bytes and writes it to the output stream. */
-   def signFile(file: File, out: OutputStream, pass: Array[Char]): Unit = {
+   def encryptAndSignFile(file: File, out: OutputStream, pass: Array[Char]): Unit = {
     // TODO - get secret key
     val pgpPrivKey = nested.extractPrivateKey(pass, "BC");        
     val sGen = new PGPSignatureGenerator(nested.getPublicKey().getAlgorithm(), HashAlgorithmTags.SHA1, "BC")
@@ -36,11 +36,11 @@ class PrivateKey(val nested: PGPSecretKey) {
     val lGen = new PGPLiteralDataGenerator()
     val lOut = lGen.open(bOut, PGPLiteralData.BINARY, file)
     val in = new BufferedInputStream(new FileInputStream(file))
-    var ch = in.read()
+    var ch: Int = in.read()
     while (ch >= 0) {
       lOut.write(ch)
       sGen.update(ch.asInstanceOf[Byte])
-      in.read()
+      ch = in.read()
     }
     in.close()
     lGen.close()
@@ -54,11 +54,11 @@ class PrivateKey(val nested: PGPSecretKey) {
       while(i.hasNext) f(i.next.toString)
     }
   }
-  override lazy val toString = "Private(%x, %s)".format(nested.getKeyID, userIDs.mkString(","))
+  override lazy val toString = "SecretKey(%x, %s)".format(nested.getKeyID, userIDs.mkString(","))
 }
 
-object PrivateKey {
-  def apply(nested: PGPSecretKey) = new PrivateKey(nested)
+object SecretKey {
+  def apply(nested: PGPSecretKey) = new SecretKey(nested)
 }
 
 class PublicKey(val nested: PGPPublicKey) {
@@ -99,6 +99,14 @@ object PublicKey {
 
 /** A wrapper to simplify working with tyhe Java PGP API. */
 class PublicKeyRing(val nested: PGPPublicKeyRing) {
+  /** Adds a key to this key ring and returns the new key ring. */
+  def +:(key: PGPPublicKey): PublicKeyRing = 
+    PublicKeyRing(PGPPublicKey.insertPublicKey(key))
+  /** Adds a key to this key ring and returns the new key ring. */
+  def :+(key: PGPPublicKey): PublicKeyRing = key +: this
+  /** Removes a key from this key ring and returns the new key ring. */
+  def removeKey(key: PGPublicKey): PublicKeyRing =
+    PublicKeyRing(PGPPublicKey.removePublicKey(key))
   /** A collection that will traverse all public keys in this key ring. */
   def publicKeys = new Traversable[PublicKey] {
     def foreach[U](f: PublicKey => U): Unit = {
@@ -138,7 +146,9 @@ class PublicKeyRing(val nested: PGPPublicKeyRing) {
     val p3 = pgpFact.nextObject().asInstanceOf[PGPSignatureList]
     ops.verify(p3.get(0))
   }
-  override lazy val toString = "PublicKeyRing("+publicKeys.mkString(",")+")"
+  /** Saves this key ring to a stream. */
+  def saveTo(output: OutputStream) = nested.encode(output)
+  override def toString = "PublicKeyRing("+publicKeys.mkString(",")+")"
 }
 object PublicKeyRing {
   implicit def unwrap(ring: PublicKeyRing): PGPPublicKeyRing = ring.nested
@@ -147,8 +157,27 @@ object PublicKeyRing {
 /** A wrapper to simplify working with tyhe Java PGP API. */
 class SecretKeyRing(val nested: PGPSecretKeyRing) {
 
+  def extraPublicKeys = new Traversable[PublicKey] {
+    def foreach[U](f: PublicKey => U): Unit = {
+      val it = nested.getExtraPublicKeys
+      while(it.hasNext) f(PublicKey(it.next.asInstanceOf[PGPPublicKey]))
+    }
+  }
+
+  def secretKeys = new Traversable[SecretKey] {
+    def foreach[U](f: SecretKey => U): Unit = {
+      val it = nested.getSecretKeys
+      while(it.hasNext) f(SecretKey(it.next.asInstanceOf[PGPSecretKey]))
+    }
+  }
+
   /** The default public key for this key ring. */
-  def getPublicKey = new PublicKey(nested.getPublicKey)
+  def publicKey = PublicKey(nested.getPublicKey)
+
+  /** Returns the default secret key for this ring. */
+  def secretKey = SecretKey(nested.getSecretKey)
+
+  override def toString = "SecretKeyRing(public="+publicKey+",secret="+secretKeys.mkString(",")+")"
 }
 object SecretKeyRing {
   implicit def unwrap(ring: SecretKeyRing) = ring.nested
@@ -156,10 +185,14 @@ object SecretKeyRing {
 }
 
 object BouncyCastle {
+  java.security.Security.addProvider(new BouncyCastleProvider());
 
   /** This can load your local PGP keyring. */
   def loadPublicKeyRing(file: File) = 
     PublicKeyRing(new PGPPublicKeyRing(PGPUtil.getDecoderStream(new FileInputStream(file))))
+
+  def loadSecretKeyRing(file: File) = 
+    SecretKeyRing(new PGPSecretKeyRing(PGPUtil.getDecoderStream(new FileInputStream(file))))
 
  /** Creates a new public/private key pair for PGP encryption using BouncyCastle. */
  def makeKeys(identity: String, passPhrase: Array[Char], dir: File): Unit = {
