@@ -1,0 +1,8 @@
+The 0.1 release includes the following:
+
+* Signing artifacts using command line `gpg` tool
+* Scala BouncyCastle wrapper API
+* Signing artifacts using Bouncy Castle
+  * Using gpg keys
+  * Using bc keys
+* Creating new PGP key pairs
