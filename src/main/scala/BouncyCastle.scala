@@ -174,6 +174,8 @@ class PublicKeyRing(val nested: PGPPublicKeyRing) {
 object PublicKeyRing {
   implicit def unwrap(ring: PublicKeyRing): PGPPublicKeyRing = ring.nested
   def apply(nested: PGPPublicKeyRing) = new PublicKeyRing(nested)
+  def load(input: InputStream) = apply(new PGPPublicKeyRing(PGPUtil.getDecoderStream(input)))
+  def loadFromFile(file: File) = load(new FileInputStream(file))
 }
 /** A wrapper to simplify working with tyhe Java PGP API. */
 class SecretKeyRing(val nested: PGPSecretKeyRing) {
@@ -203,19 +205,30 @@ class SecretKeyRing(val nested: PGPSecretKeyRing) {
 object SecretKeyRing {
   implicit def unwrap(ring: SecretKeyRing) = ring.nested
   def apply(ring: PGPSecretKeyRing) = new SecretKeyRing(ring)
+  def load(input: InputStream) = apply(new PGPSecretKeyRing(PGPUtil.getDecoderStream(input)))
+  def loadFromFile(file: File) = load(new FileInputStream(file))
 }
 
 object BouncyCastle {
   java.security.Security.addProvider(new BouncyCastleProvider());
 
-  /** This can load your local PGP keyring. */
-  def loadPublicKeyRing(file: File) = 
-    PublicKeyRing(new PGPPublicKeyRing(PGPUtil.getDecoderStream(new ArmoredInputStream(new FileInputStream(file)))))
+  /** Helper function to ignore 'armor' issues on files.
+   * @param inputStream an input stream *creator*.  MUST create a new input stream when referenced.
+   */
+  private[this] def tryArmoredThenNot[A](inputStream: => InputStream)(action: InputStream => A): A = 
+    try {
+      action(new ArmoredInputStream(inputStream))
+    } catch {
+      case x: java.io.IOException => // TODO - Check if this is bad format...
+        // TODO - Close original stream?
+        action(inputStream)
+    }
+        
 
-  def loadSecretKeyRing(file: File) = {
-    // TODO - Should we assume it's armored?
-    SecretKeyRing(new PGPSecretKeyRing(PGPUtil.getDecoderStream(new ArmoredInputStream(new FileInputStream(file)))))
-  }
+  /** This can load your local PGP keyring. */
+  def loadPublicKeyRing(file: File) = PublicKeyRing loadFromFile file
+  /** This can load your local PGP keyring. */
+  def loadSecretKeyRing(file: File) = SecretKeyRing loadFromFile file
 
   /** Creates a new public/private key pair for PGP encryption using BouncyCastle. */
   def makeKeys(identity: String, passPhrase: Array[Char], publicKey: File, privateKey: File): Unit = {
