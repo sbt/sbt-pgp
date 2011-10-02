@@ -210,19 +210,20 @@ object SecretKeyRing {
 }
 
 object BouncyCastle {
-  java.security.Security.addProvider(new BouncyCastleProvider());
-
-  /** Helper function to ignore 'armor' issues on files.
-   * @param inputStream an input stream *creator*.  MUST create a new input stream when referenced.
-   */
-  private[this] def tryArmoredThenNot[A](inputStream: => InputStream)(action: InputStream => A): A = 
-    try {
-      action(new ArmoredInputStream(inputStream))
-    } catch {
-      case x: java.io.IOException => // TODO - Check if this is bad format...
-        // TODO - Close original stream?
-        action(inputStream)
+  // TODO - This isn't good enough....  We need to actually deal with classloader issues appropriately.
+  // This hack just ensures that our classloader wins when using bouncy castle.  If this library is loaded in many 
+  // classloaders, they will be unable to function.   Granted, *one* classloader has to win for bouncy castle anyway.
+  // This library will just be documented with the issue so people know to push us down the hierarchy to something
+  // early.
+  try {
+    val newProvider = new BouncyCastleProvider()
+    if(java.security.Security.getProvider(newProvider.getName) != null) {
+      java.security.Security.removeProvider(newProvider.getName)
     }
+    java.security.Security.addProvider(newProvider)
+  } catch {
+    case t => error("Could not initialize bouncy castle encryption.")
+  }
         
 
   /** This can load your local PGP keyring. */
