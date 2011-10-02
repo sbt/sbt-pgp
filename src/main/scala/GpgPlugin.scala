@@ -9,7 +9,7 @@ import complete.DefaultParsers._
 /** The interface used to sign plugins. */
 trait GpgSigner {
   def sign(file: File, signatureFile: File): File
-  def generateKey(pubKey: File, secKey: File, identity: String): Unit
+  def generateKey(pubKey: File, secKey: File, identity: String, s: TaskStreams): Unit
 }
 
 /** A GpgSigner that uses the command-line to run gpg. */
@@ -20,7 +20,8 @@ class CommandLineGpgSigner(command: String) extends GpgSigner {
        Process(command, Seq("--detach-sign", "--output", signatureFile.getAbsolutePath, file.getAbsolutePath)).!
        signatureFile 
   }
-  def generateKey(pubKey: File, secKey: File, identity: String): Unit = error("Command line generateKey not implemented")
+  def generateKey(pubKey: File, secKey: File, identity: String, s: TaskStreams): Unit = 
+    Process(command, Seq("--gen-key")) !
 }
 /** A GpgSigner that uses bouncy castle. */
 class BouncyCastleGpgSigner(secretKeyRingFile: File, passPhrase: Array[Char]) extends GpgSigner {
@@ -30,8 +31,13 @@ class BouncyCastleGpgSigner(secretKeyRingFile: File, passPhrase: Array[Char]) ex
     if (!signatureFile.getParentFile.exists) IO.createDirectory(signatureFile.getParentFile)
     secring.secretKey.sign(file, signatureFile, passPhrase)
   }
-  def generateKey(pubKey: File, secKey: File, identity: String): Unit =
+  def generateKey(pubKey: File, secKey: File, identity: String, s: TaskStreams): Unit = {
+    s.log.info("Creating a new PGP key.   This could take a long time to gather enough random bits for entropy.")
     BouncyCastle.makeKeys(identity, passPhrase, pubKey, secKey)
+    s.log.info("Public key := " + pubKey.getAbsolutePath)
+    s.log.info("Secret key := " + secKey.getAbsolutePath)
+    s.log.info("Please do not share your secret key.   Your public key is free to share.")
+  }
 }
 
 object GpgPlugin extends Plugin {
@@ -99,7 +105,7 @@ object GpgPlugin extends Plugin {
       if(sec.exists)  error("Secret key ring (" + sec.getAbsolutePath + ") already exists!")
       val (email, name) = input
       val identity = "%s <%s>".format(name, email)
-      runner.generateKey(pub, sec, identity)
+      runner.generateKey(pub, sec, identity, s)
     }
   }
   // Helper to figure out how to run GPG signing...
