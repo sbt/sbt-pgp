@@ -11,7 +11,7 @@ If you already have GPG configured, simply add the following to your `~/.sbt/plu
     object PluginDef extends Build {
       override def projects = Seq(root)
       lazy val root = Project("plugins", file(".")) dependsOn(gpg)
-      lazy val gpg = file("git://github.com/jsuereth/xsbt-gpg-plugin.git#0.1")
+      lazy val gpg = file("git://github.com/jsuereth/xsbt-gpg-plugin.git#0.2")
     }
 
 The plugin should wire into all your projects and sign files before they are deployed.   
