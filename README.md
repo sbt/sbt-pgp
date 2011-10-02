@@ -5,16 +5,40 @@ This plugin aims to provide GPG signing for XSBT (SBT 0.11+ versions).  The plug
 
 ## Usage
 
-First, make sure GPG is installed for your platform.
+If you already have GPG configured, simply add the following to your `~/.sbt/plugins/project/build.sbt` file:
 
-### 'nix
+    import sbt._
+    object PluginDef extends Build {
+      override def projects = Seq(root)
+      lazy val root = Project("plugins", file(".")) dependsOn(gpg)
+      lazy val gpg = file("git://github.com/jsuereth/xsbt-gpg-plugin.git#0.1")
+    }
 
-Create a GPG key.
+The plugin should wire into all your projects and sign files before they are deployed.   
 
-    gpg --gen-key
+### GPG
 
-Start the GPG agent (to avoid entering your password multiple times).
+If you have GPG installed in a non standard location, you can configure it by adding the following to your `~/.sbt/gpg.sbt` file:
 
-### Windows
+    gpgCommand := "/path/to/gpg"
 
-Someone who has a windows machine needs to figure this out.
+You can configure an alternative keyring using the gpgSecretRing setting:
+
+    gpgSecretRing := file("/path/to/my/secring.gpg")
+
+
+### Bouncy Castle
+
+If you do not have GPG installed and configured and would like to use bouncy castle for encryption, simply configure the plugin as above and add the following to your `~/.sbt/gpg.sbt` file:
+
+    gpgPassphrase := Some(Array('t','e','s','t'))
+
+The passphrase *must* be an array of characters and should be unique to yourself.   The plugin will choke on an empty passphrase, and it's a poor idea to sign artifacts using a key with no passphrase, so don't do it.
+
+After the passphrase is configured, generate a PGP key in sbt by running the following task:
+
+    > gpg-gen-key your@email.com Your Name Here
+
+This will construct a new key with the identity of "Your Name <your@email.com>".  The public key is placed into the `~/.sbt/gpg/pubring.asc` file by default.   It's a good idea to get this key certified by a trusted agency of your users.
+
+No other configuration is necessary to begin signing artifacts.   This should happen automatically when deploying.
