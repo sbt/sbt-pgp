@@ -1,4 +1,4 @@
-package com.github.jsuereth.gpg
+package com.typesafe.pgp
 
 import sbt._
 import Keys._
@@ -6,14 +6,16 @@ import sbt.Project.Initialize
 import complete.Parser
 import complete.DefaultParsers._
 
+// TODO - Rename everything to PGP not GPG.
+
 /** The interface used to sign plugins. */
-trait GpgSigner {
+trait PgpSigner {
   def sign(file: File, signatureFile: File): File
   def generateKey(pubKey: File, secKey: File, identity: String, s: TaskStreams): Unit
 }
 
 /** A GpgSigner that uses the command-line to run gpg. */
-class CommandLineGpgSigner(command: String) extends GpgSigner {
+class CommandLineGpgSigner(command: String) extends PgpSigner {
   def sign(file: File, signatureFile: File): File = {
       if (signatureFile.exists) IO.delete(signatureFile)
        // --output = sig file
@@ -24,16 +26,18 @@ class CommandLineGpgSigner(command: String) extends GpgSigner {
     Process(command, Seq("--gen-key")) !
 }
 /** A GpgSigner that uses bouncy castle. */
-class BouncyCastleGpgSigner(secretKeyRingFile: File, passPhrase: Array[Char]) extends GpgSigner {
-  lazy val secring = BouncyCastle.loadSecretKeyRing(secretKeyRingFile)
+class BouncyCastleGpgSigner(secretKeyRingFile: File, passPhrase: Array[Char]) extends PgpSigner {
+  lazy val secring = PGP.loadSecretKeyRing(secretKeyRingFile)
   def sign(file: File, signatureFile: File): File = {
     if (signatureFile.exists) IO.delete(signatureFile)
     if (!signatureFile.getParentFile.exists) IO.createDirectory(signatureFile.getParentFile)
     secring.secretKey.sign(file, signatureFile, passPhrase)
   }
   def generateKey(pubKey: File, secKey: File, identity: String, s: TaskStreams): Unit = {
+    if(!pubKey.getParentFile.exists) IO.createDirectory(pubKey.getParentFile)
+    if(!secKey.getParentFile.exists) IO.createDirectory(secKey.getParentFile)
     s.log.info("Creating a new PGP key.   This could take a long time to gather enough random bits for entropy.")
-    BouncyCastle.makeKeys(identity, passPhrase, pubKey, secKey)
+    PGP.makeKeys(identity, passPhrase, pubKey, secKey)
     s.log.info("Public key := " + pubKey.getAbsolutePath)
     s.log.info("Secret key := " + secKey.getAbsolutePath)
     s.log.info("Please do not share your secret key.   Your public key is free to share.")
@@ -42,7 +46,7 @@ class BouncyCastleGpgSigner(secretKeyRingFile: File, passPhrase: Array[Char]) ex
 
 object GpgPlugin extends Plugin {
   val gpgCommand = SettingKey[String]("gpg-command", "The path of the GPG command to run")
-  val gpgRunner = TaskKey[GpgSigner]("gpg-runner", "The helper class to run GPG commands.")  
+  val gpgRunner = TaskKey[PgpSigner]("gpg-runner", "The helper class to run GPG commands.")  
   val gpgSecretRing = SettingKey[File]("gpg-secret-ring", "The location of the secret key ring.  Only needed if using bouncy castle.")
   val gpgPublicRing = SettingKey[File]("gpg-public-ring", "The location of the secret key ring.  Only needed if using bouncy castle.")
   val gpgPassphrase = SettingKey[Option[Array[Char]]]("gpg-passphrase", "The passphrase associated with the secret used to sign artifacts.")
@@ -58,7 +62,7 @@ object GpgPlugin extends Plugin {
   private[this] val gpgExtension = ".asc"
   
   override val settings = Seq(
-    SettingKey[Boolean]("skip") in gpgRunner := false,
+    TaskKey[Boolean]("skip") in gpgRunner := false,
     gpgCommand := (if(isWindows) "gpg.exe" else "gpg"),
     gpgPassphrase := None,
     gpgPublicRing := file(System.getProperty("user.home")) / ".gnupg" / "pubring.gpg",
@@ -78,7 +82,7 @@ object GpgPlugin extends Plugin {
       (optPass map (p => new BouncyCastleGpgSigner(secring, p))
        getOrElse new CommandLineGpgSigner(command))
     },
-    packagedArtifacts <<= (packagedArtifacts, gpgRunner, SettingKey[Boolean]("skip") in gpgRunner, streams) map {
+    packagedArtifacts <<= (packagedArtifacts, gpgRunner, TaskKey[Boolean]("skip") in gpgRunner, streams) map {
       (artifacts, r, skipZ, s) =>
         if (!skipZ) {
           artifacts flatMap {
@@ -97,7 +101,7 @@ object GpgPlugin extends Plugin {
             new StringBuilder(name).append(at).append(address).append(dot).append(subdomain).toString
         }
         val name: Parser[String] = (any*) map (_ mkString "")
-        (Space ~> Email ~ (Space ~> name))
+        (Space ~> token(Email) ~ (Space ~> token(name)))
   }
   private[this] def keyGenTask = { (parsed: TaskKey[(String,String)]) => 
     (parsed, gpgPublicRing, gpgSecretRing, gpgRunner, streams) map { (input, pub, sec, runner, s) =>

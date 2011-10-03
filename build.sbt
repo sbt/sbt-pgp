@@ -1,8 +1,4 @@
-sbtPlugin := true
-
 organization := "com.typesafe"
-
-name := "xsbt-gpg-plugin"
 
 version := "0.3-SNAPSHOT"
 

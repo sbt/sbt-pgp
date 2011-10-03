@@ -1,0 +1,3 @@
+The 0.2 release includes the following:
+
+* Removed default parameters for secret key encryption.   Keys are now far more secure than before.
