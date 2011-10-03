@@ -24,6 +24,8 @@ class CommandLineGpgSigner(command: String) extends PgpSigner {
   }
   def generateKey(pubKey: File, secKey: File, identity: String, s: TaskStreams): Unit = 
     Process(command, Seq("--gen-key")) !
+
+  override def toString = "GPG-Command-line-Runner"
 }
 /** A GpgSigner that uses bouncy castle. */
 class BouncyCastleGpgSigner(secretKeyRingFile: File, passPhrase: Array[Char]) extends PgpSigner {
@@ -42,6 +44,7 @@ class BouncyCastleGpgSigner(secretKeyRingFile: File, passPhrase: Array[Char]) ex
     s.log.info("Secret key := " + secKey.getAbsolutePath)
     s.log.info("Please do not share your secret key.   Your public key is free to share.")
   }
+  override def toString = "BC-Signer(" + secring + ")"
 }
 
 object GpgPlugin extends Plugin {
