@@ -15,35 +15,51 @@ import org.bouncycastle.openpgp._
 
 
 class SecretKey(val nested: PGPSecretKey) {
+  def keyID = nested.getKeyID
+  /** @return True if this key can make signatures. */
+  def isSigningKey = nested.isSigningKey
+  /** @return True if this key is the master of a key ring. */
+  def isMasterKey = nested.isMasterKey
+  /** Returns the public key associated with this key. */
+  def publicKey = PublicKey(nested.getPublicKey)
 
-   def isSigningKey = nested.isSigningKey
-   def isMasterKey = nested.isMasterKey
-   /** Returns the public key associated with this key. */
-   def publicKey = PublicKey(nested.getPublicKey)
-   /** Creates a signature for a file and writes it to the signatureFile. */
-   def sign(file: File, signatureFile: File, pass: Array[Char]): File = {
-     val privateKey = nested.extractPrivateKey(pass, "BC")        
-     val sGen = new PGPSignatureGenerator(nested.getPublicKey().getAlgorithm(), HashAlgorithmTags.SHA1, "BC")
-     sGen.initSign(PGPSignature.BINARY_DOCUMENT, privateKey)
-     val in = new FileInputStream(file)
-     val out = new BCPGOutputStream(new ArmoredOutputStream(new FileOutputStream(signatureFile)))
-     try {
-       var ch: Int = in.read()
-       while(ch >= 0) {
-         sGen.update(ch.asInstanceOf[Byte])
-         ch = in.read()
-       }
-       sGen.generate().encode(out);
-     } finally {
-       in.close()
-       out.close()
-     }
-     signatureFile
-   }
-   /** Signs an input stream of bytes and writes it to the output stream. */
-   def encryptAndSignFile(file: File, out: OutputStream, pass: Array[Char]): Unit = {
-    // TODO - get secret key
-    val pgpPrivKey = nested.extractPrivateKey(pass, "BC");        
+  /** Creates a signature for the data in the input stream on the output stream.
+   * Note: This will close all streams.
+   */
+  def signStream(in: InputStream, signature: OutputStream, pass: Array[Char]): Unit = {
+    val privateKey = nested.extractPrivateKey(pass, "BC")        
+    val sGen = new PGPSignatureGenerator(nested.getPublicKey().getAlgorithm(), HashAlgorithmTags.SHA1, "BC")
+    sGen.initSign(PGPSignature.BINARY_DOCUMENT, privateKey)
+    val out = new BCPGOutputStream(new ArmoredOutputStream(signature))
+    try {
+      var ch: Int = in.read()
+      while(ch >= 0) {
+        sGen.update(ch.asInstanceOf[Byte])
+        ch = in.read()
+      }
+      sGen.generate().encode(out)
+    } finally {
+      in.close()
+      out.close()
+    }
+  }
+
+  /** Creates a signature for a file and writes it to the signatureFile. */
+  def sign(file: File, signatureFile: File, pass: Array[Char]): File = {
+    signStream(new FileInputStream(file), new FileOutputStream(signatureFile), pass)
+    signatureFile
+  }
+  /** Creates a signature for the input string. */
+  def signString(msg: String, pass: Array[Char]): String = {
+    val out = new java.io.ByteArrayOutputStream
+    signStream(new java.io.ByteArrayInputStream(msg.getBytes), out, pass)
+    out.toString(java.nio.charset.Charset.defaultCharset.name)
+  }
+
+  /** Encodes and signs a message into a PGP message. */
+  def signMessageStream(input: InputStream, name: String, length: Long, output: OutputStream, pass: Array[Char], lastMod: java.util.Date = new java.util.Date()): Unit = {
+    val armoredOut = new ArmoredOutputStream(output)
+    val pgpPrivKey = nested.extractPrivateKey(pass, "BC")       
     val sGen = new PGPSignatureGenerator(nested.getPublicKey().getAlgorithm(), HashAlgorithmTags.SHA1, "BC")
     sGen.initSign(PGPSignature.BINARY_DOCUMENT, pgpPrivKey)
     for(name <- this.publicKey.userIDs) {
@@ -52,11 +68,11 @@ class SecretKey(val nested: PGPSecretKey) {
       sGen.setHashedSubpackets(spGen.generate())
     }
     val cGen = new PGPCompressedDataGenerator(CompressionAlgorithmTags.ZLIB)
-    val bOut = new BCPGOutputStream(cGen open out)
+    val bOut = new BCPGOutputStream(cGen open armoredOut)
     sGen.generateOnePassVersion(false).encode(bOut)
     val lGen = new PGPLiteralDataGenerator()
-    val lOut = lGen.open(bOut, PGPLiteralData.BINARY, file)
-    val in = new BufferedInputStream(new FileInputStream(file))
+    val lOut = lGen.open(bOut, PGPLiteralData.BINARY, name, length, lastMod)
+    val in = new BufferedInputStream(input)
     var ch: Int = in.read()
     while (ch >= 0) {
       lOut.write(ch)
@@ -67,6 +83,21 @@ class SecretKey(val nested: PGPSecretKey) {
     lGen.close()
     sGen.generate().encode(bOut)
     cGen.close()
+    armoredOut.close()
+  }
+
+  /** Returns a PGP compressed and signed copy of the input string. */
+  def signMessageString(input: String, name: String, pass: Array[Char]): String = {
+    val out = new java.io.ByteArrayOutputStream
+    val bytes = input.getBytes
+    signMessageStream(new java.io.ByteArrayInputStream(bytes), name, bytes.length, out, pass)
+    out.toString(java.nio.charset.Charset.defaultCharset.name)
+  }
+
+  // TODO - Split this into pieces.
+  /** Signs an input stream of bytes and writes it to the output stream. */
+  def signMessageFile(file: File, out: OutputStream, pass: Array[Char]): Unit = {
+    signMessageStream(new java.io.FileInputStream(file), file.getName, file.length, out, pass)
   }
 
   def userIDs = new Traversable[String] {
@@ -82,36 +113,125 @@ object SecretKey {
   def apply(nested: PGPSecretKey) = new SecretKey(nested)
 }
 
-class PublicKey(val nested: PGPPublicKey) {
-  /** Returns true if a signature is valid for this key. */
-  def verifySignature(input: InputStream): Boolean = {
+/** This trait defines things that can act like a public key.  That is they can verify signed files and messages and encrypt data for an individual. */
+trait PublicKeyLike {
+  /** Verifies a signed message and extracts the contents.
+   * @param input The incoming PGP message.
+   * @param output The decoded and verified message.
+   */
+  def verifyMessageStream(input: InputStream, output: OutputStream): Boolean
+  /** Reads in a PGP message from a file, verifies the signature and writes to the output file. */
+  final def verifyMessageFile(input: File, output: File): Boolean = {
+    val in = new FileInputStream(input)
+    val out = new FileOutputStream(output)
+    try verifyMessageStream(in,out) finally {
+      in.close()
+      out.close()
+    }
+  }
+  /** Reads in a PGP message  and from a string, verifies the signature and returns the raw content. */
+  final def verifyMessageString(input: String): String = {
+    // TODO - better encoding support here.
+    val in = new java.io.ByteArrayInputStream(input.getBytes())
+    val out = new java.io.ByteArrayOutputStream()
+    // TODO - better errors...
+    assert(verifyMessageStream(in, out))
+    out.toString(java.nio.charset.Charset.defaultCharset.name)
+  }
+  /** Verifies a signature stream against an input stream.
+   * @param msgName the name tied in the signature for this object.  For a file, this is the filename.
+   * @param msg  The input stream containing the raw message to verify.
+   * @param signature The input stream containing the PGP signature.
+   */
+  def verifySignatureStreams(msg: InputStream, signature: InputStream): Boolean
+  /** Reads in a raw file, verifies the signature file is valid for this file. */
+  final def verifySignatureFile(raw: File, signature: File): Boolean = {
+    val in = new FileInputStream(raw)
+    val in2 = new FileInputStream(signature)
+    try verifySignatureStreams(in,in2) finally {
+      in.close()
+      in2.close()
+    }
+  }
+  /** Reads in a PGP message from a string, verifies the signature string is accurate for the message. */
+  final def verifySignatureString(msg: String, signature: String): Boolean = {
+    // TODO - better encoding support here.
+    val in = new java.io.ByteArrayInputStream(msg.getBytes)
+    val in2 = new java.io.ByteArrayInputStream(signature.getBytes)
+    // TODO - better errors...
+    try verifySignatureStreams(in, in2) finally {
+      in.close()
+      in2.close()
+    }
+  }
+
+ protected def verifyMessageStreamHelper(input: InputStream, output: OutputStream)(getKey: Long => PGPPublicKey): Boolean = {
     val in = PGPUtil.getDecoderStream(input)
     val pgpFact = {
       val tmp = new PGPObjectFactory(in)
       val c1 = tmp.nextObject().asInstanceOf[PGPCompressedData]
       new PGPObjectFactory(c1.getDataStream())
     }
-    val p1 = pgpFact.nextObject().asInstanceOf[PGPOnePassSignatureList]
-    val ops = p1.get(0);
+    val sigList = pgpFact.nextObject().asInstanceOf[PGPOnePassSignatureList]
+    val ops = sigList.get(0)
     val p2 = pgpFact.nextObject().asInstanceOf[PGPLiteralData]
     val dIn = p2.getInputStream()
-    assert(ops.getKeyID() == nested.getKeyID)
-    ops.initVerify(nested, "BC");
+    val key = getKey(ops.getKeyID)
+    ops.initVerify(key, "BC")
     var ch = dIn.read()
     while (ch >= 0) {
       ops.update(ch.asInstanceOf[Byte])
+      output.write(ch)
       ch = dIn.read()
     }
     val p3 = pgpFact.nextObject().asInstanceOf[PGPSignatureList]
     ops.verify(p3.get(0))
   }
+  protected def verifySignatureStreamsHelper(msg: InputStream, signature: InputStream)(getKey: Long => PGPPublicKey): Boolean = {
+    val in = PGPUtil.getDecoderStream(signature)
+    // We extract the signature list and object factory based on whether or not the signature is compressed.
+    val (sigList,pgpFact) = {
+      val pgpFact = new PGPObjectFactory(in)
+      val o = pgpFact.nextObject()
+      o match {
+        case c1: PGPCompressedData => (pgpFact.nextObject.asInstanceOf[PGPSignatureList], new PGPObjectFactory(c1.getDataStream()))
+        case sigList: PGPSignatureList   => (sigList, pgpFact)
+      }
+    }
+    val dIn = new BufferedInputStream(msg)
+    val sig = sigList.get(0)
+    val key = getKey(sig.getKeyID())
+    sig.initVerify(key, "BC")
+    var ch = dIn.read()
+    while(ch >= 0) {
+      sig.update(ch.asInstanceOf[Byte])
+      ch = dIn.read()
+    }
+    dIn.close()
+    sig.verify()
+  }
+
+}
+
+class PublicKey(val nested: PGPPublicKey) extends PublicKeyLike {
+  def keyID = nested.getKeyID
+  def verifyMessageStream(input: InputStream, output: OutputStream): Boolean =
+    verifyMessageStreamHelper(input,output) { id =>
+      assert(id == keyID)
+      nested
+    }
+  def verifySignatureStreams(msg: InputStream, signature: InputStream): Boolean = 
+    verifySignatureStreamsHelper(msg,signature) { id =>
+      if(keyID != id) error("Signature is not for this key.  %x != %x".format(id, keyID))
+      nested
+    }
   def userIDs = new Traversable[String] {
     def foreach[U](f: String => U) = {
       val i = nested.getUserIDs
       while(i.hasNext) f(i.next.toString)
     }
   }
-  override lazy val toString = "PublicKey(%x, %s)".format(nested.getKeyID, userIDs.mkString(","))
+  override lazy val toString = "PublicKey(%x, %s)".format(keyID, userIDs.mkString(","))
 }
 object PublicKey {
   def apply(nested: PGPPublicKey) = new PublicKey(nested)
@@ -119,7 +239,7 @@ object PublicKey {
 }
 
 /** A wrapper to simplify working with tyhe Java PGP API. */
-class PublicKeyRing(val nested: PGPPublicKeyRing) {
+class PublicKeyRing(val nested: PGPPublicKeyRing) extends PublicKeyLike {
   /** Adds a key to this key ring and returns the new key ring. */
   def +:(key: PGPPublicKey): PublicKeyRing = 
     PublicKeyRing(PGPPublicKeyRing.insertPublicKey(nested, key))
@@ -139,34 +259,14 @@ class PublicKeyRing(val nested: PGPPublicKeyRing) {
   }
   /** A collection that will traverse all keys that can be used to encrypt data. */
   def encryptionKeys = publicKeys.view filter (_.isEncryptionKey)
+  /** Returns the default key used to encrypt messages. */
   def defaultEncryptionKey = encryptionKeys.headOption getOrElse error("No encryption key found.")
+  def verifyMessageStream(input: InputStream, output: OutputStream): Boolean =
+    verifyMessageStreamHelper(input,output)(nested.getPublicKey)
+  def verifySignatureStreams(msg: InputStream, signature: InputStream): Boolean = 
+    verifySignatureStreamsHelper(msg,signature)(nested.getPublicKey)
 
-  /** Returns true if a signature is valid. */
-  def extractAndVerify(input: InputStream, dir: File): Boolean = {
-    val in = PGPUtil.getDecoderStream(input)
-    val pgpFact = {
-      val tmp = new PGPObjectFactory(in)
-      val c1 = tmp.nextObject().asInstanceOf[PGPCompressedData]
-      new PGPObjectFactory(c1.getDataStream())
-    }
-    val p1 = pgpFact.nextObject().asInstanceOf[PGPOnePassSignatureList]
-    val ops = p1.get(0);
-    val p2 = pgpFact.nextObject().asInstanceOf[PGPLiteralData]
-    val dIn = p2.getInputStream()
-    val key = nested.getPublicKey(ops.getKeyID())
-    // TODO - Optionally write the file...
-    val out = new FileOutputStream(new File(dir, p2.getFileName()));
-    ops.initVerify(key, "BC");
-    var ch = dIn.read()
-    while (ch >= 0) {
-      ops.update(ch.asInstanceOf[Byte])
-      out.write(ch)
-      ch = dIn.read()
-    }
-    out.close()
-    val p3 = pgpFact.nextObject().asInstanceOf[PGPSignatureList]
-    ops.verify(p3.get(0))
-  }
+
   /** Saves this key ring to a stream. */
   def saveTo(output: OutputStream) = nested.encode(output)
   override def toString = "PublicKeyRing("+publicKeys.mkString(",")+")"
@@ -234,8 +334,8 @@ object BouncyCastle {
   /** Creates a new public/private key pair for PGP encryption using BouncyCastle. */
   def makeKeys(identity: String, passPhrase: Array[Char], publicKey: File, privateKey: File): Unit = {
     val dsaKeyPair = {
-       val generator = KeyPairGenerator.getInstance("DSA", "BC");
-       generator.initialize(1024);
+       val generator = KeyPairGenerator.getInstance("DSA", "BC")
+       generator.initialize(1024)
        generator.generateKeyPair()
     }
     val elgKeyPair = {
@@ -266,8 +366,8 @@ object BouncyCastle {
       elg: KeyPair,
       identity: String,
       passPhrase: Array[Char]): Unit = {    
-    val dsaKeyPair = new PGPKeyPair(PublicKeyAlgorithmTags.DSA, dsa, new Date());
-    val elgKeyPair = new PGPKeyPair(PublicKeyAlgorithmTags.ELGAMAL_ENCRYPT, elg, new Date());
+    val dsaKeyPair = new PGPKeyPair(PublicKeyAlgorithmTags.DSA, dsa, new Date())
+    val elgKeyPair = new PGPKeyPair(PublicKeyAlgorithmTags.ELGAMAL_ENCRYPT, elg, new Date())
     // Define all the settings for our new key ring.
     val keyRingGen = new PGPKeyRingGenerator(PGPSignature.POSITIVE_CERTIFICATION, 
                                              dsaKeyPair,
