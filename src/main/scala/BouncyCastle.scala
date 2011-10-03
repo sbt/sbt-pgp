@@ -14,6 +14,33 @@ import org.bouncycastle.jce.spec.ElGamalParameterSpec
 import org.bouncycastle.openpgp._
 
 
+/** This trait represents something that can be saved.   If the class can provide a single saveTo(OutputStream) method, then
+ *  this trait provides corresponding saveToFile and saveToString methods.
+ */
+trait StreamingSaveable {
+  /** Saves the current entity to an output stream. */
+  def saveTo(output: OutputStream): Unit
+  /** Saves the current entity to a file. */
+  def saveToFile(file: File): Unit = saveTo(new FileOutputStream(file))
+  /** Saves the current entity into a string. */
+  def saveToString: String = {
+    val baos = new ByteArrayOutputStream
+    saveTo(baos)
+    baos.toString(java.nio.charset.Charset.defaultCharset.name)
+  }
+}
+
+/** This trait is for companion objects that have objects which can streamed in.
+ */
+trait StreamingLoadable[T] {
+  /** Loads a {T} from an input stream. */
+  def load(input: InputStream): T
+  /** Loads a {T} from a file. */
+  def loadFromFile(file: File): T = load(new FileInputStream(file))
+  /** Loads a {T} from a string. */
+  def loadFromString(input: String): T = load(new ByteArrayInputStream(input.getBytes))
+}
+
 class SecretKey(val nested: PGPSecretKey) {
   def keyID = nested.getKeyID
   /** @return True if this key can make signatures. */
@@ -213,8 +240,17 @@ trait PublicKeyLike {
 
 }
 
-class PublicKey(val nested: PGPPublicKey) extends PublicKeyLike {
+/** This class reprsents a public PGP key. */
+class PublicKey(val nested: PGPPublicKey) extends PublicKeyLike with StreamingSaveable {
+  /** The identifier for this key. */
   def keyID = nested.getKeyID
+  /** Returns the userIDs associated with this public key. */
+  def userIDs = new Traversable[String] {
+    def foreach[U](f: String => U) = {
+      val i = nested.getUserIDs
+      while(i.hasNext) f(i.next.toString)
+    }
+  }
   def verifyMessageStream(input: InputStream, output: OutputStream): Boolean =
     verifyMessageStreamHelper(input,output) { id =>
       assert(id == keyID)
@@ -225,11 +261,10 @@ class PublicKey(val nested: PGPPublicKey) extends PublicKeyLike {
       if(keyID != id) error("Signature is not for this key.  %x != %x".format(id, keyID))
       nested
     }
-  def userIDs = new Traversable[String] {
-    def foreach[U](f: String => U) = {
-      val i = nested.getUserIDs
-      while(i.hasNext) f(i.next.toString)
-    }
+  def saveTo(output: OutputStream): Unit = {
+    val armoredOut = new ArmoredOutputStream(output)   
+    nested.encode(armoredOut)
+    armoredOut.close()
   }
   override lazy val toString = "PublicKey(%x, %s)".format(keyID, userIDs.mkString(","))
 }
@@ -239,7 +274,7 @@ object PublicKey {
 }
 
 /** A wrapper to simplify working with tyhe Java PGP API. */
-class PublicKeyRing(val nested: PGPPublicKeyRing) extends PublicKeyLike {
+class PublicKeyRing(val nested: PGPPublicKeyRing) extends PublicKeyLike with StreamingSaveable{
   /** Adds a key to this key ring and returns the new key ring. */
   def +:(key: PGPPublicKey): PublicKeyRing = 
     PublicKeyRing(PGPPublicKeyRing.insertPublicKey(nested, key))
@@ -265,20 +300,20 @@ class PublicKeyRing(val nested: PGPPublicKeyRing) extends PublicKeyLike {
     verifyMessageStreamHelper(input,output)(nested.getPublicKey)
   def verifySignatureStreams(msg: InputStream, signature: InputStream): Boolean = 
     verifySignatureStreamsHelper(msg,signature)(nested.getPublicKey)
-
-
-  /** Saves this key ring to a stream. */
-  def saveTo(output: OutputStream) = nested.encode(output)
+  def saveTo(output: OutputStream): Unit = {
+    val armoredOut = new ArmoredOutputStream(output)   
+    nested.encode(armoredOut)
+    armoredOut.close()
+  }
   override def toString = "PublicKeyRing("+publicKeys.mkString(",")+")"
 }
-object PublicKeyRing {
+object PublicKeyRing extends StreamingLoadable[PublicKeyRing] {
   implicit def unwrap(ring: PublicKeyRing): PGPPublicKeyRing = ring.nested
   def apply(nested: PGPPublicKeyRing) = new PublicKeyRing(nested)
   def load(input: InputStream) = apply(new PGPPublicKeyRing(PGPUtil.getDecoderStream(input)))
-  def loadFromFile(file: File) = load(new FileInputStream(file))
 }
 /** A wrapper to simplify working with tyhe Java PGP API. */
-class SecretKeyRing(val nested: PGPSecretKeyRing) {
+class SecretKeyRing(val nested: PGPSecretKeyRing) extends StreamingSaveable {
 
   def extraPublicKeys = new Traversable[PublicKey] {
     def foreach[U](f: PublicKey => U): Unit = {
@@ -300,13 +335,18 @@ class SecretKeyRing(val nested: PGPSecretKeyRing) {
   /** Returns the default secret key for this ring. */
   def secretKey = SecretKey(nested.getSecretKey)
 
+  def saveTo(output: OutputStream): Unit = {
+    val armoredOut = new ArmoredOutputStream(output)   
+    nested.encode(armoredOut)
+    armoredOut.close()
+  }
+
   override def toString = "SecretKeyRing(public="+publicKey+",secret="+secretKeys.mkString(",")+")"
 }
-object SecretKeyRing {
+object SecretKeyRing extends StreamingLoadable[SecretKeyRing] {
   implicit def unwrap(ring: SecretKeyRing) = ring.nested
   def apply(ring: PGPSecretKeyRing) = new SecretKeyRing(ring)
   def load(input: InputStream) = apply(new PGPSecretKeyRing(PGPUtil.getDecoderStream(input)))
-  def loadFromFile(file: File) = load(new FileInputStream(file))
 }
 
 object BouncyCastle {
