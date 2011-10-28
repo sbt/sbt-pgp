@@ -1,4 +1,4 @@
-package com.typesafe.pgp
+package com.jsuereth.pgp
 
 import org.bouncycastle._
 import java.io._

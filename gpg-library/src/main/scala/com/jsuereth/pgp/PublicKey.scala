@@ -1,4 +1,4 @@
-package com.typesafe.pgp
+package com.jsuereth.pgp
 
 import java.io._
 
@@ -9,6 +9,11 @@ import org.bouncycastle.openpgp._
 class PublicKey(val nested: PGPPublicKey) extends PublicKeyLike with StreamingSaveable {
   /** The identifier for this key. */
   def keyID = nested.getKeyID
+  
+  def bitStrength = nested.getBitStrength
+  def creationTime = nested.getCreationTime
+  def fingerprint = nested.getFingerprint
+  def isRevoked = nested.isRevoked
   /** Returns the userIDs associated with this public key. */
   def userIDs = new Traversable[String] {
     def foreach[U](f: String => U) = {
