@@ -1,4 +1,4 @@
-organization := "com.typesafe"
+organization := "com.jsuereth"
 
 version := "0.3-SNAPSHOT"
 
