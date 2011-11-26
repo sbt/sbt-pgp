@@ -1,6 +1,6 @@
-# GPG Plugin
+# PGP Plugin
 
-This plugin aims to provide GPG signing for XSBT (SBT 0.11+ versions).  The plugin currently uses the command line GPG process.  
+This plugin aims to provide PGP signing for XSBT (SBT 0.11+ versions).  The plugin currently uses the command line GPG process with the option to use the Bouncy Castle java security library for PGP. 
 
 
 ## Usage
@@ -12,10 +12,10 @@ If you already have GPG configured, simply add the following to your `~/.sbt/plu
     object PluginDef extends Build {
       override def projects = Seq(root)
       lazy val root = Project("plugins", file(".")) dependsOn(gpg)
-      lazy val gpg = uri("git://github.com/jsuereth/xsbt-gpg-plugin.git#0.2")
+      lazy val gpg = uri("git://github.com/jsuereth/xsbt-gpg-plugin.git#0.3")
     }
 
-The plugin should wire into all your projects and sign files before they are deployed.   
+The plugin should wire into all your projects and sign files before they are deployed.
 
 ### GPG
 

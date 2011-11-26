@@ -1,6 +1,6 @@
 organization := "com.jsuereth"
 
-version := "0.3-SNAPSHOT"
+version := "0.3"
 
 libraryDependencies += "org.bouncycastle" % "bcpg-jdk16" % "1.46"
 
@@ -10,3 +10,5 @@ publishTo <<= (version) { v =>
 }
 
 publishMavenStyle := false
+
+publishTo := Some(Resolver.url("sbt-plugin-releases", new URL("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns))

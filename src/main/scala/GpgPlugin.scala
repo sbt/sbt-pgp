@@ -65,7 +65,7 @@ object GpgPlugin extends Plugin {
   private[this] val gpgExtension = ".asc"
   
   override val settings = Seq(
-    TaskKey[Boolean]("skip") in gpgRunner := false,
+    skip in gpgRunner := false,
     gpgCommand := (if(isWindows) "gpg.exe" else "gpg"),
     gpgPassphrase := None,
     gpgPublicRing := file(System.getProperty("user.home")) / ".gnupg" / "pubring.gpg",
@@ -85,7 +85,7 @@ object GpgPlugin extends Plugin {
       (optPass map (p => new BouncyCastleGpgSigner(secring, p))
        getOrElse new CommandLineGpgSigner(command))
     },
-    packagedArtifacts <<= (packagedArtifacts, gpgRunner, TaskKey[Boolean]("skip") in gpgRunner, streams) map {
+    packagedArtifacts <<= (packagedArtifacts, gpgRunner, skip in gpgRunner, streams) map {
       (artifacts, r, skipZ, s) =>
         if (!skipZ) {
           artifacts flatMap {
