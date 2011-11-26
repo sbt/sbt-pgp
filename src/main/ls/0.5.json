@@ -1,0 +1,15 @@
+
+{
+ "organization":"com.jsuereth",
+ "name":"xsbt-gpg-plugin",
+ "version":"0.5",
+ "description":"xsbt-gpg-plugin",
+ "site":"",
+ "tags":[],
+ "docs":"",
+ "licenses": [],
+ "resolvers": ["http://scala-tools.org/repo-releases"],
+ "dependencies": [],
+ "scalas": ["2.9.1"],
+ "sbt": true
+}
