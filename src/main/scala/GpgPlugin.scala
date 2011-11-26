@@ -19,7 +19,7 @@ class CommandLineGpgSigner(command: String) extends PgpSigner {
   def sign(file: File, signatureFile: File): File = {
       if (signatureFile.exists) IO.delete(signatureFile)
        // --output = sig file
-       Process(command, Seq("--detach-sign", "--output", signatureFile.getAbsolutePath, file.getAbsolutePath)).!
+       Process(command, Seq("--detach-sign", "--armor", "--output", signatureFile.getAbsolutePath, file.getAbsolutePath)).!
        signatureFile 
   }
   def generateKey(pubKey: File, secKey: File, identity: String, s: TaskStreams): Unit = 
