@@ -1,6 +1,6 @@
 organization := "com.jsuereth"
 
-version := "0.3"
+version := "0.4"
 
 libraryDependencies += "org.bouncycastle" % "bcpg-jdk16" % "1.46"
 
