@@ -1,0 +1,4 @@
+pygments: true
+name: SBT PGP plugin
+description: An SBT plugin that enables PGP signatures.
+url: http://scala-sbt.org/xsbt-gpg-plugin/
