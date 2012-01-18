@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>PGP plugin Usage - </title>
+   <meta name="author" content="Josh Suereth" />
+
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="css/bootstrap.css" type="text/css" />
+   <link rel="stylesheet" href="css/syntax.css" type="text/css" />
+   <link rel="stylesheet" href="css/colors.css" type="text/css" />
+   <link rel="stylesheet" href="css/custom.css" type="text/css" />
+
+</head>
+<body>
+
+
+    <!-- Topbar
+    ================================================== -->
+    <div class="topbar" >
+      <div class="topbar-inner">
+        <div class="container">
+          <a class="brand" href="index.html">SBT PGP plugin</a>
+          <ul class="nav">
+           <li><a target="_blank" href="latest/api/index.html">Plugin Scaladoc</a></li>
+           <li><a target="_blank" href="library/latest/api/index.html">Library Scaladoc</a></li>
+           <li><a href="usage.html">Usage</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+
+<div class="row">
+  <div class="span2 columns"><p>&nbsp;</p></div>
+  <div class="span10 columns content">
+    <p>By default, the <code>xsbt-gpg-plugin</code> will use the <code>gpg</code> command line utility. GPG is the GNU project&#8217;s PGP implementation. It provides great support and is available on many platforms. The <code>xsbt-gpg-plugin</code> also supports <a href='http://www.bouncycastle.org/'>Bouncy Castle</a> a pure Java implementation of PGP.</p>
+
+<h1 id='creating_a_key_pair'>Creating a key pair</h1>
+
+<p>To use the GPG comand line tool. Simply run the command:</p>
+
+<pre><code>gpg --gen-key</code></pre>
+
+<p>To create a key pair using the SBT plugin (and Bouncy Castle), you must first configure SBT so it knows your secret passphrase. Place your passphrase configuration into your <code>~/.sbt/gpg.sbt</code> file</p>
+
+<pre><code>gpgPassphrase := Some(Array(&#39;t&#39;,&#39;e&#39;,&#39;s&#39;,&#39;t&#39;))</code></pre>
+
+<p>or you can temporarily enter your password using SBT&#8217;s <code>set</code> command:</p>
+
+<pre><code>set gpgPassphrase := Some(Array(&#39;t&#39;,&#39;e&#39;,&#39;s&#39;,&#39;t&#39;))</code></pre>
+
+<p><em>Note: While some may want the feature to create a key without a passphrase, this plugin will not support that. The purpose of this plugin is to promote security and authentication. If you&#8217;re not using a passphrase on you&#8217;re key, you&#8217;re not helping.</em></p>
+
+<p>Next, start sbt (if not already started). In the prompt, enter the following:</p>
+
+<pre><code>&gt; gpg-gen-key your@email.com Your Name Here</code></pre>
+
+<p>This will create a new public/secret key pair for you using the configured passphrase in the default location (<code>~/.sbt/gpg</code>). If you already have a key in place, this will warn you and not generate a new key.</p>
+
+<p><em>Note: If you have a GPG key pair (the <code>~/.gnupg/pubring.gpg</code> and <code>~/.gnupg/secring.gpg</code> files exist), then the GPG plugin will assume you want these and prevent you from generating a new key. You can override this by configuring your own key locations.</em></p>
+
+<h2 id='configuring_keypair_locations'>Configuring key-pair locations</h2>
+
+<p>If you&#8217;d like to use a key that isn&#8217;t in the standard location, you can configure it in your <code>~/.sbt/gpg.sbt</code> file:</p>
+
+<pre><code>gpgSecretRing := file(&quot;/tmp/secring.asc&quot;)
+
+gpgPublicRing := file(&quot;/tmp/pubring.asc&quot;)</code></pre>
+
+<h2 id='configuring_for_using_gpg'>Configuring for using GPG</h2>
+
+<p>The gpg plugin needs to know where the <code>gpg</code> executable is to run. On linux/mac it will look for a <code>gpg</code> executable on the path and in windows it will look for a <code>gpg.exe</code> executable on the path. To configure a different location, place the following in your <code>~/.sbt/gpg.sbt</code> file:</p>
+
+<pre><code>gpgCommand := &quot;/path/to/gpg&quot;</code></pre>
+
+<p>By default, the gpg plugin will use the default private keys from the standard gpg keyrings. If you&#8217;d like to use a different private key for signing artifacts, add the following to your <code>~/.sbt/gpg.sbt</code> file:</p>
+
+<pre><code>gpgSecretRing := file(&quot;/path/to/my/secring.gpg&quot;)</code></pre>
+
+<p>There is currently no way to choose a non-default key from the keyring.</p>
+
+<h2 id='avoiding_the_password_fiasco'>Avoiding the password fiasco</h2>
+
+<p>The gpg plugin assumes the use of the <code>gpg-agent</code> daemon for entering the pasphrase. Consult your OSes documentation on using the gpg-agent. If you do not want to install the gpg-agent, you can configure your passphrase in your <code>~/.sbt/gpg.sbt</code> file:</p>
+
+<pre><code>gpgPassphrase := Some(Array(&#39;M&#39;, &#39;y&#39;, &#39;P&#39;, &#39;a&#39;, &#39;s&#39;, &#39;s&#39;, &#39;p&#39;, &#39;h&#39;, &#39;r&#39;, &#39;a&#39;, &#39;s&#39;, &#39;e&#39;))</code></pre>
+
+<p><em>Note: The passphrase <em>must</em> be an array of characters. It&#8217;s midly more secure. We hope to provide even more secure ways of storing passphrases in the future.</em></p>
+
+<p>If the passphrase is configured for the gpg plugin, then it will use the Bouncy Castle java library rather than the <code>gpg</code> command line tool.</p>   
+  </div>
+  <div class="span6 columns blogroll">
+    <!-- TODO - links here -->
+  </div>
+</div>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try{
+var pageTracker = _gat._getTracker("UA-5651872-1");
+pageTracker._trackPageview();
+} catch(err) {}
+</script>
+</body>
+</html>
+
