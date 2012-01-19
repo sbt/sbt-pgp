@@ -17,29 +17,6 @@ If you already have GPG configured, simply add the following to your `~/.sbt/plu
 
 The plugin should wire into all your projects and sign files before they are deployed.
 
-### GPG
+No other configuration should be necessary if you have a `gpg` generated key available.
 
-If you have GPG installed in a non standard location, you can configure it by adding the following to your `~/.sbt/gpg.sbt` file:
-
-    gpgCommand := "/path/to/gpg"
-
-You can configure an alternative keyring using the gpgSecretRing setting:
-
-    gpgSecretRing := file("/path/to/my/secring.gpg")
-
-
-### Bouncy Castle
-
-If you do not have GPG installed and configured and would like to use bouncy castle for encryption, simply configure the plugin as above and add the following to your `~/.sbt/gpg.sbt` file:
-
-    gpgPassphrase := Some(Array('t','e','s','t'))
-
-The passphrase *must* be an array of characters and should be unique to yourself.   The plugin will choke on an empty passphrase, and it's a poor idea to sign artifacts using a key with no passphrase, so don't do it.
-
-After the passphrase is configured, generate a PGP key in sbt by running the following task:
-
-    > gpg-gen-key your@email.com Your Name Here
-
-This will construct a new key with the identity of "Your Name <your@email.com>".  The public key is placed into the `~/.sbt/gpg/pubring.asc` file by default.   It's a good idea to get this key certified by a trusted agency of your users.
-
-No other configuration is necessary to begin signing artifacts.   This should happen automatically when deploying.
+Please see the [documentation](http://scala-sbt.org/xsbt-gpg-plugin) for more information on usage.

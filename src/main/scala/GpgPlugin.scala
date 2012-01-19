@@ -15,11 +15,11 @@ trait PgpSigner {
 }
 
 /** A GpgSigner that uses the command-line to run gpg. */
-class CommandLineGpgSigner(command: String) extends PgpSigner {
+class CommandLineGpgSigner(command: String, agent: Boolean) extends PgpSigner {
   def sign(file: File, signatureFile: File): File = {
       if (signatureFile.exists) IO.delete(signatureFile)
-       // --output = sig file
-       Process(command, Seq("--detach-sign", "--armor", "--output", signatureFile.getAbsolutePath, file.getAbsolutePath)).!
+      val args = Seq("--detach-sign", "--armor") ++ (if(agent) Seq("-use-agent") else Seq.empty)
+       Process(command, args ++ Seq("--output", signatureFile.getAbsolutePath, file.getAbsolutePath)).!
        signatureFile 
   }
   def generateKey(pubKey: File, secKey: File, identity: String, s: TaskStreams): Unit = 
@@ -28,7 +28,7 @@ class CommandLineGpgSigner(command: String) extends PgpSigner {
   override def toString = "GPG-Command-line-Runner"
 }
 /** A GpgSigner that uses bouncy castle. */
-class BouncyCastleGpgSigner(secretKeyRingFile: File, passPhrase: Array[Char]) extends PgpSigner {
+class BouncyCastlePgpSigner(secretKeyRingFile: File, passPhrase: Array[Char]) extends PgpSigner {
   lazy val secring = PGP.loadSecretKeyRing(secretKeyRingFile)
   def sign(file: File, signatureFile: File): File = {
     if (signatureFile.exists) IO.delete(signatureFile)
@@ -54,6 +54,8 @@ object GpgPlugin extends Plugin {
   val gpgPublicRing = SettingKey[File]("gpg-public-ring", "The location of the secret key ring.  Only needed if using bouncy castle.")
   val gpgPassphrase = SettingKey[Option[Array[Char]]]("gpg-passphrase", "The passphrase associated with the secret used to sign artifacts.")
   val gpgGenKey = InputKey[Unit]("gpg-gen-key", "Creates a new PGP key using bouncy castle.   Must provide <name> <email>.  The passphrase setting must be set for this to work.")
+  val useGpg = SettingKey[Boolean]("use-gpg", "If this is set to true, the GPG command line will be used.")
+  val useGpgAgent = SettingKey[Boolean]("use-gpg-agent", "If this is set to true, the GPG command line will expect a GPG agent for the password.")
 
   // TODO - home dir, use-agent, 
   // TODO - --batch and pasphrase and read encrypted passphrase...
@@ -66,6 +68,8 @@ object GpgPlugin extends Plugin {
   
   override val settings = Seq(
     skip in gpgRunner := false,
+    useGpg := false,
+    useGpgAgent := false,
     gpgCommand := (if(isWindows) "gpg.exe" else "gpg"),
     gpgPassphrase := None,
     gpgPublicRing := file(System.getProperty("user.home")) / ".gnupg" / "pubring.gpg",
@@ -80,10 +84,13 @@ object GpgPlugin extends Plugin {
       case _ => file(System.getProperty("user.home")) / ".sbt" / "gpg" / "secring.asc"
     },
     // TODO - Select the runner based on the existence of the gpg/gpg.exe command rather than the configuring of a passPhrase.
-    gpgRunner <<= (gpgSecretRing, gpgPassphrase, gpgCommand) map { (secring, optPass, command) =>
+    gpgRunner <<= (gpgSecretRing, gpgPassphrase, gpgCommand, useGpg, useGpgAgent) map { (secring, optPass, command, b, agent) =>
       // TODO - Catch errors and report issues.
-      (optPass map (p => new BouncyCastleGpgSigner(secring, p))
-       getOrElse new CommandLineGpgSigner(command))
+      if(b) new CommandLineGpgSigner(command, agent)
+      else {
+        val p = optPass getOrElse readPassphrase()
+        new BouncyCastlePgpSigner(secring, p)
+      }
     },
     packagedArtifacts <<= (packagedArtifacts, gpgRunner, skip in gpgRunner, streams) map {
       (artifacts, r, skipZ, s) =>
@@ -97,6 +104,13 @@ object GpgPlugin extends Plugin {
     },
     gpgGenKey <<= InputTask(keyGenParser)(keyGenTask)
   )
+
+  /* Reads the passphrase from the console. */
+  private[this] def readPassphrase(): Array[Char] = System.out.synchronized {
+    (SimpleReader.readLine("Please enter your PGP passphrase> ", Some('*')) getOrElse error("No password provided.")).toCharArray
+  }
+  
+
   private[this] def keyGenParser: State => Parser[(String,String)] = {
       (state: State) =>
         val Email: Parser[String] =  (NotSpace ~ '@' ~ NotSpace ~ '.' ~ NotSpace) map { 
