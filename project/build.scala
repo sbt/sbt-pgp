@@ -9,7 +9,7 @@ import com.jsuereth.git.GitPlugin.git
 object GpgBuild extends Build {
   val defaultSettings: Seq[Setting[_]] = Seq(
     organization := "com.jsuereth",
-    version := "0.5",
+    version := "0.6",
     publishTo <<= (version) { v =>
       import Classpaths._
       Option(if(v endsWith "SNAPSHOT") typesafeSnapshots else typesafeResolver)
