@@ -44,41 +44,11 @@
 
 <p>If you already have GPG configured, simply add the following to your <code>~/.sbt/plugins/project/build.scala</code> file:</p>
 
-<pre><code>import sbt._
+<pre><code>resolvers += Resolver.url(&quot;sbt-plugin-releases&quot;, new URL(&quot;http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/&quot;))(Resolver.ivyStylePatterns)
 
-object PluginDef extends Build {
-  override def projects = Seq(root)
-  lazy val root = Project(&quot;plugins&quot;, file(&quot;.&quot;)) dependsOn(gpg)
-  lazy val gpg = uri(&quot;git://github.com/sbt/xsbt-gpg-plugin.git#0.4&quot;)
-}</code></pre>
+addSbtPlugin(&quot;com.jsuereth&quot; % &quot;xsbt-gpg-plugin&quot; % &quot;0.5&quot;)</code></pre>
 
-<p>The plugin should wire into all your projects and sign files before they are deployed.</p>
-
-<h3 id='gpg'>GPG</h3>
-
-<p>If you have GPG installed in a non standard location, you can configure it by adding the following to your <code>~/.sbt/gpg.sbt</code> file:</p>
-
-<pre><code>gpgCommand := &quot;/path/to/gpg&quot;</code></pre>
-
-<p>You can configure an alternative keyring using the gpgSecretRing setting:</p>
-
-<pre><code>gpgSecretRing := file(&quot;/path/to/my/secring.gpg&quot;)</code></pre>
-
-<h3 id='bouncy_castle'>Bouncy Castle</h3>
-
-<p>If you do not have GPG installed and configured and would like to use bouncy castle for encryption, simply configure the plugin as above and add the following to your <code>~/.sbt/gpg.sbt</code> file:</p>
-
-<pre><code>gpgPassphrase := Some(Array(&#39;t&#39;,&#39;e&#39;,&#39;s&#39;,&#39;t&#39;))</code></pre>
-
-<p>The passphrase <em>must</em> be an array of characters and should be unique to yourself. The plugin will choke on an empty passphrase, and it&#8217;s a poor idea to sign artifacts using a key with no passphrase, so don&#8217;t do it.</p>
-
-<p>After the passphrase is configured, generate a PGP key in sbt by running the following task:</p>
-
-<pre><code>&gt; gpg-gen-key your@email.com Your Name Here</code></pre>
-
-<p>This will construct a new key with the identity of <code>&quot;Your Name &lt;your@email.com&gt;&quot;</code>. The public key is placed into the <code>~/.sbt/gpg/pubring.asc</code> file by default. It&#8217;s a good idea to get this key certified by a trusted agency of your users.</p>
-
-<p>No other configuration is necessary to begin signing artifacts. This should happen automatically when deploying.</p>   
+<p>The plugin should wire into all your projects and sign files before they are deployed. See <a href='usage.html'>Usage</a> for more information.</p>   
   </div>
   <div class="span6 columns blogroll">
     <!-- TODO - links here -->
