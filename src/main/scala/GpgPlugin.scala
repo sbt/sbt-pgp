@@ -6,46 +6,6 @@ import sbt.Project.Initialize
 import complete.Parser
 import complete.DefaultParsers._
 
-// TODO - Rename everything to PGP not GPG.
-
-/** The interface used to sign plugins. */
-trait PgpSigner {
-  def sign(file: File, signatureFile: File): File
-  def generateKey(pubKey: File, secKey: File, identity: String, s: TaskStreams): Unit
-}
-
-/** A GpgSigner that uses the command-line to run gpg. */
-class CommandLineGpgSigner(command: String, agent: Boolean) extends PgpSigner {
-  def sign(file: File, signatureFile: File): File = {
-      if (signatureFile.exists) IO.delete(signatureFile)
-      val args = Seq("--detach-sign", "--armor") ++ (if(agent) Seq("-use-agent") else Seq.empty)
-       Process(command, args ++ Seq("--output", signatureFile.getAbsolutePath, file.getAbsolutePath)).!
-       signatureFile 
-  }
-  def generateKey(pubKey: File, secKey: File, identity: String, s: TaskStreams): Unit = 
-    Process(command, Seq("--gen-key")) !
-
-  override def toString = "GPG-Command-line-Runner"
-}
-/** A GpgSigner that uses bouncy castle. */
-class BouncyCastlePgpSigner(secretKeyRingFile: File, passPhrase: Array[Char]) extends PgpSigner {
-  lazy val secring = PGP.loadSecretKeyRing(secretKeyRingFile)
-  def sign(file: File, signatureFile: File): File = {
-    if (signatureFile.exists) IO.delete(signatureFile)
-    if (!signatureFile.getParentFile.exists) IO.createDirectory(signatureFile.getParentFile)
-    secring.secretKey.sign(file, signatureFile, passPhrase)
-  }
-  def generateKey(pubKey: File, secKey: File, identity: String, s: TaskStreams): Unit = {
-    if(!pubKey.getParentFile.exists) IO.createDirectory(pubKey.getParentFile)
-    if(!secKey.getParentFile.exists) IO.createDirectory(secKey.getParentFile)
-    s.log.info("Creating a new PGP key.   This could take a long time to gather enough random bits for entropy.")
-    PGP.makeKeys(identity, passPhrase, pubKey, secKey)
-    s.log.info("Public key := " + pubKey.getAbsolutePath)
-    s.log.info("Secret key := " + secKey.getAbsolutePath)
-    s.log.info("Please do not share your secret key.   Your public key is free to share.")
-  }
-  override def toString = "BC-Signer(" + secring + ")"
-}
 
 object GpgPlugin extends Plugin {
   val gpgCommand = SettingKey[String]("gpg-command", "The path of the GPG command to run")
@@ -56,6 +16,9 @@ object GpgPlugin extends Plugin {
   val gpgGenKey = InputKey[Unit]("gpg-gen-key", "Creates a new PGP key using bouncy castle.   Must provide <name> <email>.  The passphrase setting must be set for this to work.")
   val useGpg = SettingKey[Boolean]("use-gpg", "If this is set to true, the GPG command line will be used.")
   val useGpgAgent = SettingKey[Boolean]("use-gpg-agent", "If this is set to true, the GPG command line will expect a GPG agent for the password.")
+  val signaturesModule = TaskKey[GetSignaturesModule]("signatures-module")
+	val updateSignatures = TaskKey[UpdateReport]("update-signatures", "Resolves and optionally retrieves signatures for artifacts, transitively.")
+	val checkSignatures = TaskKey[Unit]("check-signatures", "Checks the signatures of artifacts to see if they are trusted.")
 
   // TODO - home dir, use-agent, 
   // TODO - --batch and pasphrase and read encrypted passphrase...
@@ -98,12 +61,47 @@ object GpgPlugin extends Plugin {
           artifacts flatMap {
             case (art, file) =>
               Seq(art                                                -> file, 
-                  art.copy(extension = art.extension + gpgExtension) -> r.sign(file, new File(file.getAbsolutePath + gpgExtension)))
+                  art.copy(extension = art.extension + gpgExtension) -> r.sign(file, new File(file.getAbsolutePath + gpgExtension), s))
           }
         } else artifacts
     },
-    gpgGenKey <<= InputTask(keyGenParser)(keyGenTask)
+    gpgGenKey <<= InputTask(keyGenParser)(keyGenTask),
+    signaturesModule in updateClassifiers <<= (projectID, sbtDependency, loadedBuild, thisProjectRef) map { ( pid, sbtDep, lb, ref) =>
+			val pluginIDs: Seq[ModuleID] = lb.units(ref.build).unit.plugins.fullClasspath.flatMap(_ get moduleID.key)
+			GetSignaturesModule(pid, sbtDep +: pluginIDs, Configurations.Default :: Nil)
+		},
+    updateSignatures <<= (ivySbt, 
+                           signaturesModule in updateClassifiers, 
+                           updateConfiguration, 
+                           ivyScala, 
+                           target in LocalRootProject, 
+                           appConfiguration, 
+                           streams) map { (is, mod, c, ivyScala, out, app, s) =>
+				updateSignaturesTask(is, GetSignaturesConfiguration(mod, c, ivyScala), s.log)
+		},
+    checkSignatures <<= (updateSignatures, streams) map checkSignaturesTask
   )
+
+
+  private[this] def checkSignaturesTask(update: UpdateReport, s: TaskStreams): Unit = {
+    checkArtifactsWithSignatures(update,s)
+    warnMissingSignatures(update,s)
+  }
+  private def warnMissingSignatures(update: UpdateReport, s: TaskStreams): Unit = 
+    for {
+      config <- update.configurations
+      module <- config.modules
+      artifact <- module.missingArtifacts
+      if artifact.extension endsWith gpgExtension
+    } s.log.warn("Missing signature for  %s" format (module.module))
+
+  private def checkArtifactsWithSignatures(update: UpdateReport, s: TaskStreams): Unit =
+    for {
+      config <- update.configurations
+      module <- config.modules
+      (artifact, file) <- module.artifacts
+      if file.getName endsWith gpgExtension
+    } println("Checking signature file: " + file.getAbsolutePath)
 
   /* Reads the passphrase from the console. */
   private[this] def readPassphrase(): Array[Char] = System.out.synchronized {
@@ -129,6 +127,32 @@ object GpgPlugin extends Plugin {
       runner.generateKey(pub, sec, identity, s)
     }
   }
+
+  private[this] def updateSignaturesTask(ivySbt: IvySbt, config: GetSignaturesConfiguration, log: Logger): UpdateReport = {
+    def restrictedCopy(m: ModuleID, confs: Boolean) =
+      ModuleID(m.organization, m.name, m.revision, crossVersion = m.crossVersion, extraAttributes = m.extraAttributes, configurations = if(confs) m.configurations else None)
+    def signatureArtifacts(m: ModuleID): Option[ModuleID] = {
+      // TODO - Some kind of filtering
+      // TODO - We *can't* assume everything is a jar
+      Some(m.copy(explicitArtifacts = Seq(Artifact(m.name, "jar", "jar"+gpgExtension))))
+    }
+    import config.{configuration => c, module => mod, _}
+    import mod.{configurations => confs, _}
+    val baseModules = modules map { m => restrictedCopy(m, true) }
+    val deps = baseModules.distinct flatMap signatureArtifacts
+    val base = restrictedCopy(id, true)
+    val module = new ivySbt.Module(InlineConfiguration(base, ModuleInfo(base.name), deps).copy(ivyScala = ivyScala, configurations = confs))
+    val upConf = new UpdateConfiguration(c.retrieve, true, c.logging)
+		IvyActions.update(module, upConf, log)
+	}
+
+
+
   // Helper to figure out how to run GPG signing...
   def isWindows = System.getProperty("os.name").toLowerCase().indexOf("windows") != -1
 }
+
+final case class GetSignaturesModule(id: ModuleID, modules: Seq[ModuleID], configurations: Seq[Configuration])
+final case class GetSignaturesConfiguration(module: GetSignaturesModule, 
+                                            configuration: UpdateConfiguration, 
+                                            ivyScala: Option[IvyScala])
