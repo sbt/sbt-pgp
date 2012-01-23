@@ -1,5 +1,6 @@
 package com.jsuereth
 package pgp
+package sbtplugin
 
 import sbt._
 import Keys._

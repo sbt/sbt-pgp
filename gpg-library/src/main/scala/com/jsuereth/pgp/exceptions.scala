@@ -1,5 +1,6 @@
 package com.jsuereth.pgp
 
+/** Base class for exceptions thrown in PGP library. */
 trait PgpException extends Exception
 
 /** Exception thrown when a key is not found in the keystore. */

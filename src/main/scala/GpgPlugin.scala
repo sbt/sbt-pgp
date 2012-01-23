@@ -1,5 +1,7 @@
 package com.jsuereth
 package pgp
+package sbtplugin
+
 
 import sbt._
 import Keys._
@@ -7,8 +9,10 @@ import sbt.Project.Initialize
 import complete.Parser
 import complete.DefaultParsers._
 
-
-object GpgPlugin extends Plugin {
+/**
+ * Plugin for doing PGP security tasks.  Signing, verifying, etc.
+ */
+object PgpPlugin extends Plugin {
   val gpgCommand = SettingKey[String]("gpg-command", "The path of the GPG command to run")
   val gpgRunner = TaskKey[PgpSigner]("gpg-runner", "The helper class to run GPG commands.")  
   val gpgVerifier = TaskKey[PgpVerifier]("gpg-verifier", "The helper class to verify public keys from a public key ring.")  
@@ -107,8 +111,4 @@ object GpgPlugin extends Plugin {
       runner.generateKey(pub, sec, identity, s)
     }
   }
-
-
-  // Helper to figure out how to run GPG signing...
-  def isWindows = System.getProperty("os.name").toLowerCase().indexOf("windows") != -1
 }
