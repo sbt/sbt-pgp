@@ -73,3 +73,36 @@ Also make sure that the above setting is in a user-specific directory and that y
 IF you are using the GPG command line tool, then the plugin supports the use of the `gpg-agent`.   You can enable its usage with the following setting:
 
     useGpgAgent := true
+
+## Validating PGP Keys ##
+
+The plugin can be used to validate the PGP signatures of the dependencies of the project you're using.   To validate these signatures, simply use the `check-pgp-signatures` task:
+
+    > check-pgp-signatures
+    [info] Resolving org.scala-lang#scala-library;2.9.1 ...
+    ...
+    [info] ----- PGP Signature Results -----
+    [info]                    com.novocode : junit-interface :        0.7 : jar   [MISSING]
+    [info]               javax.transaction :             jta :     1.0.1B : jar   [MISSING]
+    [info]          org.scala-lang.plugins :   continuations :      2.9.1 : jar   [MISSING]
+    [info]                org.apache.derby :           derby : 10.5.3.0_1 : jar   [UNTRUSTED(0x98e21827)]
+    [error] {file:/home/josh/projects/typesafe/test-signing/}test-gpg/*:check-pgp-signatures: Some artifacts have bad signatures or are signed by untrusted sources!
+    [error] Total time: 2 s, completed Jan 23, 2012 12:03:28 PM
+    
+In the above otuput, the signature for derby is from an untrusted key (id: `0x98e21827`).  You can import this key into your public key ring, and then the plugin will trust artifacts from that key.   The public, by default, accepts any keys included in your public key ring file.
+
+
+## Configuring a public key ring ##
+
+You can configure the public key ring you use with the `gpgPublicRing` setting.
+
+    gpgPublicRing := file("/home/me/pgp/pubring.asc")
+
+*By default the `~/.gnupg/pubring.gpg` file is used, if it exists.*
+
+
+## Importing keys from public key servers ##
+
+Not yet implemented.
+
+
