@@ -1,4 +1,5 @@
-package com.jsuereth.pgp
+package com.jsuereth
+package pgp
 
 import sbt._
 import Keys._
@@ -16,8 +17,6 @@ trait PgpSigner {
    * @param s The TaskStreams logger to use.
    */
   def generateKey(pubKey: File, secKey: File, identity: String, s: TaskStreams): Unit
-
-  // def verifySignature(signatureFile: File): Boolean
 }
 
 /** A GpgSigner that uses the command-line to run gpg. */
@@ -35,12 +34,6 @@ class CommandLineGpgSigner(command: String, agent: Boolean) extends PgpSigner {
     Process(command, Seq("--gen-key")) ! s.log match {
       case 0 => ()
       case n => sys.error("Trouble running gpg --gen-key!")
-    }
-
-  def verifySignature(signature: File, s: TaskStreams): Boolean = 
-    Process(command, Seq("--verify", signature.getAbsolutePath)) ! s.log match {
-      case 0 => true
-      case n => false
     }
 
   override val toString = "GPG-Command(" + command + ")"

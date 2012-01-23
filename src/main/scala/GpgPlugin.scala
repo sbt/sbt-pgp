@@ -1,4 +1,5 @@
-package com.jsuereth.pgp
+package com.jsuereth
+package pgp
 
 import sbt._
 import Keys._
@@ -10,6 +11,7 @@ import complete.DefaultParsers._
 object GpgPlugin extends Plugin {
   val gpgCommand = SettingKey[String]("gpg-command", "The path of the GPG command to run")
   val gpgRunner = TaskKey[PgpSigner]("gpg-runner", "The helper class to run GPG commands.")  
+  val gpgVerifier = TaskKey[PgpVerifier]("gpg-verifier", "The helper class to verify public keys from a public key ring.")  
   val gpgSecretRing = SettingKey[File]("gpg-secret-ring", "The location of the secret key ring.  Only needed if using bouncy castle.")
   val gpgPublicRing = SettingKey[File]("gpg-public-ring", "The location of the secret key ring.  Only needed if using bouncy castle.")
   val gpgPassphrase = SettingKey[Option[Array[Char]]]("gpg-passphrase", "The passphrase associated with the secret used to sign artifacts.")
@@ -17,8 +19,8 @@ object GpgPlugin extends Plugin {
   val useGpg = SettingKey[Boolean]("use-gpg", "If this is set to true, the GPG command line will be used.")
   val useGpgAgent = SettingKey[Boolean]("use-gpg-agent", "If this is set to true, the GPG command line will expect a GPG agent for the password.")
   val signaturesModule = TaskKey[GetSignaturesModule]("signatures-module")
-	val updateSignatures = TaskKey[UpdateReport]("update-signatures", "Resolves and optionally retrieves signatures for artifacts, transitively.")
-	val checkSignatures = TaskKey[Unit]("check-signatures", "Checks the signatures of artifacts to see if they are trusted.")
+  val updatePgpSignatures = TaskKey[UpdateReport]("update-pgp-signatures", "Resolves and optionally retrieves signatures for artifacts, transitively.")
+  val checkPgpSignatures = TaskKey[Unit]("check-pgp-signatures", "Checks the signatures of artifacts to see if they are trusted.")
 
   // TODO - home dir, use-agent, 
   // TODO - --batch and pasphrase and read encrypted passphrase...
@@ -27,7 +29,6 @@ object GpgPlugin extends Plugin {
   // TODO --armor
   // TODO --no-tty
   // TODO  Signature extension
-  private[this] val gpgExtension = ".asc"
   
   override val settings = Seq(
     skip in gpgRunner := false,
@@ -46,14 +47,16 @@ object GpgPlugin extends Plugin {
       case f if f.exists => f
       case _ => file(System.getProperty("user.home")) / ".sbt" / "gpg" / "secring.asc"
     },
-    // TODO - Select the runner based on the existence of the gpg/gpg.exe command rather than the configuring of a passPhrase.
     gpgRunner <<= (gpgSecretRing, gpgPassphrase, gpgCommand, useGpg, useGpgAgent) map { (secring, optPass, command, b, agent) =>
-      // TODO - Catch errors and report issues.
       if(b) new CommandLineGpgSigner(command, agent)
       else {
         val p = optPass getOrElse readPassphrase()
         new BouncyCastlePgpSigner(secring, p)
       }
+    },
+    gpgVerifier <<= (gpgPublicRing, gpgCommand, useGpg) map { (pubring, command, b) =>
+      if(b) new CommandLineGpgVerifier(command)
+      else new BouncyCastlePgpVerifier(pubring)
     },
     packagedArtifacts <<= (packagedArtifacts, gpgRunner, skip in gpgRunner, streams) map {
       (artifacts, r, skipZ, s) =>
@@ -66,48 +69,25 @@ object GpgPlugin extends Plugin {
         } else artifacts
     },
     gpgGenKey <<= InputTask(keyGenParser)(keyGenTask),
-    signaturesModule in updateClassifiers <<= (projectID, sbtDependency, loadedBuild, thisProjectRef) map { ( pid, sbtDep, lb, ref) =>
+    // TODO - This is checking SBT and its plugins signatures..., maybe we can have this be a separate config or something.
+    /*signaturesModule in updateClassifiers <<= (projectID, sbtDependency, loadedBuild, thisProjectRef) map { ( pid, sbtDep, lb, ref) =>
 			val pluginIDs: Seq[ModuleID] = lb.units(ref.build).unit.plugins.fullClasspath.flatMap(_ get moduleID.key)
 			GetSignaturesModule(pid, sbtDep +: pluginIDs, Configurations.Default :: Nil)
-		},
-    updateSignatures <<= (ivySbt, 
-                           signaturesModule in updateClassifiers, 
-                           updateConfiguration, 
-                           ivyScala, 
-                           target in LocalRootProject, 
-                           appConfiguration, 
-                           streams) map { (is, mod, c, ivyScala, out, app, s) =>
-				updateSignaturesTask(is, GetSignaturesConfiguration(mod, c, ivyScala), s.log)
-		},
-    checkSignatures <<= (updateSignatures, streams) map checkSignaturesTask
+		},*/
+    signaturesModule in updatePgpSignatures <<= (projectID, libraryDependencies) map { ( pid, deps) =>
+      GetSignaturesModule(pid, deps, Configurations.Default :: Nil)
+    },
+    updatePgpSignatures <<= (ivySbt, 
+                          signaturesModule in updatePgpSignatures, 
+                          updateConfiguration, 
+                          ivyScala, 
+                          target in LocalRootProject, 
+                          appConfiguration, 
+                          streams) map { (is, mod, c, ivyScala, out, app, s) =>
+      PgpSignatureCheck.resolveSignatures(is, GetSignaturesConfiguration(mod, c, ivyScala), s.log)
+    },
+    checkPgpSignatures <<= (updatePgpSignatures, gpgVerifier, streams) map PgpSignatureCheck.checkSignaturesTask
   )
-
-
-  private[this] def checkSignaturesTask(update: UpdateReport, s: TaskStreams): Unit = {
-    checkArtifactsWithSignatures(update,s)
-    warnMissingSignatures(update,s)
-  }
-  private def warnMissingSignatures(update: UpdateReport, s: TaskStreams): Unit = 
-    for {
-      config <- update.configurations
-      module <- config.modules
-      artifact <- module.missingArtifacts
-      if artifact.extension endsWith gpgExtension
-    } s.log.warn("Missing signature for  %s" format (module.module))
-
-  private def checkArtifactsWithSignatures(update: UpdateReport, s: TaskStreams): Unit =
-    for {
-      config <- update.configurations
-      module <- config.modules
-      (artifact, file) <- module.artifacts
-      if file.getName endsWith gpgExtension
-    } println("Checking signature file: " + file.getAbsolutePath)
-
-  /* Reads the passphrase from the console. */
-  private[this] def readPassphrase(): Array[Char] = System.out.synchronized {
-    (SimpleReader.readLine("Please enter your PGP passphrase> ", Some('*')) getOrElse error("No password provided.")).toCharArray
-  }
-  
 
   private[this] def keyGenParser: State => Parser[(String,String)] = {
       (state: State) =>
@@ -128,31 +108,7 @@ object GpgPlugin extends Plugin {
     }
   }
 
-  private[this] def updateSignaturesTask(ivySbt: IvySbt, config: GetSignaturesConfiguration, log: Logger): UpdateReport = {
-    def restrictedCopy(m: ModuleID, confs: Boolean) =
-      ModuleID(m.organization, m.name, m.revision, crossVersion = m.crossVersion, extraAttributes = m.extraAttributes, configurations = if(confs) m.configurations else None)
-    def signatureArtifacts(m: ModuleID): Option[ModuleID] = {
-      // TODO - Some kind of filtering
-      // TODO - We *can't* assume everything is a jar
-      Some(m.copy(explicitArtifacts = Seq(Artifact(m.name, "jar", "jar"+gpgExtension))))
-    }
-    import config.{configuration => c, module => mod, _}
-    import mod.{configurations => confs, _}
-    val baseModules = modules map { m => restrictedCopy(m, true) }
-    val deps = baseModules.distinct flatMap signatureArtifacts
-    val base = restrictedCopy(id, true)
-    val module = new ivySbt.Module(InlineConfiguration(base, ModuleInfo(base.name), deps).copy(ivyScala = ivyScala, configurations = confs))
-    val upConf = new UpdateConfiguration(c.retrieve, true, c.logging)
-		IvyActions.update(module, upConf, log)
-	}
-
-
 
   // Helper to figure out how to run GPG signing...
   def isWindows = System.getProperty("os.name").toLowerCase().indexOf("windows") != -1
 }
-
-final case class GetSignaturesModule(id: ModuleID, modules: Seq[ModuleID], configurations: Seq[Configuration])
-final case class GetSignaturesConfiguration(module: GetSignaturesModule, 
-                                            configuration: UpdateConfiguration, 
-                                            ivyScala: Option[IvyScala])
