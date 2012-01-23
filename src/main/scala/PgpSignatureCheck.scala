@@ -19,14 +19,20 @@ object SignatureCheckResult {
   /** The dependency has no PGP signature. */
   case object MISSING extends SignatureCheckResult
   /** The dependency is ok, but we don't trust the signer. */
-  case object UNTRUSTED extends SignatureCheckResult
+  case class UNTRUSTED(key: Long) extends SignatureCheckResult {
+    // TODO - Is the key really an integer value for output?  GPG only expects 8-character hex...
+    override def toString = "UNTRUSTED(0x%x)" format (key.toInt)
+  }
   /** The signature is all-out bad. */
   case object BAD extends SignatureCheckResult
 }
 
+
 case class SignatureCheck(module: ModuleID, artifact: Artifact, result: SignatureCheckResult) {
   override def toString = "%s:%s:%s:%s [%s]" format (module.organization, module.name, module.revision, artifact.`type`, result.toString)
 }
+
+case class SignatureCheckReport(results: Seq[SignatureCheck])
 
 object PgpSignatureCheck {
   /** Downloads PGP signatures so we can test them. */
@@ -46,7 +52,7 @@ object PgpSignatureCheck {
     import config.{configuration => c, module => mod, _}
     import mod.{configurations => confs, _}
 
-    val baseModules = modules map { m => restrictedCopy(m, true) }
+    val baseModules = modules map { m => restrictedCopy(m, false) }
     val deps = baseModules.distinct flatMap signatureArtifacts
     val base = restrictedCopy(id, true)
     val module = new ivySbt.Module(InlineConfiguration(base, ModuleInfo(base.name), deps).copy(ivyScala = ivyScala, configurations = confs))
@@ -54,13 +60,27 @@ object PgpSignatureCheck {
 		IvyActions.update(module, upConf, log)
   }
 
-  def checkSignaturesTask(update: UpdateReport, pgp: PgpVerifier, s: TaskStreams): Unit = {
-    val results = checkArtifactSignatures(update, pgp, s) ++ missingSignatures(update,s)
-
-     def prettify(m: ModuleID, a: Artifact) = "%s:%s:%s:%s" format (m.organization, m.name, m.revision, a.`type`)
+  def checkSignaturesTask(update: UpdateReport, pgp: PgpVerifier, s: TaskStreams): SignatureCheckReport = {
+    val report = SignatureCheckReport(checkArtifactSignatures(update, pgp, s) ++ missingSignatures(update,s))
+    // TODO - Print results in differnt taks, or provide a report as well.
     // TODO - Allow different log levels
     // TODO - Does sort-with for pretty print make any sense?
+    prettyPrintSingatureReport(report, s)
+    if(report.results exists (x => x.result != SignatureCheckResult.OK && x.result != SignatureCheckResult.MISSING))
+      sys.error("Some artifacts have bad signatures or are signed by untrusted sources!")
+    
+    report
+  }
+  
+  def prettyPrintSingatureReport(report: SignatureCheckReport, s: TaskStreams): Unit = {
+    import report._
     s.log.info("----- PGP Signature Results -----")
+    val maxOrgWidth = (results.view map { case SignatureCheck(m, _, _) => m.organization.size } max)
+    val maxNameWidth = (results.view map { case SignatureCheck(m, _, _) => m.name.size } max)
+    val maxVersionWidth = (results.view map { case SignatureCheck(m, _, _) => m.revision.size } max)
+    val maxTypeWidth = (results.view map { case SignatureCheck(_, a, _) => a.`type`.size } max)
+    val formatString = "  %"+maxOrgWidth+"s : %"+maxNameWidth+"s : %"+maxVersionWidth+"s : %"+maxTypeWidth+"s   [%s]"
+    def prettify(s: SignatureCheck) = formatString format (s.module.organization, s.module.name, s.module.revision, s.artifact.`type`, s.result)
     results sortWith {
       case (a, b) if a.result == b.result                         => a.toString < b.toString
       case (SignatureCheck(_,_, SignatureCheckResult.OK), _)      => true
@@ -68,15 +88,9 @@ object PgpSignatureCheck {
       case (SignatureCheck(_,_, SignatureCheckResult.MISSING), _) => true
       case (_, SignatureCheck(_,_, SignatureCheckResult.MISSING)) => false
       case (a,b)                                                  => a.toString < b.toString
-    } foreach {
-      case SignatureCheck(m, a, SignatureCheckResult.OK)      => s.log.info("Signature for " + prettify(m,a)  + " [OK]")
-      case SignatureCheck(m, a, SignatureCheckResult.MISSING) => s.log.warn("Signature for " + prettify(m,a)  + " [MISSING]")
-      case SignatureCheck(m, a, _)                            => s.log.error("Signature for " + prettify(m,a) + " [BAD/UNTRUSTED]")
-    }
-    if(results exists (x => x.result == SignatureCheckResult.BAD || x.result == SignatureCheckResult.UNTRUSTED))
-      sys.error("Some artifacts have bad signatures or are signed by untrusted sources!")
-    ()
+    } foreach { x => s.log.info(prettify(x)) }
   }
+  
   private def missingSignatures(update: UpdateReport, s: TaskStreams): Seq[SignatureCheck] = 
     for {
       config <- update.configurations
@@ -94,8 +108,7 @@ object PgpSignatureCheck {
     } yield SignatureCheck(module.module, artifact, checkArtifactSignature(file, pgp, s))
 
   private def checkArtifactSignature(signatureFile: File, pgp: PgpVerifier, s: TaskStreams): SignatureCheckResult = 
-    if(pgp.verifySignature(signatureFile, s)) SignatureCheckResult.OK
-    else SignatureCheckResult.BAD
+    pgp.verifySignature(signatureFile, s)
 }
 
 

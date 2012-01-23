@@ -20,7 +20,7 @@ object GpgPlugin extends Plugin {
   val useGpgAgent = SettingKey[Boolean]("use-gpg-agent", "If this is set to true, the GPG command line will expect a GPG agent for the password.")
   val signaturesModule = TaskKey[GetSignaturesModule]("signatures-module")
   val updatePgpSignatures = TaskKey[UpdateReport]("update-pgp-signatures", "Resolves and optionally retrieves signatures for artifacts, transitively.")
-  val checkPgpSignatures = TaskKey[Unit]("check-pgp-signatures", "Checks the signatures of artifacts to see if they are trusted.")
+  val checkPgpSignatures = TaskKey[SignatureCheckReport]("check-pgp-signatures", "Checks the signatures of artifacts to see if they are trusted.")
 
   // TODO - home dir, use-agent, 
   // TODO - --batch and pasphrase and read encrypted passphrase...

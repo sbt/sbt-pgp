@@ -96,7 +96,7 @@ trait PublicKeyLike {
     val sig = sigList.get(0)
     getKey(sig.getKeyID()) match {
       // TODO - special return for key not found.
-      case null => false
+      case null => throw KeyNotFoundException(sig.getKeyID())
       case key =>
         sig.initVerify(key, "BC")
         var ch = dIn.read()
