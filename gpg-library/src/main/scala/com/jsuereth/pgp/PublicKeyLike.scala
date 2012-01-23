@@ -81,6 +81,10 @@ trait PublicKeyLike {
     val p3 = pgpFact.nextObject().asInstanceOf[PGPSignatureList]
     ops.verify(p3.get(0))
   }
+ 
+  /** Verifies that a stream was signed correctly by another stream.  
+   * @throws KeyNotFoundException is signature contains an unknown public key.
+   */
   protected def verifySignatureStreamsHelper(msg: InputStream, signature: InputStream)(getKey: Long => PGPPublicKey): Boolean = {
     val in = PGPUtil.getDecoderStream(signature)
     // We extract the signature list and object factory based on whether or not the signature is compressed.
@@ -94,14 +98,18 @@ trait PublicKeyLike {
     }
     val dIn = new BufferedInputStream(msg)
     val sig = sigList.get(0)
-    val key = getKey(sig.getKeyID())
-    sig.initVerify(key, "BC")
-    var ch = dIn.read()
-    while(ch >= 0) {
-      sig.update(ch.asInstanceOf[Byte])
-      ch = dIn.read()
+    getKey(sig.getKeyID()) match {
+      // TODO - special return for key not found.
+      case null => throw KeyNotFoundException(sig.getKeyID())
+      case key =>
+        sig.initVerify(key, "BC")
+        var ch = dIn.read()
+        while(ch >= 0) {
+          sig.update(ch.asInstanceOf[Byte])
+          ch = dIn.read()
+        }
+        dIn.close()
+        sig.verify()
     }
-    dIn.close()
-    sig.verify()
   }
 }
