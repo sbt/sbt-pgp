@@ -103,6 +103,15 @@ You can configure the public key ring you use with the `gpgPublicRing` setting.
 
 ## Importing keys from public key servers ##
 
-Not yet implemented.
+TODO
+
+## Export your public key ##
+
+Using the gpg command line, run the following:
+
+    gpg --keyserver hkp://keyserver.ubuntu.com --send-keys <your key id>
+
+
+Not yet implemented for direct plugin usage.
 
 
