@@ -71,9 +71,11 @@ object PgpSignatureCheck {
     } foreach {
       case SignatureCheck(m, a, SignatureCheckResult.OK)      => s.log.info("Signature for " + prettify(m,a)  + " [OK]")
       case SignatureCheck(m, a, SignatureCheckResult.MISSING) => s.log.warn("Signature for " + prettify(m,a)  + " [MISSING]")
-      case SignatureCheck(m, a, _)                            => s.log.error("Signature for " + prettify(m,a) + " [BAD]")
+      case SignatureCheck(m, a, _)                            => s.log.error("Signature for " + prettify(m,a) + " [BAD/UNTRUSTED]")
     }
-    
+    if(results exists (x => x.result == SignatureCheckResult.BAD || x.result == SignatureCheckResult.UNTRUSTED))
+      sys.error("Some artifacts have bad signatures or are signed by untrusted sources!")
+    ()
   }
   private def missingSignatures(update: UpdateReport, s: TaskStreams): Seq[SignatureCheck] = 
     for {

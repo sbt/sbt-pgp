@@ -94,14 +94,18 @@ trait PublicKeyLike {
     }
     val dIn = new BufferedInputStream(msg)
     val sig = sigList.get(0)
-    val key = getKey(sig.getKeyID())
-    sig.initVerify(key, "BC")
-    var ch = dIn.read()
-    while(ch >= 0) {
-      sig.update(ch.asInstanceOf[Byte])
-      ch = dIn.read()
+    getKey(sig.getKeyID()) match {
+      // TODO - special return for key not found.
+      case null => false
+      case key =>
+        sig.initVerify(key, "BC")
+        var ch = dIn.read()
+        while(ch >= 0) {
+          sig.update(ch.asInstanceOf[Byte])
+          ch = dIn.read()
+        }
+        dIn.close()
+        sig.verify()
     }
-    dIn.close()
-    sig.verify()
   }
 }
