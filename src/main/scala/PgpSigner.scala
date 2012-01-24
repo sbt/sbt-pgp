@@ -56,5 +56,5 @@ class BouncyCastlePgpSigner(secretKeyRingFile: File, passPhrase: Array[Char]) ex
     s.log.info("Secret key := " + secKey.getAbsolutePath)
     s.log.info("Please do not share your secret key.   Your public key is free to share.")
   }
-  override val toString = "BC-PGP(" + secring + ")"
+  override lazy val toString = "BC-PGP(" + secring + ")"
 }
