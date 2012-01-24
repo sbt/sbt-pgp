@@ -18,6 +18,11 @@ class PublicKeyRing(val nested: PGPPublicKeyRing) extends PublicKeyLike with Str
   /** Removes a key from this key ring and returns the new key ring. */
   def removeKey(key: PGPPublicKey): PublicKeyRing =
     PublicKeyRing(PGPPublicKeyRing.removePublicKey(nested, key))
+  
+  /** Looks for a public key with the given id on this key ring. */
+  def get(id: Long): Option[PublicKey] = publicKeys find (_.keyID == id)
+  /** Gets the public key with a given id from this key ring or throws. */
+  def apply(id: Long): PublicKey = get(id).getOrElse(error("Could not find public key: " + id))
   /** A collection that will traverse all public keys in this key ring. */
   def publicKeys = new Traversable[PublicKey] {
     def foreach[U](f: PublicKey => U): Unit = {
