@@ -39,6 +39,20 @@ If you'd like to use a key that isn't in the standard location, you can configur
 
     pgpPublicRing := file("/tmp/pubring.asc")
 
+## Configuring signing key ##
+
+If you'd like to use a different private key besides the default, then you can configure it with the `pgpSigningKey` settings. 
+
+You can either configure the key using raw long integer values:
+
+    pgpSigningKey := Some(9005184038412874530)
+
+or you can use the `usePgpKeyHex` method.
+
+    usePgpKeyHex("7cf8d72be29df322")
+
+Note:  While it is general practice to drop the higher-order bits of 64-bit integer keys when passing ids around, the
+PGP plugin requires the full key id currently.
 
 ## Configuring for using GPG ##
 

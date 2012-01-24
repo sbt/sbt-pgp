@@ -21,15 +21,16 @@ trait PgpSigner {
 }
 
 /** A GpgSigner that uses the command-line to run gpg. */
-class CommandLineGpgSigner(command: String, agent: Boolean) extends PgpSigner {
+class CommandLineGpgSigner(command: String, agent: Boolean, optKey: Option[Long]) extends PgpSigner {
   def sign(file: File, signatureFile: File, s: TaskStreams): File = {
-      if (signatureFile.exists) IO.delete(signatureFile)
-      val args = Seq("--detach-sign", "--armor") ++ (if(agent) Seq("-use-agent") else Seq.empty)
-       Process(command, args ++ Seq("--output", signatureFile.getAbsolutePath, file.getAbsolutePath)) ! s.log match {
-         case 0 => ()
-         case n => sys.error("Failure running gpg --detach-sign.  Exit code: " + n)
-       }
-       signatureFile 
+    if (signatureFile.exists) IO.delete(signatureFile)
+    val keyargs: Seq[String] = optKey map (k => Seq("--default-key", "0x%x" format(k))) getOrElse Seq.empty
+    val args = Seq("--detach-sign", "--armor") ++ (if(agent) Seq("-use-agent") else Seq.empty) ++ keyargs
+    Process(command, args ++ Seq("--output", signatureFile.getAbsolutePath, file.getAbsolutePath)) ! s.log match {
+      case 0 => ()
+      case n => sys.error("Failure running gpg --detach-sign.  Exit code: " + n)
+    }
+    signatureFile 
   }
   def generateKey(pubKey: File, secKey: File, identity: String, s: TaskStreams): Unit = 
     Process(command, Seq("--gen-key")) ! s.log match {
@@ -40,12 +41,15 @@ class CommandLineGpgSigner(command: String, agent: Boolean) extends PgpSigner {
   override val toString = "GPG-Command(" + command + ")"
 }
 /** A GpgSigner that uses bouncy castle. */
-class BouncyCastlePgpSigner(secretKeyRingFile: File, passPhrase: Array[Char]) extends PgpSigner {
+class BouncyCastlePgpSigner(secretKeyRingFile: File, passPhrase: Array[Char], optKey: Option[Long]) extends PgpSigner {
   lazy val secring = PGP.loadSecretKeyRing(secretKeyRingFile)
   def sign(file: File, signatureFile: File, s: TaskStreams): File = {
     if (signatureFile.exists) IO.delete(signatureFile)
     if (!signatureFile.getParentFile.exists) IO.createDirectory(signatureFile.getParentFile)
-    secring.secretKey.sign(file, signatureFile, passPhrase)
+    optKey match {
+      case Some(id) => secring(id).sign(file,signatureFile, passPhrase)
+      case _        => secring.secretKey.sign(file, signatureFile, passPhrase) 
+    }
   }
   def generateKey(pubKey: File, secKey: File, identity: String, s: TaskStreams): Unit = {
     if(!pubKey.getParentFile.exists) IO.createDirectory(pubKey.getParentFile)

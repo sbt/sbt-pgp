@@ -28,7 +28,11 @@ class SecretKeyRing(val nested: PGPSecretKeyRing) extends StreamingSaveable {
       while(it.hasNext) f(SecretKey(it.next.asInstanceOf[PGPSecretKey]))
     }
   }
-
+  /** Looks for a secret key with the given id on this key ring. */
+  def get(id: Long): Option[SecretKey] = secretKeys find (_.keyID == id)
+  /** Gets the secret key with a given id from this key ring or throws. */
+  def apply(id: Long): SecretKey = get(id).getOrElse(error("Could not find public key: " + id))
+  
   /** The default public key for this key ring. */
   def publicKey = PublicKey(nested.getPublicKey)
 
