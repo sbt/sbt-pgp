@@ -13,15 +13,21 @@ import complete.DefaultParsers._
  * Plugin for doing PGP security tasks.  Signing, verifying, etc.
  */
 object PgpPlugin extends Plugin {
+  
+  // PGP related tasks/settings
+  val pgpSigner = TaskKey[PgpSigner]("pgp-signer", "The helper class to run GPG commands.")  
+  val pgpVerifier = TaskKey[PgpVerifier]("pgp-verifier", "The helper class to verify public keys from a public key ring.")  
+  val pgpSecretRing = SettingKey[File]("pgp-secret-ring", "The location of the secret key ring.  Only needed if using bouncy castle.")
+  val pgpPublicRing = SettingKey[File]("pgp-public-ring", "The location of the secret key ring.  Only needed if using bouncy castle.")
+  val pgpPassphrase = SettingKey[Option[Array[Char]]]("pgp-passphrase", "The passphrase associated with the secret used to sign artifacts.")
+  val pgpGenKey = InputKey[Unit]("pgp-gen-key", "Creates a new PGP key using bouncy castle.   Must provide <name> <email>.  The passphrase setting must be set for this to work.")
+
+  // GPG Related Options
   val gpgCommand = SettingKey[String]("gpg-command", "The path of the GPG command to run")
-  val gpgRunner = TaskKey[PgpSigner]("gpg-runner", "The helper class to run GPG commands.")  
-  val gpgVerifier = TaskKey[PgpVerifier]("gpg-verifier", "The helper class to verify public keys from a public key ring.")  
-  val gpgSecretRing = SettingKey[File]("gpg-secret-ring", "The location of the secret key ring.  Only needed if using bouncy castle.")
-  val gpgPublicRing = SettingKey[File]("gpg-public-ring", "The location of the secret key ring.  Only needed if using bouncy castle.")
-  val gpgPassphrase = SettingKey[Option[Array[Char]]]("gpg-passphrase", "The passphrase associated with the secret used to sign artifacts.")
-  val gpgGenKey = InputKey[Unit]("gpg-gen-key", "Creates a new PGP key using bouncy castle.   Must provide <name> <email>.  The passphrase setting must be set for this to work.")
   val useGpg = SettingKey[Boolean]("use-gpg", "If this is set to true, the GPG command line will be used.")
   val useGpgAgent = SettingKey[Boolean]("use-gpg-agent", "If this is set to true, the GPG command line will expect a GPG agent for the password.")
+  
+  // Checking PGP Signatures options
   val signaturesModule = TaskKey[GetSignaturesModule]("signatures-module")
   val updatePgpSignatures = TaskKey[UpdateReport]("update-pgp-signatures", "Resolves and optionally retrieves signatures for artifacts, transitively.")
   val checkPgpSignatures = TaskKey[SignatureCheckReport]("check-pgp-signatures", "Checks the signatures of artifacts to see if they are trusted.")
@@ -35,34 +41,34 @@ object PgpPlugin extends Plugin {
   // TODO  Signature extension
   
   override val settings = Seq(
-    skip in gpgRunner := false,
+    skip in pgpSigner := false,
     useGpg := false,
     useGpgAgent := false,
     gpgCommand := (if(isWindows) "gpg.exe" else "gpg"),
-    gpgPassphrase := None,
-    gpgPublicRing := file(System.getProperty("user.home")) / ".gnupg" / "pubring.gpg",
-    gpgSecretRing := file(System.getProperty("user.home")) / ".gnupg" / "secring.gpg",
+    pgpPassphrase := None,
+    pgpPublicRing := file(System.getProperty("user.home")) / ".gnupg" / "pubring.gpg",
+    pgpSecretRing := file(System.getProperty("user.home")) / ".gnupg" / "secring.gpg",
     // If the user isn't using GPG, we'll use a bouncy-castle ring.
-    gpgPublicRing <<= gpgPublicRing apply {
+    pgpPublicRing <<= pgpPublicRing apply {
       case f if f.exists => f
       case _ => file(System.getProperty("user.home")) / ".sbt" / "gpg" / "pubring.asc"
     },
-    gpgSecretRing <<= gpgSecretRing apply {
+    pgpSecretRing <<= pgpSecretRing apply {
       case f if f.exists => f
       case _ => file(System.getProperty("user.home")) / ".sbt" / "gpg" / "secring.asc"
     },
-    gpgRunner <<= (gpgSecretRing, gpgPassphrase, gpgCommand, useGpg, useGpgAgent) map { (secring, optPass, command, b, agent) =>
+    pgpSigner <<= (pgpSecretRing, pgpPassphrase, gpgCommand, useGpg, useGpgAgent) map { (secring, optPass, command, b, agent) =>
       if(b) new CommandLineGpgSigner(command, agent)
       else {
         val p = optPass getOrElse readPassphrase()
         new BouncyCastlePgpSigner(secring, p)
       }
     },
-    gpgVerifier <<= (gpgPublicRing, gpgCommand, useGpg) map { (pubring, command, b) =>
+    pgpVerifier <<= (pgpPublicRing, gpgCommand, useGpg) map { (pubring, command, b) =>
       if(b) new CommandLineGpgVerifier(command)
       else new BouncyCastlePgpVerifier(pubring)
     },
-    packagedArtifacts <<= (packagedArtifacts, gpgRunner, skip in gpgRunner, streams) map {
+    packagedArtifacts <<= (packagedArtifacts, pgpSigner, skip in pgpSigner, streams) map {
       (artifacts, r, skipZ, s) =>
         if (!skipZ) {
           artifacts flatMap {
@@ -72,7 +78,7 @@ object PgpPlugin extends Plugin {
           }
         } else artifacts
     },
-    gpgGenKey <<= InputTask(keyGenParser)(keyGenTask),
+    pgpGenKey <<= InputTask(keyGenParser)(keyGenTask),
     // TODO - This is checking SBT and its plugins signatures..., maybe we can have this be a separate config or something.
     /*signaturesModule in updateClassifiers <<= (projectID, sbtDependency, loadedBuild, thisProjectRef) map { ( pid, sbtDep, lb, ref) =>
 			val pluginIDs: Seq[ModuleID] = lb.units(ref.build).unit.plugins.fullClasspath.flatMap(_ get moduleID.key)
@@ -90,7 +96,7 @@ object PgpPlugin extends Plugin {
                           streams) map { (is, mod, c, ivyScala, out, app, s) =>
       PgpSignatureCheck.resolveSignatures(is, GetSignaturesConfiguration(mod, c, ivyScala), s.log)
     },
-    checkPgpSignatures <<= (updatePgpSignatures, gpgVerifier, streams) map PgpSignatureCheck.checkSignaturesTask
+    checkPgpSignatures <<= (updatePgpSignatures, pgpVerifier, streams) map PgpSignatureCheck.checkSignaturesTask
   )
 
   private[this] def keyGenParser: State => Parser[(String,String)] = {
@@ -103,7 +109,7 @@ object PgpPlugin extends Plugin {
         (Space ~> token(Email) ~ (Space ~> token(name)))
   }
   private[this] def keyGenTask = { (parsed: TaskKey[(String,String)]) => 
-    (parsed, gpgPublicRing, gpgSecretRing, gpgRunner, streams) map { (input, pub, sec, runner, s) =>
+    (parsed, pgpPublicRing, pgpSecretRing, pgpSigner, streams) map { (input, pub, sec, runner, s) =>
       if(pub.exists)  error("Public key ring (" + pub.getAbsolutePath + ") already exists!")
       if(sec.exists)  error("Secret key ring (" + sec.getAbsolutePath + ") already exists!")
       val (email, name) = input

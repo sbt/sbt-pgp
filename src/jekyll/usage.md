@@ -14,7 +14,7 @@ To use the GPG comand line tool.  Simply run the command:
 
 To create a key pair using the SBT plugin (and Bouncy Castle), In the SBT prompt, enter the following:
 
-    > gpg-gen-key your@email.com Your Name Here
+    > pgp-gen-key your@email.com Your Name Here
 
 This will create a new public/secret key pair for you using the configured passphrase in the default location (`~/.sbt/gpg`).  If you already have a key in place, this will warn you and not generate a new key.
 
@@ -22,7 +22,7 @@ _Note: If you have a GPG key pair (the `~/.gnupg/pubring.gpg` and `~/.gnupg/secr
 
 You can record your password in a user-specific setting file:
 
-    set gpgPassphrase := Some(Array('t','e','s','t'))
+    set pgpPassphrase := Some(Array('t','e','s','t'))
 
 Or you can enter it on the command line when prompted by SBT:
 
@@ -35,9 +35,9 @@ _Note: While some may want the feature to create a key without a passphrase, thi
 
 If you'd like to use a key that isn't in the standard location, you can configure it in your `~/.sbt/gpg.sbt` file:
 
-    gpgSecretRing := file("/tmp/secring.asc")
+    pgpSecretRing := file("/tmp/secring.asc")
 
-    gpgPublicRing := file("/tmp/pubring.asc")
+    pgpPublicRing := file("/tmp/pubring.asc")
 
 
 ## Configuring for using GPG ##
@@ -52,7 +52,7 @@ The gpg plugin needs to know where the `gpg` executable is to run.  On linux/mac
 
 By default, the gpg plugin will use the default private keys from the standard gpg keyrings.   If you'd like to use a different private key for signing artifacts, add the following to your `~/.sbt/gpg.sbt` file:
 
-    gpgSecretRing := file("/path/to/my/secring.gpg")
+    pgpSecretRing := file("/path/to/my/secring.gpg")
 
 There is currently no way to choose a non-default key from the keyring.
 
@@ -64,7 +64,7 @@ The PGP plugin will ask for your password once, for every task that requires the
 
 If you would like to avoid entering your password over and over, you can configure it with a setting:
 
-    gpgPassphrase := Some(Array('M', 'y', 'P', 'a', 's', 's', 'p', 'h', 'r', 'a', 's', 'e'))
+    pgpPassphrase := Some(Array('M', 'y', 'P', 'a', 's', 's', 'p', 'h', 'r', 'a', 's', 'e'))
 
 _Note: The passphrase *must* be an array of characters.   It's midly more secure.  We hope to provide even more secure ways of storing passphrases in the future._
 
@@ -89,14 +89,14 @@ The plugin can be used to validate the PGP signatures of the dependencies of the
     [error] {file:/home/josh/projects/typesafe/test-signing/}test-gpg/*:check-pgp-signatures: Some artifacts have bad signatures or are signed by untrusted sources!
     [error] Total time: 2 s, completed Jan 23, 2012 12:03:28 PM
     
-In the above otuput, the signature for derby is from an untrusted key (id: `0x98e21827`).  You can import this key into your public key ring, and then the plugin will trust artifacts from that key.   The public, by default, accepts any keys included in your public key ring file.
+In the above output, the signature for derby is from an untrusted key (id: `0x98e21827`).  You can import this key into your public key ring, and then the plugin will trust artifacts from that key.   The public, by default, accepts any keys included in your public key ring file.
 
 
 ## Configuring a public key ring ##
 
 You can configure the public key ring you use with the `gpgPublicRing` setting.
 
-    gpgPublicRing := file("/home/me/pgp/pubring.asc")
+    pgpPublicRing := file("/home/me/pgp/pubring.asc")
 
 *By default the `~/.gnupg/pubring.gpg` file is used, if it exists.*
 
