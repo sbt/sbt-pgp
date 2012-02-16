@@ -32,6 +32,16 @@ class PublicKeyRing(val nested: PGPPublicKeyRing) extends PublicKeyLike with Str
       }
     }
   }
+  /** Finds the first public key that has:
+   *  - A keyID containing the given hex code
+   *  - A userID containing the given string
+   */
+  def findPubKey(value: String): Option[PublicKey] = {
+    def hasKeyId(k: PublicKey) = k.keyID.toHexString contains value
+    def hasUserId(k: PublicKey) = k.userIDs.exists(_ contains value)
+    def isValidPubKey(k: PublicKey) = hasKeyId(k) || hasUserId(k)
+    publicKeys find isValidPubKey
+  }
   /** A collection that will traverse all keys that can be used to encrypt data. */
   def encryptionKeys = publicKeys.view filter (_.isEncryptionKey)
   /** Returns the default key used to encrypt messages. */

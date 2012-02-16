@@ -14,7 +14,19 @@ To use the GPG comand line tool.  Simply run the command:
 
 To create a key pair using the SBT plugin (and Bouncy Castle), In the SBT prompt, enter the following:
 
-    > pgp-gen-key your@email.com Your Name Here
+    > pgp-cmd gen-key
+    
+You will see something like the following:
+ 
+    Please enter the name associated with the key: LAMP/EPFL
+    Please enter the email associated with the key: lamp@gmail.com
+    Please enter the passphrase for the key: *****************
+    Please re-enter the passphrase for the key: *****************
+    [info] Creating a new PGP key, this could take a long time.
+    [info] Public key := /home/jsuereth/test-secring.pgp
+    [info] Secret key := /home/jsuereth/test-pubring.pgp
+    [info] Please do not share your secret key.   Your public key is free to share.
+
 
 This will create a new public/secret key pair for you using the configured passphrase in the default location (`~/.sbt/gpg`).  If you already have a key in place, this will warn you and not generate a new key.
 

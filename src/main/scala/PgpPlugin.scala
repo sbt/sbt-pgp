@@ -14,15 +14,17 @@ import complete.DefaultParsers._
  */
 object PgpPlugin extends Plugin {
   
-  // PGP related tasks/settings
-  val pgpSigner = TaskKey[PgpSigner]("pgp-signer", "The helper class to run GPG commands.")  
-  val pgpVerifier = TaskKey[PgpVerifier]("pgp-verifier", "The helper class to verify public keys from a public key ring.")  
+  // PGP related setup
+  val pgpSigner     = TaskKey[PgpSigner]("pgp-signer", "The helper class to run GPG commands.")  
+  val pgpVerifier   = TaskKey[PgpVerifier]("pgp-verifier", "The helper class to verify public keys from a public key ring.")
   val pgpSecretRing = SettingKey[File]("pgp-secret-ring", "The location of the secret key ring.  Only needed if using bouncy castle.")
   val pgpPublicRing = SettingKey[File]("pgp-public-ring", "The location of the secret key ring.  Only needed if using bouncy castle.")
   val pgpPassphrase = SettingKey[Option[Array[Char]]]("pgp-passphrase", "The passphrase associated with the secret used to sign artifacts.")
-  val pgpGenKey = InputKey[Unit]("pgp-gen-key", "Creates a new PGP key using bouncy castle.   Must provide <name> <email>.  The passphrase setting must be set for this to work.")
   val pgpSigningKey = SettingKey[Option[Long]]("pgp-signing-key", "The key used to sign artifacts in this project.  Must be the full key id (not just lower 32 bits).")
   
+  // PGP Related tasks  (TODO - make these commands?)
+  val pgpCmd = InputKey[Unit]("pgp-cmd", "Runs one of the various PGP commands.")
+  val pgpCmdContext = TaskKey[cli.PgpCommandContext]("pgp-context", "Context used to run PGP commands.")
   
   // GPG Related Options
   val gpgCommand = SettingKey[String]("gpg-command", "The path of the GPG command to run")
@@ -60,6 +62,10 @@ object PgpPlugin extends Plugin {
       case f if f.exists => f
       case _ => file(System.getProperty("user.home")) / ".sbt" / "gpg" / "secring.asc"
     },
+    pgpCmdContext <<= (pgpSecretRing, pgpPublicRing, pgpPassphrase, streams) map SbtPgpCommandContext.apply,
+    pgpCmd <<= InputTask(_ => Space ~> cli.PgpCommand.parser) { result =>
+      (result, pgpCmdContext) map { (cmd, ctx) => cmd run ctx }
+    },
     pgpSigner <<= (pgpSecretRing, pgpSigningKey, pgpPassphrase, gpgCommand, useGpg, useGpgAgent) map { (secring, optKey, optPass, command, b, agent) =>
       if(b) new CommandLineGpgSigner(command, agent, optKey)
       else {
@@ -81,7 +87,6 @@ object PgpPlugin extends Plugin {
           }
         } else artifacts
     },
-    pgpGenKey <<= InputTask(keyGenParser)(keyGenTask),
     // TODO - This is checking SBT and its plugins signatures..., maybe we can have this be a separate config or something.
     /*signaturesModule in updateClassifiers <<= (projectID, sbtDependency, loadedBuild, thisProjectRef) map { ( pid, sbtDep, lb, ref) =>
 			val pluginIDs: Seq[ModuleID] = lb.units(ref.build).unit.plugins.fullClasspath.flatMap(_ get moduleID.key)
@@ -104,23 +109,4 @@ object PgpPlugin extends Plugin {
   
   def usePgpKeyHex(id: String) =
     pgpSigningKey := Some(java.lang.Long.parseLong(id, 16))
-
-  private[this] def keyGenParser: State => Parser[(String,String)] = {
-      (state: State) =>
-        val Email: Parser[String] =  (NotSpace ~ '@' ~ NotSpace ~ '.' ~ NotSpace) map { 
-          case name ~ at ~ address ~ dot ~ subdomain => 
-            new StringBuilder(name).append(at).append(address).append(dot).append(subdomain).toString
-        }
-        val name: Parser[String] = (any*) map (_ mkString "")
-        (Space ~> token(Email) ~ (Space ~> token(name)))
-  }
-  private[this] def keyGenTask = { (parsed: TaskKey[(String,String)]) => 
-    (parsed, pgpPublicRing, pgpSecretRing, pgpSigner, streams) map { (input, pub, sec, runner, s) =>
-      if(pub.exists)  error("Public key ring (" + pub.getAbsolutePath + ") already exists!")
-      if(sec.exists)  error("Secret key ring (" + sec.getAbsolutePath + ") already exists!")
-      val (email, name) = input
-      val identity = "%s <%s>".format(name, email)
-      runner.generateKey(pub, sec, identity, s)
-    }
-  }
 }
