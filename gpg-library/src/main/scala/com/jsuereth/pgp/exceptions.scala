@@ -4,7 +4,7 @@ package com.jsuereth.pgp
 trait PgpException extends Exception
 
 /** Exception thrown when a key is not found in the keystore. */
-case class KeyNotFoundException(id: Long) extends Exception("Could not find PGP key ["+id+"]") with PgpException
+case class KeyNotFoundException(id: Long) extends Exception("Could not find PGP key [%x]" format (id)) with PgpException
 
 case class NotEncryptedMessageException(msg: String) extends Exception(msg) with PgpException
 

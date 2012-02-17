@@ -117,11 +117,52 @@ class SecretKey(val nested: PGPSecretKey) {
     out.close()
     PublicKey(PGPPublicKey.addCertification(key, sGen.generate()))
   }
+  
+  /** Decrypts a file, attempting to write to the filename specified in the message. */
+  def decryptFile(file: File, passPhrase: Array[Char]): Unit = {
+    decryptHelper(new FileInputStream(file), passPhrase) { msg =>
+      val unc = msg.getInputStream
+      val outfile = new File(file.getParentFile, msg.getFileName)
+      val fOut =  new BufferedOutputStream(new FileOutputStream(outfile))
+      val buf = new Array[Byte](1 << 16)
+      def read(): Unit = unc.read(buf) match {
+        case n if n > 0 => fOut.write(buf, 0, n); read()
+        case _          => ()
+      }
+      read()
+      fOut.close()
+    }
+  }
+  
+  /** Decrypts a given string message using this secret key. */
+  def decryptString(input: String, passPhrase: Array[Char]): String = {
+    val bin = new java.io.ByteArrayInputStream(input.getBytes)
+    val bout = new java.io.ByteArrayOutputStream
+    try decrypt(bin, bout, passPhrase)
+    finally {
+      bin.close()
+      bout.close()
+    }
+    bout.toString(java.nio.charset.Charset.defaultCharset.name)
+  }
   /** Decrypts a given input stream into the output stream.  
    * Note: This ignores fileNames if they are part of the decrypted message.
    */
-  def decrypt(input: InputStream, output: OutputStream, passPhrase: Array[Char]): Unit = {
-    val fixIn = PGPUtil.getDecoderStream(input)
+  def decrypt(input: InputStream, output: OutputStream, passPhrase: Array[Char]): Unit = 
+    decryptHelper(input, passPhrase) { msg =>
+      val unc = msg.getInputStream
+      val fOut =  new BufferedOutputStream(output)
+      val buf = new Array[Byte](1 << 16)
+      def read(): Unit = unc.read(buf) match {
+        case n if n > 0 => fOut.write(buf, 0, n); read()
+        case _          => ()
+      }
+      read()
+      fOut.close()
+    }
+  
+  private[this] def decryptHelper[U](input: InputStream, passPhrase: Array[Char])(handler: PGPLiteralData => U): U = {
+     val fixIn = PGPUtil.getDecoderStream(input)
     try {
       val objF = new PGPObjectFactory(fixIn)
       // TODO - better method to advance to encrypted data.
@@ -138,7 +179,9 @@ class SecretKey(val nested: PGPSecretKey) {
         throw new IllegalArgumentException("Secret key for message not found.")
       }
       // TODO - Better exception?
-      if(pbe.getKeyID != this.keyID) throw new KeyNotFoundException(pbe.getKeyID)
+      if(pbe.getKeyID != this.keyID) {
+        throw new KeyNotFoundException(pbe.getKeyID)
+      }
       val privKey = nested.extractPrivateKey(passPhrase, "BC")
       val clear = pbe.getDataStream(privKey, "BC")
       val plainFact = new PGPObjectFactory(clear)
@@ -154,17 +197,9 @@ class SecretKey(val nested: PGPSecretKey) {
         case _                        => throw new NotEncryptedMessageException("Message is not a simple encyrpted file")      
       }
       val msg = extractLiteral(plainFact.nextObject)
-      // TODO - Don't ignore filenames.... Let's re-use this code.
-      val unc = msg.getInputStream
-      val fOut =  new BufferedOutputStream(output)
-      val buf = new Array[Byte](1 << 16)
-      def read(): Unit = unc.read(buf) match {
-        case n if n > 0 => fOut.write(buf, 0, n); read()
-        case _          => ()
-      }
-      read()
-      fOut.close()
+      val result = handler(msg)
       if(pbe.isIntegrityProtected && !pbe.verify()) throw new IntegrityException("Encrypted message failed integrity check.")
+      result
     }
   }
 
