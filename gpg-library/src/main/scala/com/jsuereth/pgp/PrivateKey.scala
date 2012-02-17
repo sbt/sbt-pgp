@@ -93,6 +93,29 @@ class SecretKey(val nested: PGPSecretKey) {
   def signMessageFile(file: File, out: OutputStream, pass: Array[Char]): Unit = {
     signMessageStream(new java.io.FileInputStream(file), file.getName, file.length, out, pass)
   }
+  /** Takes a public key and signs it, returning the new public key. */
+  def signPublicKey(key: PublicKey, notation: (String,String), pass: Array[Char]): PublicKey = {
+    val out = new ArmoredOutputStream(new ByteArrayOutputStream())
+    val pgpPrivKey = nested.extractPrivateKey(pass, "BC")
+    val sGen = new PGPSignatureGenerator(
+        nested.getPublicKey().getAlgorithm(), 
+        HashAlgorithmTags.SHA1, 
+        "BC")
+    sGen.initSign(PGPSignature.DIRECT_KEY, pgpPrivKey)
+    val bOut = new BCPGOutputStream(out)
+    sGen.generateOnePassVersion(false).encode(bOut)
+    val spGen = new PGPSignatureSubpacketGenerator()
+    val isHumanReadable = true
+    spGen.setNotationData(true, isHumanReadable, notation._1, notation._2)
+    // TODO - Embedd this key's signatures?
+    userIDs.headOption foreach (spGen.setSignerUserID(false, _)) 
+    
+    val packetVector = spGen.generate()
+    sGen.setHashedSubpackets(packetVector)
+    bOut.flush()
+    out.close()
+    PublicKey(PGPPublicKey.addCertification(key, sGen.generate()))
+  }
 
   def userIDs = new Traversable[String] {
     def foreach[U](f: String => U) = {

@@ -15,10 +15,19 @@ class PublicKey(val nested: PGPPublicKey) extends PublicKeyLike with StreamingSa
   def fingerprint = nested.getFingerprint
   def isRevoked = nested.isRevoked
   /** Returns the userIDs associated with this public key. */
-  def userIDs = new Traversable[String] {
+  object userIDs extends Traversable[String] {
     def foreach[U](f: String => U) = {
       val i = nested.getUserIDs
       while(i.hasNext) f(i.next.toString)
+    }
+  }
+  
+  object directKeySignatures extends Traversable[Signature] {
+    override def foreach[U](f: Signature => U): Unit = {
+      val i = nested.getSignaturesOfType(PGPSignature.DIRECT_KEY)
+      while(i.hasNext) {
+        f(Signature(i.next.asInstanceOf[PGPSignature]))
+      }
     }
   }
   def verifyMessageStream(input: InputStream, output: OutputStream): Boolean =
