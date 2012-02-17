@@ -24,6 +24,7 @@ object PgpPlugin extends Plugin {
   
   // PGP Related tasks  (TODO - make these commands?)
   val pgpCmd = InputKey[Unit]("pgp-cmd", "Runs one of the various PGP commands.")
+  val pgpStaticContext = SettingKey[cli.PgpStaticContext]("pgp-static-context", "Context used for auto-completing PGP commands.")
   val pgpCmdContext = TaskKey[cli.PgpCommandContext]("pgp-context", "Context used to run PGP commands.")
   
   // GPG Related Options
@@ -62,8 +63,9 @@ object PgpPlugin extends Plugin {
       case f if f.exists => f
       case _ => file(System.getProperty("user.home")) / ".sbt" / "gpg" / "secring.asc"
     },
-    pgpCmdContext <<= (pgpSecretRing, pgpPublicRing, pgpPassphrase, streams) map SbtPgpCommandContext.apply,
-    pgpCmd <<= InputTask(_ => Space ~> cli.PgpCommand.parser) { result =>
+    pgpStaticContext <<= (pgpPublicRing, pgpSecretRing) apply SbtPgpStaticContext.apply,
+    pgpCmdContext <<= (pgpStaticContext, pgpPassphrase, streams) map SbtPgpCommandContext.apply,
+    pgpCmd <<= InputTask(pgpStaticContext apply { ctx => (_: State) => Space ~> cli.PgpCommand.parser(ctx) }) { result =>
       (result, pgpCmdContext) map { (cmd, ctx) => cmd run ctx }
     },
     pgpSigner <<= (pgpSecretRing, pgpSigningKey, pgpPassphrase, gpgCommand, useGpg, useGpgAgent) map { (secring, optKey, optPass, command, b, agent) =>

@@ -3,13 +3,17 @@ package com.jsuereth.pgp
 import sbt._
 import sbt.Keys.TaskStreams
 
-case class SbtPgpCommandContext(
+case class SbtPgpStaticContext(
     publicKeyRingFile: File,
-    secretKeyRingFile: File,
+    secretKeyRingFile: File) extends cli.PgpStaticContext {
+  
+}
+
+case class SbtPgpCommandContext(
+    ctx: cli.PgpStaticContext,
     optPassphrase: Option[Array[Char]],
     s: TaskStreams
-  ) extends cli.PgpCommandContext {
-  
+  ) extends cli.PgpCommandContext with cli.DelegatingPgpStaticContext {
   
   def readInput(msg: String): String = System.out.synchronized {
     SimpleReader.readLine(msg) getOrElse sys.error("Failed to grab input")
@@ -22,4 +26,6 @@ case class SbtPgpCommandContext(
   }
   
   def log = s.log
+  // TODO - Is this the right thing to do?
+  def output[A](msg: => A): Unit = println(msg)
 }

@@ -56,5 +56,5 @@ object SecretKeyRing extends StreamingLoadable[SecretKeyRing] {
   
   /** Creates a new secret key. */
   def create(identity: String, passPhrase: Array[Char]) = 
-    apply(PGP.makeKeyGeneratorInternal(identity, passPhrase).generateSecretKeyRing())
+    apply(KeyGen.makeElGamalKeyRingGenerator(identity, passPhrase).generateSecretKeyRing())
 }

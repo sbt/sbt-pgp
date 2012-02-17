@@ -4,44 +4,21 @@ package cli
 import sbt._
 import sbt.complete._
 import sbt.complete.DefaultParsers._
+import CommonParsers._
 
 /** Represents a PgpCommand */
 sealed trait PgpCommand {
   def run(ctx: PgpCommandContext): Unit
 }
 object PgpCommand {
-  def parser: Parser[PgpCommand] =
-    (GeneratePgpKey.parser |
-     SendKey.parser |
-     ReceiveKey.parser)
-}
-
-
-/** A context for accepting user input. */
-trait UICommandContext {
-  /** Displays the message to the user and accepts their input. */
-  def readInput(msg: String): String
-  /** Displays the message to the user and accepts their input. 
-   * Replaces characters entered with '*'.
-   */
-  def readHidden(msg: String): String
-}
-
-/** The context used when running PGP commands. */
-trait PgpCommandContext extends UICommandContext {
-  def publicKeyRingFile: File
-  def secretKeyRingFile: File
-  def getPassphrase: Array[Char]
-  def log: Logger
-  
-  // Derived methods
-  def publicKeyRing: PublicKeyRing = PGP loadPublicKeyRing publicKeyRingFile
-  def secretKeyRing: SecretKeyRing = PGP loadSecretKeyRing secretKeyRingFile
-  def addPublicKey(key: PublicKey): Unit = {
-    val newring = publicKeyRing :+ key
-    newring saveToFile publicKeyRingFile
-  }  
-  
+  def parser(ctx: PgpStaticContext): Parser[PgpCommand] =
+    (GeneratePgpKey.parser(ctx) |
+     SendKey.parser(ctx) |
+     ReceiveKey.parser(ctx) |
+     ImportKey.parser(ctx) |
+     EncryptMessage.parser(ctx) |
+     SignPublicKey.parser(ctx) |
+     ExportPublicKey.parser(ctx))
 }
 
 /** Helper for running HKP protocol commands. */
@@ -72,14 +49,23 @@ case class GeneratePgpKey() extends PgpCommand {
   }
 }
 object GeneratePgpKey {
-  lazy val parser: Parser[GeneratePgpKey] =
-    ("gen-key": Parser[String]) map { _ => GeneratePgpKey() }
+  def parser(ctx: PgpStaticContext): Parser[GeneratePgpKey] =
+    token(("gen-key": Parser[String]) map { _ => GeneratePgpKey() })
 }
 
-case class SignPgpKey(pubKey: String, privKey: String) extends PgpCommand {
+case class SignPublicKey(pubKey: String, notation: (String,String)) extends PgpCommand {
   def run(ctx: PgpCommandContext): Unit = {
-    //TODO - Implement
+    val pub = ctx.publicKeyRing.findPubKey(pubKey).getOrElse(sys.error("Could not find public key: " + pubKey))
+    val newkey = ctx.secretKeyRing.secretKey.signPublicKey(pub, notation, ctx.getPassphrase)
+    val newpubring = ctx.publicKeyRing :+ newkey
+    newpubring saveToFile ctx.publicKeyRingFile
   }
+}
+object SignPublicKey {
+  def parser(ctx: PgpStaticContext): Parser[SignPublicKey] =
+    ((token("sign-key") ~ Space) ~> existingKeyIdOrUserOption(ctx) ~ (Space ~> attribute)) map {
+      case key ~ attr => SignPublicKey(key, attr)
+    }
 }
 
 case class SendKey(pubKey: String, hkpUrl: String) extends HkpCommand {
@@ -93,10 +79,8 @@ case class SendKey(pubKey: String, hkpUrl: String) extends HkpCommand {
 }
 
 object SendKey {
-  lazy val parser: Parser[SendKey] = {
-    val keyId = token(NotSpace, "key search id/user")
-    val hkpUrl = token(NotSpace, "hkp server url")
-    ("send-key" ~ Space) ~> keyId ~ (Space ~> hkpUrl) map {
+  def parser(ctx: PgpStaticContext): Parser[SendKey] = {
+    (token("send-key") ~ Space) ~> existingKeyIdOrUser(ctx) ~ (Space ~> hkpUrl) map {
       case key ~ url => SendKey(key, url)
     }
   }
@@ -110,11 +94,9 @@ case class ReceiveKey(pubKeyId: Long, hkpUrl: String) extends HkpCommand {
   }
 }
 object ReceiveKey {
-  lazy val parser: Parser[ReceiveKey] = {
+  def parser(ctx: PgpStaticContext): Parser[ReceiveKey] = {
     // TODO - More robust...
-    val keyId = token(NotSpace, "key id") map (java.lang.Long.parseLong(_, 16))
-    val hkpUrl = token(NotSpace, "hkp sever url")
-    ("recv-key" ~ Space) ~> keyId ~ (Space ~> hkpUrl) map {
+    (token("recv-key") ~ Space) ~> keyId ~ (Space ~> hkpUrl) map {
       case key ~ url => ReceiveKey(key,url)
     }
   }
@@ -128,9 +110,8 @@ case class ImportKey(pubKey: File) extends PgpCommand {
   }
 }
 object ImportKey {
-  lazy val parser: Parser[ImportKey] = {
-    // TODO - implement
-    null
+  def parser(ctx: PgpStaticContext): Parser[ImportKey] = {
+    (token("import-pub-key") ~ Space) ~> filename map ImportKey.apply
   }
 }
 
@@ -138,9 +119,38 @@ case class EncryptFile(file: File, pubKey: String) extends PgpCommand {
   def run(ctx: PgpCommandContext): Unit = {
     val key = (ctx.publicKeyRing.findPubKey(pubKey) getOrElse 
         sys.error("Could not find key: " + pubKey))
-    //todo - encode
+    key.encryptFile(file, new File(file.getAbsolutePath + ".asc"))
   }
 }
 object EncryptFile {
-  def parser: Parser[EncryptFile] = null
+  def parser(ctx: PgpStaticContext): Parser[EncryptFile] = null
+}
+
+case class EncryptMessage(msg: String, pubKey: String) extends PgpCommand {
+  def run(ctx: PgpCommandContext): Unit = {
+    val key = (ctx.publicKeyRing.findEncryptionKey(pubKey) getOrElse 
+        sys.error("Could not find key: " + pubKey))
+    ctx.output(key.encryptString(msg))
+  }
+}
+object EncryptMessage {
+  def parser(ctx: PgpStaticContext): Parser[EncryptMessage] = {
+    // TODO - More robust/better parsing
+    (token("encrypt-msg") ~ Space) ~> existingKeyIdOrUser(ctx) ~ (Space ~> message) map {
+      case key ~ msg => EncryptMessage(msg, key)
+    }
+  }  
+}
+
+case class ExportPublicKey(id: String) extends PgpCommand {
+  def run(ctx: PgpCommandContext): Unit = {
+    val key = (ctx.publicKeyRing.findPubKey(id) getOrElse
+        sys.error("Could not find key: " + id))
+    ctx.output(key.saveToString)
+  }
+}
+object ExportPublicKey {
+  def parser(ctx: PgpStaticContext): Parser[ExportPublicKey] = {
+    (token("export-pub-key") ~ Space) ~> existingKeyIdOrUserOption(ctx) map ExportPublicKey.apply
+  }
 }
