@@ -1,9 +1,9 @@
 package com.jsuereth.pgp
 
 import java.io._
-
 import org.bouncycastle.bcpg._
 import org.bouncycastle.openpgp._
+import java.security.SecureRandom
 
 /** This class represents a public PGP key. It can be used to encrypt messages for a person and validate that messages were signed correctly. */
 class PublicKey(val nested: PGPPublicKey) extends PublicKeyLike with StreamingSaveable {
@@ -40,6 +40,59 @@ class PublicKey(val nested: PGPPublicKey) extends PublicKeyLike with StreamingSa
       if(keyID != id) error("Signature is not for this key.  %x != %x".format(id, keyID))
       nested
     }
+  /** Encrypts a file such that only the secret key associated with this public key can decrypt. */
+  def encryptFile(input: File, output: File): Unit = {
+    val in = new FileInputStream(input)
+    val out = new FileOutputStream(output)
+    try encrypt(in, out, input.getName, input.length, new java.util.Date(input.lastModified))
+    finally {
+      in.close()
+      out.close()
+    }
+  }
+  /** Encrypts a string such that only the secret key associated with this public key could decrypt. */
+  def encryptString(input: String): String = {
+    val bytes = input.getBytes
+    val in = new java.io.ByteArrayInputStream(bytes)
+    val out = new java.io.ByteArrayOutputStream
+    // TODO - better errors...
+    try encrypt(in, out, "", bytes.length, new java.util.Date()) finally {
+      in.close()
+      out.close()
+    }
+    out.toString(java.nio.charset.Charset.defaultCharset.name)
+  }
+  
+  def encrypt(
+      data: InputStream, 
+      output: OutputStream, 
+      fileName: String, 
+      size: Long, 
+      lastMod: java.util.Date = new java.util.Date): Unit = {
+    val aout = new ArmoredOutputStream(output)
+    // TODO - Compress on the way into bytes
+    val bytes = Array.empty[Byte]
+    val encGen = new PGPEncryptedDataGenerator(
+                SymmetricKeyAlgorithmTags.CAST5, 
+                true, 
+                new SecureRandom(), 
+                "BC")
+    encGen.addMethod(nested)
+    val cOut = encGen.open(aout, new Array[Byte](1024))
+    val lit = new PGPLiteralDataGenerator
+    val lOut = lit.open(cOut, PGPLiteralDataGenerator.BINARY, fileName, size, lastMod)
+    val buffer = new Array[Byte](1024)
+    def read(): Unit = data.read(buffer) match {
+      case n if n > 0 => lOut.write(buffer, 0, n); read()
+      case _          => ()
+    }
+    read()
+    lit.close()
+    cOut.close()
+    aout.close()
+    data.close() 
+  }
+  
   def saveTo(output: OutputStream): Unit = {
     val armoredOut = new ArmoredOutputStream(output)   
     nested.encode(armoredOut)
