@@ -55,10 +55,21 @@ object GeneratePgpKey {
 
 case class SignPublicKey(pubKey: String, notation: (String,String)) extends PgpCommand {
   def run(ctx: PgpCommandContext): Unit = {
-    val pub = ctx.publicKeyRing.findPubKey(pubKey).getOrElse(sys.error("Could not find public key: " + pubKey))
-    val newkey = ctx.secretKeyRing.secretKey.signPublicKey(pub, notation, ctx.getPassphrase)
-    val newpubring = ctx.publicKeyRing :+ newkey
-    newpubring saveToFile ctx.publicKeyRingFile
+    val matches = for {
+      ring <- ctx.publicKeyRing.keyRings
+      key <- ring.publicKeys
+      if PGP.isPublicKeyMatching(pubKey)(key)
+    } yield ring -> key
+    
+    val newpubringcol = matches match {
+      case Seq((ring, key)) =>
+        val newkey = ctx.secretKeyRing.secretKey.signPublicKey(key, notation, ctx.getPassphrase)
+        val newpubring = ring :+ newkey
+        (ctx.publicKeyRing removeRing ring)  :+ newpubring
+      case Seq()            => sys.error("Could not find key: " + pubKey)
+      case matches          => sys.error("Found more than on pulic key: " + matches.map(_._2).mkString(","))
+    }
+    newpubringcol saveToFile ctx.publicKeyRingFile
   }
 }
 object SignPublicKey {
@@ -106,6 +117,7 @@ case class ImportKey(pubKey: File) extends PgpCommand {
   def run(ctx: PgpCommandContext): Unit = {
     val key = ((PGP loadPublicKeyRing pubKey).publicKeys.headOption
                getOrElse sys.error("Could not find a public key in: " + pubKey))
+
     ctx addPublicKey key
   }
 }

@@ -36,6 +36,8 @@ object PGP {
   def loadPublicKeyRing(file: File) = PublicKeyRing loadFromFile file
   /** This can load your local PGP keyring. */
   def loadSecretKeyRing(file: File) = SecretKeyRing loadFromFile file
+  /** Loads a collection of public key rings froma file. */
+  def loadPublicKeyRingCollection(file: File) = PublicKeyRingCollection loadFromFile file
 
   /** Creates a new public/secret keyring pair in memory. */
   def makeNewKeyRings(identity: String, passPhrase: Array[Char]): (PublicKeyRing, SecretKeyRing) = {
@@ -49,5 +51,11 @@ object PGP {
     val (pub, sec) = makeNewKeyRings(identity, passPhrase)
     pub saveToFile publicKey
     sec saveToFile secretKey
+  }
+  
+  def isPublicKeyMatching(value: String)(k: PublicKey) = {
+    val hasKeyId = k.keyID.toHexString contains value
+    val hasUserId = k.userIDs.exists(_ contains value)
+    hasKeyId || hasUserId
   }
 }

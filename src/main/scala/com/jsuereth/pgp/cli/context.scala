@@ -5,6 +5,7 @@ import sbt._
 import sbt.complete._
 import sbt.complete.DefaultParsers._
 import CommonParsers._
+import org.bouncycastle.openpgp.PGPPublicKeyRing
 
 
 /** A context for accepting user input. */
@@ -26,7 +27,7 @@ trait PgpStaticContext {
   def publicKeyRingFile: File
   def secretKeyRingFile: File
   // Derived methods
-  def publicKeyRing: PublicKeyRing = PGP loadPublicKeyRing publicKeyRingFile
+  def publicKeyRing: PublicKeyRingCollection = PGP loadPublicKeyRingCollection publicKeyRingFile
   def secretKeyRing: SecretKeyRing = PGP loadSecretKeyRing secretKeyRingFile
 }
 
@@ -42,8 +43,10 @@ trait DelegatingPgpStaticContext extends PgpStaticContext{
 trait PgpCommandContext extends PgpStaticContext with UICommandContext {
   def getPassphrase: Array[Char]
   
-  def addPublicKey(key: PublicKey): Unit = {
+  def addPublicKeyRing(key: PublicKeyRing): Unit = {
     val newring = publicKeyRing :+ key
     newring saveToFile publicKeyRingFile
-  }  
+  } 
+  def addPublicKey(key: PublicKey): Unit =
+    addPublicKeyRing(PublicKeyRing from key)
 }

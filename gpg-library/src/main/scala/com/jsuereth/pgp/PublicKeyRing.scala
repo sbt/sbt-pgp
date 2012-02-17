@@ -11,10 +11,10 @@ import org.bouncycastle.openpgp._
 /** A collection of public keys, known as a 'ring'. */
 class PublicKeyRing(val nested: PGPPublicKeyRing) extends PublicKeyLike with StreamingSaveable{
   /** Adds a key to this key ring and returns the new key ring. */
-  def +:(key: PGPPublicKey): PublicKeyRing = 
-    PublicKeyRing(PGPPublicKeyRing.insertPublicKey(nested, key))
+  def +:(key: PublicKey): PublicKeyRing = 
+    PublicKeyRing(PGPPublicKeyRing.insertPublicKey(nested, key.nested))
   /** Adds a key to this key ring and returns the new key ring. */
-  def :+(key: PGPPublicKey): PublicKeyRing = key +: this
+  def :+(key: PublicKey): PublicKeyRing = key +: this
   /** Removes a key from this key ring and returns the new key ring. */
   def removeKey(key: PGPPublicKey): PublicKeyRing =
     PublicKeyRing(PGPPublicKeyRing.removePublicKey(nested, key))
@@ -71,4 +71,5 @@ object PublicKeyRing extends StreamingLoadable[PublicKeyRing] {
   implicit def unwrap(ring: PublicKeyRing): PGPPublicKeyRing = ring.nested
   def apply(nested: PGPPublicKeyRing) = new PublicKeyRing(nested)
   def load(input: InputStream) = apply(new PGPPublicKeyRing(PGPUtil.getDecoderStream(input)))
+  def from(key: PublicKey): PublicKeyRing = loadFromString(key.saveToString)
 }
