@@ -94,6 +94,7 @@ class SecretKey(val nested: PGPSecretKey) {
     signMessageStream(new java.io.FileInputStream(file), file.getName, file.length, out, pass)
   }
   /** Takes a public key and signs it, returning the new public key. */
+  // TODO - notation optional?
   def signPublicKey(key: PublicKey, notation: (String,String), pass: Array[Char]): PublicKey = {
     val out = new ArmoredOutputStream(new ByteArrayOutputStream())
     val pgpPrivKey = nested.extractPrivateKey(pass, "BC")
@@ -115,6 +116,56 @@ class SecretKey(val nested: PGPSecretKey) {
     bOut.flush()
     out.close()
     PublicKey(PGPPublicKey.addCertification(key, sGen.generate()))
+  }
+  /** Decrypts a given input stream into the output stream.  
+   * Note: This ignores fileNames if they are part of the decrypted message.
+   */
+  def decrypt(input: InputStream, output: OutputStream, passPhrase: Array[Char]): Unit = {
+    val fixIn = PGPUtil.getDecoderStream(input)
+    try {
+      val objF = new PGPObjectFactory(fixIn)
+      // TODO - better method to advance to encrypted data.
+      val enc = objF.nextObject match {
+        case e: PGPEncryptedDataList => e
+        case _                       => objF.nextObject.asInstanceOf[PGPEncryptedDataList] 
+      }
+      import collection.JavaConverters._
+      val it = enc.getEncryptedDataObjects()
+      val pbe = (for {
+        obj <- it.asInstanceOf[java.util.Iterator[AnyRef]].asScala
+        if obj.isInstanceOf[PGPPublicKeyEncryptedData]
+      } yield obj.asInstanceOf[PGPPublicKeyEncryptedData]).toTraversable.headOption.getOrElse {
+        throw new IllegalArgumentException("Secret key for message not found.")
+      }
+      // TODO - Better exception?
+      if(pbe.getKeyID != this.keyID) throw new KeyNotFoundException(pbe.getKeyID)
+      val privKey = nested.extractPrivateKey(passPhrase, "BC")
+      val clear = pbe.getDataStream(privKey, "BC")
+      val plainFact = new PGPObjectFactory(clear)
+      // Handle compressed + uncompressed data here.
+      def extractLiteral(x: Any): PGPLiteralData = x match {
+        case msg: PGPLiteralData => msg
+        case cData: PGPCompressedData =>
+          // Now we need to read the compressed stream of data.
+          val compressedStream = new BufferedInputStream(cData.getDataStream)
+          val pgpFact = new PGPObjectFactory(compressedStream)
+          extractLiteral(pgpFact.nextObject)
+        case msg: PGPOnePassSignature => throw new NotEncryptedMessageException("Message is a signature")
+        case _                        => throw new NotEncryptedMessageException("Message is not a simple encyrpted file")      
+      }
+      val msg = extractLiteral(plainFact.nextObject)
+      // TODO - Don't ignore filenames.... Let's re-use this code.
+      val unc = msg.getInputStream
+      val fOut =  new BufferedOutputStream(output)
+      val buf = new Array[Byte](1 << 16)
+      def read(): Unit = unc.read(buf) match {
+        case n if n > 0 => fOut.write(buf, 0, n); read()
+        case _          => ()
+      }
+      read()
+      fOut.close()
+      if(pbe.isIntegrityProtected && !pbe.verify()) throw new IntegrityException("Encrypted message failed integrity check.")
+    }
   }
 
   def userIDs = new Traversable[String] {
