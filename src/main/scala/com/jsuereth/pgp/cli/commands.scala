@@ -102,6 +102,8 @@ case class ReceiveKey(pubKeyId: Long, hkpUrl: String) extends HkpCommand {
   def run(ctx: PgpCommandContext): Unit = {
     val key = (hkpClient.getKey(pubKeyId) 
         getOrElse sys.error("Could not find key: " + pubKeyId + " on server " + hkpUrl))
+    ctx.log.info("Adding public key: " + key)
+    // TODO - Remove if key already exists...
     ctx addPublicKey key
   }
 }

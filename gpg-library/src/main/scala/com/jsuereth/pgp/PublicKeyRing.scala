@@ -32,6 +32,8 @@ class PublicKeyRing(val nested: PGPPublicKeyRing) extends PublicKeyLike with Str
       }
     }
   }
+  def masterKey = publicKeys find (_.isMasterKey)
+  
   /** Finds the first public key that has:
    *  - A keyID containing the given hex code
    *  - A userID containing the given string

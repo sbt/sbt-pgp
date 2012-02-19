@@ -44,8 +44,23 @@ trait PgpCommandContext extends PgpStaticContext with UICommandContext {
   def getPassphrase: Array[Char]
   
   def addPublicKeyRing(key: PublicKeyRing): Unit = {
-    val newring = publicKeyRing :+ key
-    newring saveToFile publicKeyRingFile
+    key.masterKey match {
+      case Some(mk) if publicKeyRing.publicKeys.map(_.keyID).toSet.apply(mk.keyID) =>
+        val badring = for {
+          ring <- publicKeyRing.keyRings
+          pk <- ring.publicKeys
+          if pk.keyID == mk.keyID
+        } yield ring
+        val newring = badring.foldLeft(publicKeyRing) {
+          (col, ring) =>
+            col removeRing ring
+        }
+        val newring2 = newring :+ key
+        newring2 saveToFile publicKeyRingFile
+      case _ =>
+        val newring = publicKeyRing :+ key
+        newring saveToFile publicKeyRingFile
+    }
   } 
   def addPublicKey(key: PublicKey): Unit =
     addPublicKeyRing(PublicKeyRing from key)
