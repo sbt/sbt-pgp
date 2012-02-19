@@ -14,6 +14,18 @@ class PublicKey(val nested: PGPPublicKey) extends PublicKeyLike with StreamingSa
   def creationTime = nested.getCreationTime
   def fingerprint = nested.getFingerprint
   def isRevoked = nested.isRevoked
+  def algorithm = nested.getAlgorithm
+  def algorithmName = nested.getAlgorithm match {
+    case PublicKeyAlgorithmTags.RSA_ENCRYPT |
+         PublicKeyAlgorithmTags.RSA_GENERAL |
+         PublicKeyAlgorithmTags.RSA_SIGN        => "RSA"
+    case PublicKeyAlgorithmTags.DSA             => "DSA"
+    case PublicKeyAlgorithmTags.EC              => "EC"
+    case PublicKeyAlgorithmTags.ELGAMAL_ENCRYPT |       
+         PublicKeyAlgorithmTags.ELGAMAL_GENERAL => "ElGamal"
+    case PublicKeyAlgorithmTags.ECDSA           => "ECDSA"
+    case _ => "Unknown"
+  }
   /** Returns the userIDs associated with this public key. */
   object userIDs extends Traversable[String] {
     def foreach[U](f: String => U) = {

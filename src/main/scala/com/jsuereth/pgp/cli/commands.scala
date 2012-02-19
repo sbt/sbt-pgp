@@ -13,6 +13,7 @@ sealed trait PgpCommand {
 object PgpCommand {
   def parser(ctx: PgpStaticContext): Parser[PgpCommand] =
     (GeneratePgpKey.parser(ctx) |
+     ListKeys.parser(ctx) |
      SendKey.parser(ctx) |
      ReceiveKey.parser(ctx) |
      ImportKey.parser(ctx) |
@@ -165,4 +166,27 @@ object ExportPublicKey {
   def parser(ctx: PgpStaticContext): Parser[ExportPublicKey] = {
     (token("export-pub-key") ~ Space) ~> existingKeyIdOrUserOption(ctx) map ExportPublicKey.apply
   }
+}
+case class ListKeys() extends PgpCommand {
+  def run(ctx: PgpCommandContext): Unit = {
+    def printKey(k: PublicKey) = { 
+      val hexkey: String = ("%x" format (k.keyID)).takeRight(7)
+      val strength = k.algorithmName + "@" + k.bitStrength.toString
+      val head = if(k.isMasterKey()) "pub" else "sub"
+      val date = new java.text.SimpleDateFormat("yyyy-MM-dd").format(k.getCreationTime)
+      val userStrings = k.userIDs.map("uid\t                \t" +).mkString("","\n","\n")
+      head +"\t"+ strength +"/" + hexkey +"\t"+ date + "\n" + userStrings
+    }
+    def printRing(r: PublicKeyRing) = 
+      r.publicKeys map printKey mkString "\n"
+    ctx output {
+      val path = ctx.publicKeyRingFile.getAbsolutePath
+      val line = Stream.continually('-').take(path.length).mkString("")
+      path + "\n" + line + "\n" + (ctx.publicKeyRing.keyRings map printRing mkString "\n")  
+    }
+  }
+}
+object ListKeys {
+  def parser(ctx: PgpStaticContext): Parser[ListKeys] =
+    token("list-keys") map { _ => ListKeys() }
 }

@@ -13,7 +13,7 @@ import org.bouncycastle.openpgp._
 /** Helpers to generate various keys. */
 object KeyGen {
   /** Constructs a new RSA PGPKeyPair (for encryption/signing) */
-  def makeRsaKeyPair(bitStrength: Int = 1024): PGPKeyPair = {
+  def makeRsaKeyPair(bitStrength: Int = 2048): PGPKeyPair = {
     val rsa = {
       val generator = KeyPairGenerator.getInstance("RSA", "BC")
       generator.initialize(bitStrength)
@@ -22,7 +22,7 @@ object KeyGen {
     new PGPKeyPair(PublicKeyAlgorithmTags.RSA_GENERAL, rsa, new Date())    
   }
   /** Constructs a new DSA PGP Pair. (only useful for signing) */
-  def makeDsaKeyPair(bitStrength: Int = 1024): PGPKeyPair = {
+  def makeDsaKeyPair(bitStrength: Int = 2048): PGPKeyPair = {
     val dsa = {
       val generator = KeyPairGenerator.getInstance("DSA", "BC")
       generator.initialize(bitStrength)
