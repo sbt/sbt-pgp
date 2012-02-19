@@ -6,8 +6,9 @@ trait Client {
   /** Retreives a PGP Public Key from the server. */
   def getKey(id: Long): Option[PublicKey]
   /** Pushes a public key to a key server. */
-  def pushKey(key: PublicKey): Unit
-  //def search(term: String):  Seq[KeyIndexResult]
+  def pushKey(key: PublicKey, logger: String => Unit): Unit
+  /** Searches for a term on the keyserver and returns all the results. */
+  def search(term: String): Seq[LookupKeyResult]
 }
 
 // case class KeyIndexResult(id: String, identity: String, date: java.util.Date)
@@ -30,8 +31,14 @@ private[hkp] class DispatchClient(serverUrl: String) extends Client {
     } yield key
   
   /** Pushes a key to the given public key server. */
-  def pushKey(key: PublicKey): Unit =
-    Http(initiateRequest(AddKey(key)).POST >|)
+  def pushKey(key: PublicKey, logger: String => Unit): Unit =
+    Http(initiateFormPost(AddKey(key)) >- { c => logger("received: " + c) })
+  
+  /** Searches for a term on the keyserver and returns all the results. */
+  def search(term: String): Seq[LookupKeyResult] = 
+    (catching(classOf[Exception]) opt 
+        Client.LookupParser.parseFile(Http(
+            initiateRequest(Find(term)).as_str)) getOrElse Seq.empty)
   
   // TODO - Allow search and parse format: http://keyserver.ubuntu.com:11371/pks/lookup?op=index&search=suereth
   /*
@@ -45,9 +52,14 @@ Note: Type bits/keyID    Date
    */
   private[this] def initiateRequest(cmd: HkpCommand): Request =
     url(serverUrl + cmd.url) <<? cmd.vars
+  
+  private[this] def initiateFormPost(cmd: HkpCommand): Request =
+    url(serverUrl + cmd.url).POST << cmd.vars
     
   override def toString = "HkpServer(%s)" format (serverUrl)
 }
+
+case class LookupKeyResult(id: String, time: java.util.Date, user: Seq[String])
 
 object Client {
   import util.matching.Regex
@@ -58,5 +70,36 @@ object Client {
     case Hkp(server)               => new DispatchClient("http://%s:11371" format (server))
     case HkpWithPort(server, port) => new DispatchClient("http://%s:%s" format (server,port))
     case _                         => new DispatchClient(url)
+  }
+  
+  object LookupParser extends scala.util.parsing.combinator.RegexParsers {
+    def s: Parser[String] = ":"
+    def eol: Parser[String] = "[\r\n]+".r
+    def pub: Parser[String] = "pub"
+    def uid: Parser[String] = "uid"
+    def info: Parser[String] = "info"
+    def name: Parser[String] = guard(not(info | uid | pub)) ~> ("[^\\:\n\r]*".r)
+    def line: Parser[Seq[String]] = (pub <~ s) ~ rep1sep(name, s) ^^ {
+      case x ~ xs => x +: xs
+    }
+    def userId: Parser[String] = ("uid" ~ s) ~> rep1sep(name,s) ^^ {
+      case Seq(name, date, _*) => name
+    }
+    def keyHeader: Parser[(String, java.util.Date)] = line ^? {
+      case Seq("pub", name, _, _, date, _*) => (name, new java.util.Date(date.toLong * 1000L))
+    }
+    def key: Parser[LookupKeyResult] = keyHeader ~ rep1(userId) ^^ {
+      case (id, ts) ~ users => LookupKeyResult(id, ts, users)
+    }
+    def infoheader = "info" ~ s ~ rep1sep(name,s)
+    def queryresponse: Parser[Seq[LookupKeyResult]] = infoheader ~> rep(key)
+    
+    def parseFile(input: String): Seq[LookupKeyResult] = {
+      println("Parsing lookup value: " + input)
+      parseAll(queryresponse, input) match {
+        case Success(data, _) => data
+        case _                => error("Issues")
+      }
+    }
   }
 }

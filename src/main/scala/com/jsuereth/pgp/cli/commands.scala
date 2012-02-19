@@ -86,7 +86,7 @@ case class SendKey(pubKey: String, hkpUrl: String) extends HkpCommand {
     val key = pubring findPubKey pubKey getOrElse sys.error("Could not find public key: " + pubKey)
     val client = hkpClient
     log.info("Sending " + key + " to " + client)
-    client.pushKey(key)
+    client.pushKey(key, { s: String => log.debug(s) })
   }
 }
 
@@ -170,7 +170,7 @@ object ExportPublicKey {
 case class ListKeys() extends PgpCommand {
   def run(ctx: PgpCommandContext): Unit = {
     def printKey(k: PublicKey) = { 
-      val hexkey: String = ("%x" format (k.keyID)).takeRight(7)
+      val hexkey: String = ("%x" format (k.keyID)).takeRight(8)
       val strength = k.algorithmName + "@" + k.bitStrength.toString
       val head = if(k.isMasterKey()) "pub" else "sub"
       val date = new java.text.SimpleDateFormat("yyyy-MM-dd").format(k.getCreationTime)
