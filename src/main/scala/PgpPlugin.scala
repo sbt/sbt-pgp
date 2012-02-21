@@ -9,67 +9,52 @@ import sbt.Project.Initialize
 import complete.Parser
 import complete.DefaultParsers._
 import SbtHelpers._
+import PgpKeys._
 
 /**
  * Plugin for doing PGP security tasks.  Signing, verifying, etc.
  */
 object PgpPlugin extends Plugin {
+  // Delegates for better build.sbt configuration.
+  def useGpg = PgpKeys.useGpg in Global
+  def useGpgAgent = PgpKeys.useGpgAgent in Global
+  def pgpSigningKey = PgpKeys.pgpSigningKey in Global
+  def pgpPassphrase = PgpKeys.pgpPassphrase in Global
+  def pgpReadOnly = PgpKeys.pgpReadOnly in Global
+  def pgpPublicRing = PgpKeys.pgpPublicRing in Global
+  def pgpSecretRing = PgpKeys.pgpSecretRing in Global
   
-  // PGP related setup
-  val pgpSigner     = TaskKey[PgpSigner]("pgp-signer", "The helper class to run GPG commands.")  
-  val pgpVerifier   = TaskKey[PgpVerifier]("pgp-verifier", "The helper class to verify public keys from a public key ring.")
-  val pgpSecretRing = SettingKey[File]("pgp-secret-ring", "The location of the secret key ring.  Only needed if using bouncy castle.")
-  val pgpPublicRing = SettingKey[File]("pgp-public-ring", "The location of the secret key ring.  Only needed if using bouncy castle.")
-  val pgpPassphrase = SettingKey[Option[Array[Char]]]("pgp-passphrase", "The passphrase associated with the secret used to sign artifacts.")
-  val pgpSigningKey = SettingKey[Option[Long]]("pgp-signing-key", "The key used to sign artifacts in this project.  Must be the full key id (not just lower 32 bits).")
-  
-  // PGP Related tasks  (TODO - make these commands?)
-  val pgpReadOnly = SettingKey[Boolean]("pgp-read-only", "If set to true, the PGP usage will not modify any public/private keyrings.")
-  val pgpCmd = InputKey[Unit]("pgp-cmd", "Runs one of the various PGP commands.")
-  val pgpStaticContext = SettingKey[cli.PgpStaticContext]("pgp-static-context", "Context used for auto-completing PGP commands.")
-  val pgpCmdContext = TaskKey[cli.PgpCommandContext]("pgp-context", "Context used to run PGP commands.")
-  
-  // GPG Related Options
-  val gpgCommand = SettingKey[String]("gpg-command", "The path of the GPG command to run")
-  val useGpg = SettingKey[Boolean]("use-gpg", "If this is set to true, the GPG command line will be used.")
-  val useGpgAgent = SettingKey[Boolean]("use-gpg-agent", "If this is set to true, the GPG command line will expect a GPG agent for the password.")
-  
-  // Checking PGP Signatures options
-  val signaturesModule = TaskKey[GetSignaturesModule]("signatures-module")
-  val updatePgpSignatures = TaskKey[UpdateReport]("update-pgp-signatures", "Resolves and optionally retrieves signatures for artifacts, transitively.")
-  val checkPgpSignatures = TaskKey[SignatureCheckReport]("check-pgp-signatures", "Checks the signatures of artifacts to see if they are trusted.")
-
   /** Configuration for GPG command line */
-  lazy val gpgConfigurationSettings: Seq[Setting[_]] = Seq(
-    useGpg := false,
-    useGpgAgent := false,
-    gpgCommand := (if(isWindows) "gpg.exe" else "gpg")
-  )
+  lazy val gpgConfigurationSettings: Seq[Setting[_]] = inScope(GlobalScope)(Seq(
+    initIf(PgpKeys.useGpg, false),
+    initIf(PgpKeys.useGpgAgent, false),
+    initIf(PgpKeys.gpgCommand, (if(isWindows) "gpg.exe" else "gpg"))
+  ))
   /** Configuration for BC JVM-local PGP */
-  lazy val nativeConfigurationSettings: Seq[Setting[_]] = Seq(
-    pgpPassphrase := None,
-    pgpPublicRing := file(System.getProperty("user.home")) / ".gnupg" / "pubring.gpg",
-    pgpSecretRing := file(System.getProperty("user.home")) / ".gnupg" / "secring.gpg",
-    pgpSigningKey := None,
-    // If the user isn't using GPG, we'll use a bouncy-castle ring.
-    pgpPublicRing <<= pgpPublicRing apply {
+  lazy val nativeConfigurationSettings: Seq[Setting[_]] = inScope(GlobalScope)(Seq(
+    initIf(PgpKeys.pgpPassphrase, None),
+    initIf(PgpKeys.pgpPublicRing, file(System.getProperty("user.home")) / ".gnupg" / "pubring.gpg"),
+    initIf(PgpKeys.pgpSecretRing, file(System.getProperty("user.home")) / ".gnupg" / "secring.gpg"),
+    initIf(PgpKeys.pgpSigningKey, None),
+    initIf(PgpKeys.pgpReadOnly, true),
+    // TODO - Are these all ok to place in global scope?
+    PgpKeys.pgpPublicRing <<= PgpKeys.pgpPublicRing apply {
       case f if f.exists => f
       case _ => file(System.getProperty("user.home")) / ".sbt" / "gpg" / "pubring.asc"
     },
-    pgpSecretRing <<= pgpSecretRing apply {
+    PgpKeys.pgpSecretRing <<= PgpKeys.pgpSecretRing apply {
       case f if f.exists => f
       case _ => file(System.getProperty("user.home")) / ".sbt" / "gpg" / "secring.asc"
     },
-    pgpStaticContext <<= (pgpPublicRing, pgpSecretRing) apply SbtPgpStaticContext.apply,
-    pgpCmdContext <<= (pgpStaticContext, pgpPassphrase, streams) map SbtPgpCommandContext.apply,
-    pgpReadOnly := true,
+    PgpKeys.pgpStaticContext <<= (PgpKeys.pgpPublicRing, PgpKeys.pgpSecretRing) apply SbtPgpStaticContext.apply,
+    PgpKeys.pgpCmdContext <<= (PgpKeys.pgpStaticContext, PgpKeys.pgpPassphrase, streams) map SbtPgpCommandContext.apply,
     pgpCmd <<= InputTask(pgpStaticContext apply { ctx => (_: State) => Space ~> cli.PgpCommand.parser(ctx) }) { result =>
       (result, pgpCmdContext, pgpReadOnly) map { (cmd, ctx, readOnly) => 
         if(readOnly && !cmd.isReadOnly) sys.error("Cannot modify keyrings when in read-only mode.  Run `set pgpReadOnly := false` before running this command.")
         cmd run ctx 
       }
     }
-  )
+  ))
   
   /** Helper to initialize the BC PgpSigner */
   private[this] def bcPgpSigner: Initialize[Task[PgpSigner]] =
@@ -92,13 +77,7 @@ object PgpPlugin extends Plugin {
     // TODO - move these to the signArtifactSettings?
     skip in pgpSigner := false,
     pgpSigner <<= switch(useGpg, gpgSigner, bcPgpSigner),
-    pgpVerifier <<= switch(useGpg, gpgVerifier, bcPgpVerifier),
-    pgpCmd <<= InputTask(pgpStaticContext apply { ctx => (_: State) => Space ~> cli.PgpCommand.parser(ctx) }) { result =>
-      (result, pgpCmdContext, pgpReadOnly) map { (cmd, ctx, readOnly) => 
-        if(readOnly && !cmd.isReadOnly) sys.error("Cannot modify keyrings when in read-only mode.  Run `set pgpReadOnly := false` before running this command.")
-        cmd run ctx 
-      }
-    }
+    pgpVerifier <<= switch(useGpg, gpgVerifier, bcPgpVerifier)
   ) 
   /** Configuration for signing artifacts.  If you use new scopes for
    * packagedArtifacts, you need to add this in that scope to your build.

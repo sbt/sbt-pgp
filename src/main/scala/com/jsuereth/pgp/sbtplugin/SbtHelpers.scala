@@ -6,8 +6,8 @@ import Project.Initialize
 
 object SbtHelpers {
   /** Initializes a setting with a given value if it isn't already configured. */
-  def initIf[T](key: SettingKey[T])(t: => T): Setting[T] =
-    key <<= key ?? t
+  def initIf[T](key: SettingKey[T], value: => T): Setting[T] =
+    key <<= key ?? value
   /** Helper method to switch between two initializers based on
    * the value of the switch setting.
    */
