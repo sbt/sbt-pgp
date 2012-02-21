@@ -73,9 +73,10 @@ object GpgBuild extends Build {
   val plugin = Project("plugin", file(".")) dependsOn(library) settings(defaultSettings:_*) settings(
     sbtPlugin := true,
     name := "xsbt-gpg-plugin"
-  ) settings(websiteSettings:_*) settings(ScriptedPlugin.scriptedSettings:_*) settings(
+  ) settings(websiteSettings:_*)  settings(
     //tmp workaround
     libraryDependencies += "net.databinder" %% "dispatch-http" % "0.8.6")
+  /* settings(ScriptedPlugin.scriptedSettings:_*) */
 
   lazy val library = Project("library", file("gpg-library")) settings(defaultSettings:_*) settings(
     name := "gpg-library",

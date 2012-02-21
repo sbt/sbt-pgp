@@ -4,9 +4,9 @@ package sbtplugin
 
 import scala.util.matching.Regex
 import scala.util.control.Exception._
-
 import sbt._
 import Keys._
+import com.jsuereth.pgp.cli.PgpCommandContext
 
 trait PgpVerifier {
   def verifySignature(signatureFile: File, s: TaskStreams): SignatureCheckResult
@@ -46,9 +46,9 @@ class CommandLineGpgVerifier(command: String) extends PgpVerifier {
   override def toString = "GPG"
 }
 
-class BouncyCastlePgpVerifier(publicKeyRingFile: File) extends PgpVerifier {
+class BouncyCastlePgpVerifier(ctx: PgpCommandContext) extends PgpVerifier {
   // TODO - Figure out how to auto-pull keys from a server.
-  private[this] val ring = PGP loadPublicKeyRing publicKeyRingFile
+  import ctx.{publicKeyRing => ring}
 
   def verifySignature(signature: File, s: TaskStreams): SignatureCheckResult = {
     val original = file(signature.getAbsolutePath.dropRight(gpgExtension.length))

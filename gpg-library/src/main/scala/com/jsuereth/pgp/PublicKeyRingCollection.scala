@@ -5,7 +5,7 @@ import org.bouncycastle.openpgp._
 import java.io.{InputStream,OutputStream}
 
 /** A collection of nested key rings. */
-class PublicKeyRingCollection(val nested: PGPPublicKeyRingCollection) extends StreamingSaveable {
+class PublicKeyRingCollection(val nested: PGPPublicKeyRingCollection) extends PublicKeyLike with StreamingSaveable {
   /** A collection of all the nested key rings. */
   object keyRings extends Traversable[PublicKeyRing] {
     def foreach[U](f: PublicKeyRing => U): Unit = {
@@ -23,6 +23,9 @@ class PublicKeyRingCollection(val nested: PGPPublicKeyRingCollection) extends St
   def findPubKey(value: String): Option[PublicKey] = {
     publicKeys find PGP.isPublicKeyMatching(value)
   }
+  /** Finds a public key using an exact id. */
+  def getKey(id: Long): Option[PublicKey] =
+    publicKeys find (_.keyID == id)
   /** A collection that will traverse all keys that can be used to encrypt data. */
   def encryptionKeys = publicKeys filter (_.isEncryptionKey)
   /** Finds the first encryption key that has:
@@ -39,6 +42,12 @@ class PublicKeyRingCollection(val nested: PGPPublicKeyRingCollection) extends St
   def removeRing(ring: PublicKeyRing): PublicKeyRingCollection =
     PublicKeyRingCollection(PGPPublicKeyRingCollection.removePublicKeyRing(nested, ring.nested))
   
+  private[this] def pkeyLookup(id: Long): PGPPublicKey =
+    getKey(id) map (_.nested) getOrElse (throw new KeyNotFoundException(id))
+  def verifyMessageStream(input: InputStream, output: OutputStream): Boolean =
+    verifyMessageStreamHelper(input,output)(pkeyLookup)
+  def verifySignatureStreams(msg: InputStream, signature: InputStream): Boolean = 
+    verifySignatureStreamsHelper(msg,signature)(pkeyLookup)
   def saveTo(output: OutputStream): Unit = {
     val armoredOut = new ArmoredOutputStream(output)   
     nested.encode(armoredOut)

@@ -4,6 +4,7 @@ package sbtplugin
 
 import sbt._
 import Keys._
+import pgp.cli.PgpCommandContext
 
 /** The interface used to sign plugins. */
 trait PgpSigner {
@@ -11,13 +12,6 @@ trait PgpSigner {
    * Returns the signature file, throws on errors. 
    */
   def sign(file: File, signatureFile: File, s: TaskStreams): File
-  /** Generates a new PGP key at the given locations.
-   * @param pubKey the location for the public keystore.
-   * @param secKey the lcoation for the secret keystore.
-   * @param identity The PGP identity for the key.
-   * @param s The TaskStreams logger to use.
-   */
-  def generateKey(pubKey: File, secKey: File, identity: String, s: TaskStreams): Unit
 }
 
 /** A GpgSigner that uses the command-line to run gpg. */
@@ -31,18 +25,14 @@ class CommandLineGpgSigner(command: String, agent: Boolean, optKey: Option[Long]
       case n => sys.error("Failure running gpg --detach-sign.  Exit code: " + n)
     }
     signatureFile 
-  }
-  def generateKey(pubKey: File, secKey: File, identity: String, s: TaskStreams): Unit = 
-    Process(command, Seq("--gen-key")) ! s.log match {
-      case 0 => ()
-      case n => sys.error("Trouble running gpg --gen-key!")
-    }
+  }  
 
   override val toString = "GPG-Command(" + command + ")"
 }
 /** A GpgSigner that uses bouncy castle. */
-class BouncyCastlePgpSigner(secretKeyRingFile: File, passPhrase: Array[Char], optKey: Option[Long]) extends PgpSigner {
-  lazy val secring = PGP.loadSecretKeyRing(secretKeyRingFile)
+class BouncyCastlePgpSigner(ctx: PgpCommandContext, optKey: Option[Long]) extends PgpSigner {
+  import ctx.{secretKeyRing => secring, getPassphrase => passPhrase}
+  
   def sign(file: File, signatureFile: File, s: TaskStreams): File = {
     if (signatureFile.exists) IO.delete(signatureFile)
     if (!signatureFile.getParentFile.exists) IO.createDirectory(signatureFile.getParentFile)
@@ -50,15 +40,6 @@ class BouncyCastlePgpSigner(secretKeyRingFile: File, passPhrase: Array[Char], op
       case Some(id) => secring(id).sign(file,signatureFile, passPhrase)
       case _        => secring.secretKey.sign(file, signatureFile, passPhrase) 
     }
-  }
-  def generateKey(pubKey: File, secKey: File, identity: String, s: TaskStreams): Unit = {
-    if(!pubKey.getParentFile.exists) IO.createDirectory(pubKey.getParentFile)
-    if(!secKey.getParentFile.exists) IO.createDirectory(secKey.getParentFile)
-    s.log.info("Creating a new PGP key.   This could take a long time to gather enough random bits for entropy.")
-    PGP.makeKeys(identity, passPhrase, pubKey, secKey)
-    s.log.info("Public key := " + pubKey.getAbsolutePath)
-    s.log.info("Secret key := " + secKey.getAbsolutePath)
-    s.log.info("Please do not share your secret key.   Your public key is free to share.")
   }
   override lazy val toString = "BC-PGP(" + secring + ")"
 }
