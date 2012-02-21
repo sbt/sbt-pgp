@@ -6,6 +6,58 @@ import com.jsuereth.sbtsite.SiteKeys._
 import com.jsuereth.ghpages.GhPages.ghpages
 import com.jsuereth.git.GitPlugin.git
 
+/** Helper object for creating Sonatype OSSRH metadata. */ 
+// TODO - Make this a plugin
+object Sonatype {
+  case class Developer(id: String, name: String) {
+    def toXml = 
+      (<developer>
+          <id>{id}</id>
+          <name>{name}</name>
+        </developer>)
+  }
+  
+  case class License(name: String, url: String, distribution: String = "repo") {
+    def toXml = 
+      (<license>
+         <name>{name}</name>
+         <url>{url}</url>
+         <distribution>{distribution}</distribution>
+       </license>)
+  }
+  
+  val BSD = License("BSD", "ttp://www.opensource.org/licenses/bsd-license.php")
+  
+  def publishSettings(gitUrl:String, licenses: Seq[License], developers: Seq[Developer]): Seq[Setting[_]] = Seq(
+    // If we want on maven central, we need to be in maven style.
+    publishMavenStyle := true,
+    publishArtifact in Test := false,
+    // The Nexus repo we're publishing to.
+    publishTo <<= version { (v: String) =>
+      val nexus = "https://oss.sonatype.org/"
+      if (v.trim.endsWith("SNAPSHOT")) Some("snapshots" at nexus + "content/repositories/snapshots") 
+      else                             Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+    },
+    // Maven central cannot allow other repos.  We're ok here because the artifacts we
+    // we use externally are *optional* dependencies.
+    pomIncludeRepository := { x => false },
+    // Maven central wants some extra metadata to keep things 'clean'.
+    pomExtra := (
+      <licenses>
+        { licenses map (_.toXml) }
+      </licenses>
+      <scm>
+        <url>{gitUrl}</url>
+        <connection>scm:{gitUrl}</connection>
+      </scm>
+      <developers>
+        { developers map (_.toXml) }
+      </developers>)
+  )
+  
+  
+}
+
 object GpgBuild extends Build {
   val defaultSettings: Seq[Setting[_]] = Seq(
     organization := "com.jsuereth",
@@ -21,14 +73,19 @@ object GpgBuild extends Build {
   val plugin = Project("plugin", file(".")) dependsOn(library) settings(defaultSettings:_*) settings(
     sbtPlugin := true,
     name := "xsbt-gpg-plugin"
-  ) settings(websiteSettings:_*)
+  ) settings(websiteSettings:_*) settings(ScriptedPlugin.scriptedSettings:_*) settings(
+    //tmp workaround
+    libraryDependencies += "net.databinder" %% "dispatch-http" % "0.8.6")
 
   lazy val library = Project("library", file("gpg-library")) settings(defaultSettings:_*) settings(
     name := "gpg-library",
     crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.9.0", "2.8.2", "2.8.1", "2.8.0"),
     libraryDependencies += "org.bouncycastle" % "bcpg-jdk16" % "1.46",
     libraryDependencies += "net.databinder" %% "dispatch-http" % "0.8.6"
-  )
+  ) settings(Sonatype.publishSettings(
+      gitUrl="git://github.com/sbt/xsbt-gpg-plugin.git",
+      licenses=Seq(Sonatype.BSD),
+      developers=Seq(Sonatype.Developer("jsuereth", "Josh Suereth"))):_*)
 
 
   def websiteSettings: Seq[Setting[_]] = site.settings ++ ghpages.settings ++ Seq(

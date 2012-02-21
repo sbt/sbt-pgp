@@ -110,7 +110,7 @@ class PublicKey(val nested: PGPPublicKey) extends PublicKeyLike with StreamingSa
     nested.encode(armoredOut)
     armoredOut.close()
   }
-  override lazy val toString = "PublicKey(%x, %s)".format(keyID, userIDs.mkString(","))
+  override lazy val toString = "PublicKey(%x, %s, %s@%d)".format(keyID, userIDs.mkString(","), algorithmName, bitStrength)
 }
 object PublicKey {
   def apply(nested: PGPPublicKey) = new PublicKey(nested)
