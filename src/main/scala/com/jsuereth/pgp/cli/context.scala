@@ -30,7 +30,7 @@ trait PgpStaticContext {
   def publicKeyRing: PublicKeyRingCollection = PGP loadPublicKeyRingCollection publicKeyRingFile
   def secretKeyRing: SecretKeyRing = PGP loadSecretKeyRing secretKeyRingFile
 }
-
+  
 trait DelegatingPgpStaticContext extends PgpStaticContext{
   def ctx: PgpStaticContext
   override def publicKeyRing = ctx.publicKeyRing
@@ -41,8 +41,10 @@ trait DelegatingPgpStaticContext extends PgpStaticContext{
 
 /** The context used when running PGP commands. */
 trait PgpCommandContext extends PgpStaticContext with UICommandContext {
-  def getPassphrase: Array[Char]
-  
+  /** Prompts user to input a passphrase. */
+  def inputPassphrase: Array[Char]
+  /** Perform an action with a passphrase.  This will ensure caching or other magikz */
+  def withPassphrase[U](f: Array[Char] => U): U
   def addPublicKeyRing(key: PublicKeyRing): Unit = {
     key.masterKey match {
       case Some(mk) if publicKeyRing.publicKeys.map(_.keyID).toSet.apply(mk.keyID) =>

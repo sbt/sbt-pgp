@@ -31,15 +31,16 @@ class CommandLineGpgSigner(command: String, agent: Boolean, optKey: Option[Long]
 }
 /** A GpgSigner that uses bouncy castle. */
 class BouncyCastlePgpSigner(ctx: PgpCommandContext, optKey: Option[Long]) extends PgpSigner {
-  import ctx.{secretKeyRing => secring, getPassphrase => passPhrase}
+  import ctx.{secretKeyRing => secring, withPassphrase}
   
-  def sign(file: File, signatureFile: File, s: TaskStreams): File = {
-    if (signatureFile.exists) IO.delete(signatureFile)
-    if (!signatureFile.getParentFile.exists) IO.createDirectory(signatureFile.getParentFile)
-    optKey match {
-      case Some(id) => secring(id).sign(file,signatureFile, passPhrase)
-      case _        => secring.secretKey.sign(file, signatureFile, passPhrase) 
+  def sign(file: File, signatureFile: File, s: TaskStreams): File = 
+    withPassphrase { pw =>
+      if (signatureFile.exists) IO.delete(signatureFile)
+      if (!signatureFile.getParentFile.exists) IO.createDirectory(signatureFile.getParentFile)
+      optKey match {
+        case Some(id) => secring(id).sign(file,signatureFile, pw)
+        case _        => secring.secretKey.sign(file, signatureFile, pw) 
+      }
     }
-  }
   override lazy val toString = "BC-PGP(" + secring + ")"
 }
