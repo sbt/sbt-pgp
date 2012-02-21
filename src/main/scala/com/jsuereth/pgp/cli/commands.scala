@@ -9,6 +9,8 @@ import CommonParsers._
 /** Represents a PgpCommand */
 sealed trait PgpCommand {
   def run(ctx: PgpCommandContext): Unit
+  /** Returns true if the command will not modify the public/private keys. */
+  def isReadOnly: Boolean = false
 }
 object PgpCommand {
   def parser(ctx: PgpStaticContext): Parser[PgpCommand] =
@@ -88,6 +90,7 @@ case class SendKey(pubKey: String, hkpUrl: String) extends HkpCommand {
     log.info("Sending " + key + " to " + client)
     client.pushKey(key, { s: String => log.debug(s) })
   }
+  override def isReadOnly: Boolean = true
 }
 
 object SendKey {
@@ -136,6 +139,7 @@ case class EncryptFile(file: File, pubKey: String) extends PgpCommand {
         sys.error("Could not find key: " + pubKey))
     key.encryptFile(file, new File(file.getAbsolutePath + ".asc"))
   }
+  override def isReadOnly: Boolean = true
 }
 object EncryptFile {
   def parser(ctx: PgpStaticContext): Parser[EncryptFile] = null
@@ -163,6 +167,7 @@ case class ExportPublicKey(id: String) extends PgpCommand {
         sys.error("Could not find key: " + id))
     ctx.output(key.saveToString)
   }
+  override def isReadOnly: Boolean = true
 }
 object ExportPublicKey {
   def parser(ctx: PgpStaticContext): Parser[ExportPublicKey] = {
@@ -187,6 +192,7 @@ case class ListKeys() extends PgpCommand {
       path + "\n" + line + "\n" + (ctx.publicKeyRing.keyRings map printRing mkString "\n")  
     }
   }
+  override def isReadOnly = true
 }
 object ListKeys {
   def parser(ctx: PgpStaticContext): Parser[ListKeys] =

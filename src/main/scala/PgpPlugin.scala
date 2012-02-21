@@ -23,6 +23,7 @@ object PgpPlugin extends Plugin {
   val pgpSigningKey = SettingKey[Option[Long]]("pgp-signing-key", "The key used to sign artifacts in this project.  Must be the full key id (not just lower 32 bits).")
   
   // PGP Related tasks  (TODO - make these commands?)
+  val pgpReadOnly = SettingKey[Boolean]("pgp-read-only", "If set to true, the PGP usage will not modify any public/private keyrings.")
   val pgpCmd = InputKey[Unit]("pgp-cmd", "Runs one of the various PGP commands.")
   val pgpStaticContext = SettingKey[cli.PgpStaticContext]("pgp-static-context", "Context used for auto-completing PGP commands.")
   val pgpCmdContext = TaskKey[cli.PgpCommandContext]("pgp-context", "Context used to run PGP commands.")
@@ -65,8 +66,12 @@ object PgpPlugin extends Plugin {
     },
     pgpStaticContext <<= (pgpPublicRing, pgpSecretRing) apply SbtPgpStaticContext.apply,
     pgpCmdContext <<= (pgpStaticContext, pgpPassphrase, streams) map SbtPgpCommandContext.apply,
+    pgpReadOnly := true,
     pgpCmd <<= InputTask(pgpStaticContext apply { ctx => (_: State) => Space ~> cli.PgpCommand.parser(ctx) }) { result =>
-      (result, pgpCmdContext) map { (cmd, ctx) => cmd run ctx }
+      (result, pgpCmdContext, pgpReadOnly) map { (cmd, ctx, readOnly) => 
+        if(readOnly && !cmd.isReadOnly) sys.error("Cannot modify keyrings when in read-only mode.  Run `set pgpReadOnly := false` before running this command.")
+        cmd run ctx 
+      }
     },
     pgpSigner <<= (pgpSecretRing, pgpSigningKey, pgpPassphrase, gpgCommand, useGpg, useGpgAgent) map { (secring, optKey, optPass, command, b, agent) =>
       if(b) new CommandLineGpgSigner(command, agent, optKey)
