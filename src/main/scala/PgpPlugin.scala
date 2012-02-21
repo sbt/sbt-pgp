@@ -30,6 +30,21 @@ object PgpPlugin extends Plugin {
     initIf(PgpKeys.useGpgAgent, false),
     initIf(PgpKeys.gpgCommand, (if(isWindows) "gpg.exe" else "gpg"))
   ))
+  
+  lazy val pgpCommand = Command("pgp-cmd") {
+    state => 
+      val extracted = Project.extract(state)
+      val ctx = extracted.get(pgpStaticContext)
+      Space ~> cli.PgpCommand.parser(ctx)
+  } { (state, cmd) =>
+    val extracted = Project.extract(state)
+    val readOnly = extracted get pgpReadOnly
+    val (newstate, ctx) = extracted.runTask(pgpCmdContext, state)
+    if(readOnly && !cmd.isReadOnly) sys.error("Cannot modify keyrings when in read-only mode.  Run `set pgpReadOnly := false` before running this command.")
+    cmd run ctx
+    newstate
+  }
+  
   /** Configuration for BC JVM-local PGP */
   lazy val nativeConfigurationSettings: Seq[Setting[_]] = inScope(GlobalScope)(Seq(
     initIf(PgpKeys.pgpPassphrase, None),
@@ -47,13 +62,7 @@ object PgpPlugin extends Plugin {
       case _ => file(System.getProperty("user.home")) / ".sbt" / "gpg" / "secring.asc"
     },
     PgpKeys.pgpStaticContext <<= (PgpKeys.pgpPublicRing, PgpKeys.pgpSecretRing) apply SbtPgpStaticContext.apply,
-    PgpKeys.pgpCmdContext <<= (PgpKeys.pgpStaticContext, PgpKeys.pgpPassphrase, streams) map SbtPgpCommandContext.apply,
-    pgpCmd <<= InputTask(pgpStaticContext apply { ctx => (_: State) => Space ~> cli.PgpCommand.parser(ctx) }) { result =>
-      (result, pgpCmdContext, pgpReadOnly) map { (cmd, ctx, readOnly) => 
-        if(readOnly && !cmd.isReadOnly) sys.error("Cannot modify keyrings when in read-only mode.  Run `set pgpReadOnly := false` before running this command.")
-        cmd run ctx 
-      }
-    }
+    PgpKeys.pgpCmdContext <<= (PgpKeys.pgpStaticContext, PgpKeys.pgpPassphrase, streams) map SbtPgpCommandContext.apply
   ))
   
   /** Helper to initialize the BC PgpSigner */
@@ -116,7 +125,7 @@ object PgpPlugin extends Plugin {
     checkPgpSignatures <<= (updatePgpSignatures, pgpVerifier, streams) map PgpSignatureCheck.checkSignaturesTask
   )
   /** Settings this plugin defines. TODO - require manual setting of these... */
-  lazy val allSettings = configurationSettings ++ signingSettings ++ verifySettings
+  lazy val allSettings = configurationSettings ++ signingSettings ++ verifySettings ++ Seq(commands += pgpCommand)
   
   /** TODO - Deprecate this usage... */
   override val settings = allSettings
