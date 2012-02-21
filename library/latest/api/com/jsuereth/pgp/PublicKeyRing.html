@@ -110,24 +110,24 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>final </dd><dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li visbl="pub" name="com.jsuereth.pgp.PublicKeyRing#+:" data-isabs="false">
-      <a id="+:(PGPPublicKey):PublicKeyRing"></a>
+      <a id="+:(PublicKey):PublicKeyRing"></a>
       <h4 class="signature">
       <span class="kind">def</span>
       <span class="symbol"> 
         <span class="name">+:</span>
         
-        <span class="params">(<span name="key">key: <span name="org.bouncycastle.openpgp.PGPPublicKey" class="extype">PGPPublicKey</span></span>)</span><span class="result">: <a name="com.jsuereth.pgp.PublicKeyRing" class="extype" href="">PublicKeyRing</a></span>
+        <span class="params">(<span name="key">key: <a name="com.jsuereth.pgp.PublicKey" class="extype" href="PublicKey.html">PublicKey</a></span>)</span><span class="result">: <a name="com.jsuereth.pgp.PublicKeyRing" class="extype" href="">PublicKeyRing</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Adds a key to this key ring and returns the new key ring.</p>
     </li><li visbl="pub" name="com.jsuereth.pgp.PublicKeyRing#:+" data-isabs="false">
-      <a id=":+(PGPPublicKey):PublicKeyRing"></a>
+      <a id=":+(PublicKey):PublicKeyRing"></a>
       <h4 class="signature">
       <span class="kind">def</span>
       <span class="symbol"> 
         <span class="name">:+</span>
         
-        <span class="params">(<span name="key">key: <span name="org.bouncycastle.openpgp.PGPPublicKey" class="extype">PGPPublicKey</span></span>)</span><span class="result">: <a name="com.jsuereth.pgp.PublicKeyRing" class="extype" href="">PublicKeyRing</a></span>
+        <span class="params">(<span name="key">key: <a name="com.jsuereth.pgp.PublicKey" class="extype" href="PublicKey.html">PublicKey</a></span>)</span><span class="result">: <a name="com.jsuereth.pgp.PublicKeyRing" class="extype" href="">PublicKeyRing</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Adds a key to this key ring and returns the new key ring.</p>
@@ -153,6 +153,17 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>final </dd><dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li visbl="pub" name="com.jsuereth.pgp.PublicKeyRing#apply" data-isabs="false">
+      <a id="apply(Long):PublicKey"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">apply</span>
+        
+        <span class="params">(<span name="id">id: <span name="scala.Long" class="extype">Long</span></span>)</span><span class="result">: <a name="com.jsuereth.pgp.PublicKey" class="extype" href="PublicKey.html">PublicKey</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Gets the public key with a given id from this key ring or throws.</p>
     </li><li visbl="pub" name="scala.Any#asInstanceOf" data-isabs="false">
       <a id="asInstanceOf[T0]:T0"></a>
       <h4 class="signature">
@@ -236,6 +247,41 @@
                 <span class="name">@throws</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li visbl="pub" name="com.jsuereth.pgp.PublicKeyRing#findEncryptionKey" data-isabs="false">
+      <a id="findEncryptionKey(String):Option[PublicKey]"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">findEncryptionKey</span>
+        
+        <span class="params">(<span name="value">value: String</span>)</span><span class="result">: <span name="scala.Option" class="extype">Option</span>[<a name="com.jsuereth.pgp.PublicKey" class="extype" href="PublicKey.html">PublicKey</a>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Finds the first encryption key that has:</p><div class="fullcomment"><div class="comment cmt"><p>Finds the first encryption key that has:</p><ul><li>A keyID containing the given hex code</li><li>A userID containing the given string
+</li></ul></div></div>
+    </li><li visbl="pub" name="com.jsuereth.pgp.PublicKeyRing#findPubKey" data-isabs="false">
+      <a id="findPubKey(String):Option[PublicKey]"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">findPubKey</span>
+        
+        <span class="params">(<span name="value">value: String</span>)</span><span class="result">: <span name="scala.Option" class="extype">Option</span>[<a name="com.jsuereth.pgp.PublicKey" class="extype" href="PublicKey.html">PublicKey</a>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Finds the first public key that has:</p><div class="fullcomment"><div class="comment cmt"><p>Finds the first public key that has:</p><ul><li>A keyID containing the given hex code</li><li>A userID containing the given string
+</li></ul></div></div>
+    </li><li visbl="pub" name="com.jsuereth.pgp.PublicKeyRing#get" data-isabs="false">
+      <a id="get(Long):Option[PublicKey]"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">get</span>
+        
+        <span class="params">(<span name="id">id: <span name="scala.Long" class="extype">Long</span></span>)</span><span class="result">: <span name="scala.Option" class="extype">Option</span>[<a name="com.jsuereth.pgp.PublicKey" class="extype" href="PublicKey.html">PublicKey</a>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Looks for a public key with the given id on this key ring.</p>
     </li><li visbl="pub" name="scala.AnyRef#getClass" data-isabs="false">
       <a id="getClass():java.lang.Class[_]"></a>
       <h4 class="signature">
@@ -269,6 +315,17 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>final </dd><dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li visbl="pub" name="com.jsuereth.pgp.PublicKeyRing#masterKey" data-isabs="false">
+      <a id="masterKey:Option[PublicKey]"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">masterKey</span>
+        
+        <span class="result">: <span name="scala.Option" class="extype">Option</span>[<a name="com.jsuereth.pgp.PublicKey" class="extype" href="PublicKey.html">PublicKey</a>]</span>
+      </span>
+      </h4>
+      
     </li><li visbl="pub" name="scala.AnyRef#ne" data-isabs="false">
       <a id="ne(AnyRef):Boolean"></a>
       <h4 class="signature">
@@ -468,7 +525,7 @@
         <span class="params">(<span name="msg">msg: <span name="java.io.InputStream" class="extype">InputStream</span></span>, <span name="signature">signature: <span name="java.io.InputStream" class="extype">InputStream</span></span>)</span><span class="params">(<span name="getKey">getKey: (<span name="scala.Long" class="extype">Long</span>) ⇒ <span name="org.bouncycastle.openpgp.PGPPublicKey" class="extype">PGPPublicKey</span></span>)</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a name="com.jsuereth.pgp.PublicKeyLike" class="extype" href="PublicKeyLike.html">PublicKeyLike</a></dd></dl></div>
+      <p class="shortcomment cmt">Verifies that a stream was signed correctly by another stream.</p><div class="fullcomment"><div class="comment cmt"><p>Verifies that a stream was signed correctly by another stream.</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a name="com.jsuereth.pgp.PublicKeyLike" class="extype" href="PublicKeyLike.html">PublicKeyLike</a></dd></dl></div>
     </li><li visbl="pub" name="com.jsuereth.pgp.PublicKeyLike#verifySignatureString" data-isabs="false">
       <a id="verifySignatureString(String,String):Boolean"></a>
       <h4 class="signature">

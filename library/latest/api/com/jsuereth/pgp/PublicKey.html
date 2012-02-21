@@ -131,6 +131,28 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>final </dd><dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li visbl="pub" name="com.jsuereth.pgp.PublicKey#algorithm" data-isabs="false">
+      <a id="algorithm:Int"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">algorithm</span>
+        
+        <span class="result">: <span name="scala.Int" class="extype">Int</span></span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="com.jsuereth.pgp.PublicKey#algorithmName" data-isabs="false">
+      <a id="algorithmName:String"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">algorithmName</span>
+        
+        <span class="result">: <span name="java.lang.String" class="extype">String</span></span>
+      </span>
+      </h4>
+      
     </li><li visbl="pub" name="scala.Any#asInstanceOf" data-isabs="false">
       <a id="asInstanceOf[T0]:T0"></a>
       <h4 class="signature">
@@ -178,6 +200,50 @@
       </span>
       </h4>
       
+    </li><li visbl="pub" name="com.jsuereth.pgp.PublicKey.directKeySignatures" data-isabs="false">
+      <a id="directKeySignatures:directKeySignatures"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="PublicKey$directKeySignatures$.html"><span class="name">directKeySignatures</span></a>
+        
+        <span class="result"> extends Traversable[Signature]</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="com.jsuereth.pgp.PublicKey#encrypt" data-isabs="false">
+      <a id="encrypt(InputStream,OutputStream,String,Long,Date):Unit"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">encrypt</span>
+        
+        <span class="params">(<span name="data">data: <span name="java.io.InputStream" class="extype">InputStream</span></span>, <span name="output">output: <span name="java.io.OutputStream" class="extype">OutputStream</span></span>, <span name="fileName">fileName: String</span>, <span name="size">size: <span name="scala.Long" class="extype">Long</span></span>, <span name="lastMod">lastMod: <span name="java.util.Date" class="extype">Date</span> = <span class="symbol"><span class="name"><a href="../../../java/package.html">new java.util.Date</a></span></span></span>)</span><span class="result">: <span name="scala.Unit" class="extype">Unit</span></span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="com.jsuereth.pgp.PublicKey#encryptFile" data-isabs="false">
+      <a id="encryptFile(File,File):Unit"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">encryptFile</span>
+        
+        <span class="params">(<span name="input">input: <span name="java.io.File" class="extype">File</span></span>, <span name="output">output: <span name="java.io.File" class="extype">File</span></span>)</span><span class="result">: <span name="scala.Unit" class="extype">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Encrypts a file such that only the secret key associated with this public key can decrypt.</p>
+    </li><li visbl="pub" name="com.jsuereth.pgp.PublicKey#encryptString" data-isabs="false">
+      <a id="encryptString(String):String"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">encryptString</span>
+        
+        <span class="params">(<span name="input">input: String</span>)</span><span class="result">: String</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Encrypts a string such that only the secret key associated with this public key could decrypt.</p>
     </li><li visbl="pub" name="scala.AnyRef#eq" data-isabs="false">
       <a id="eq(AnyRef):Boolean"></a>
       <h4 class="signature">
@@ -379,17 +445,17 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="com.jsuereth.pgp.PublicKey" class="extype" href="">PublicKey</a> → AnyRef → Any</dd></dl></div>
-    </li><li visbl="pub" name="com.jsuereth.pgp.PublicKey#userIDs" data-isabs="false">
-      <a id="userIDs:Traversable[String]"></a>
+    </li><li visbl="pub" name="com.jsuereth.pgp.PublicKey.userIDs" data-isabs="false">
+      <a id="userIDs:userIDs"></a>
       <h4 class="signature">
-      <span class="kind">def</span>
+      <span class="kind">object</span>
       <span class="symbol"> 
-        <span class="name">userIDs</span>
+        <a href="PublicKey$userIDs$.html"><span class="name">userIDs</span></a>
         
-        <span class="result">: Traversable[String]</span>
+        <span class="result"> extends Traversable[String]</span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Returns the userIDs associated with this public key.</p>
+      <p class="comment cmt">Returns the userIDs associated with this public key.</p>
     </li><li visbl="pub" name="com.jsuereth.pgp.PublicKeyLike#verifyMessageFile" data-isabs="false">
       <a id="verifyMessageFile(File,File):Boolean"></a>
       <h4 class="signature">
@@ -468,7 +534,7 @@
         <span class="params">(<span name="msg">msg: <span name="java.io.InputStream" class="extype">InputStream</span></span>, <span name="signature">signature: <span name="java.io.InputStream" class="extype">InputStream</span></span>)</span><span class="params">(<span name="getKey">getKey: (<span name="scala.Long" class="extype">Long</span>) ⇒ <span name="org.bouncycastle.openpgp.PGPPublicKey" class="extype">PGPPublicKey</span></span>)</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a name="com.jsuereth.pgp.PublicKeyLike" class="extype" href="PublicKeyLike.html">PublicKeyLike</a></dd></dl></div>
+      <p class="shortcomment cmt">Verifies that a stream was signed correctly by another stream.</p><div class="fullcomment"><div class="comment cmt"><p>Verifies that a stream was signed correctly by another stream.</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a name="com.jsuereth.pgp.PublicKeyLike" class="extype" href="PublicKeyLike.html">PublicKeyLike</a></dd></dl></div>
     </li><li visbl="pub" name="com.jsuereth.pgp.PublicKeyLike#verifySignatureString" data-isabs="false">
       <a id="verifySignatureString(String,String):Boolean"></a>
       <h4 class="signature">

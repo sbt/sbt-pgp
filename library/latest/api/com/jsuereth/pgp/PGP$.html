@@ -222,6 +222,17 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>final </dd><dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li visbl="pub" name="com.jsuereth.pgp.PGP#isPublicKeyMatching" data-isabs="false">
+      <a id="isPublicKeyMatching(String)(PublicKey):Boolean"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">isPublicKeyMatching</span>
+        
+        <span class="params">(<span name="value">value: String</span>)</span><span class="params">(<span name="k">k: <a name="com.jsuereth.pgp.PublicKey" class="extype" href="PublicKey.html">PublicKey</a></span>)</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
+      </span>
+      </h4>
+      
     </li><li visbl="pub" name="com.jsuereth.pgp.PGP#loadPublicKeyRing" data-isabs="false">
       <a id="loadPublicKeyRing(File):PublicKeyRing"></a>
       <h4 class="signature">
@@ -233,6 +244,17 @@
       </span>
       </h4>
       <p class="shortcomment cmt">This can load your local PGP keyring.</p>
+    </li><li visbl="pub" name="com.jsuereth.pgp.PGP#loadPublicKeyRingCollection" data-isabs="false">
+      <a id="loadPublicKeyRingCollection(File):PublicKeyRingCollection"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">loadPublicKeyRingCollection</span>
+        
+        <span class="params">(<span name="file">file: <span name="java.io.File" class="extype">File</span></span>)</span><span class="result">: <a name="com.jsuereth.pgp.PublicKeyRingCollection" class="extype" href="PublicKeyRingCollection.html">PublicKeyRingCollection</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Loads a collection of public key rings froma file.</p>
     </li><li visbl="pub" name="com.jsuereth.pgp.PGP#loadSecretKeyRing" data-isabs="false">
       <a id="loadSecretKeyRing(File):SecretKeyRing"></a>
       <h4 class="signature">
@@ -244,17 +266,6 @@
       </span>
       </h4>
       <p class="shortcomment cmt">This can load your local PGP keyring.</p>
-    </li><li visbl="prt" name="com.jsuereth.pgp.PGP#makeKeyGeneratorInternal" data-isabs="false">
-      <a id="makeKeyGeneratorInternal(String,Array[Char]):PGPKeyRingGenerator"></a>
-      <h4 class="signature">
-      <span class="kind">def</span>
-      <span class="symbol"> 
-        <span class="name">makeKeyGeneratorInternal</span>
-        
-        <span class="params">(<span name="identity">identity: String</span>, <span name="passPhrase">passPhrase: <span name="scala.Array" class="extype">Array</span>[<span name="scala.Char" class="extype">Char</span>]</span>)</span><span class="result">: <span name="org.bouncycastle.openpgp.PGPKeyRingGenerator" class="extype">PGPKeyRingGenerator</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Helper method for generating new secure PGP keys.</p><div class="fullcomment"><div class="comment cmt"><p>Helper method for generating new secure PGP keys.</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a name="com.jsuereth.pgp" class="extype" href="package.html">pgp</a>] </dd></dl></div>
     </li><li visbl="pub" name="com.jsuereth.pgp.PGP#makeKeys" data-isabs="false">
       <a id="makeKeys(String,Array[Char],File,File):Unit"></a>
       <h4 class="signature">
