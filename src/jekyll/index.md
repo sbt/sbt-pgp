@@ -13,7 +13,7 @@ If you already have GPG configured, simply add the following to your `~/.sbt/plu
 
     resolvers += Resolver.url("sbt-plugin-releases", new URL("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns)
     
-    addSbtPlugin("com.jsuereth" % "xsbt-gpg-plugin" % "0.5")
+    addSbtPlugin("com.jsuereth" % "xsbt-gpg-plugin" % "0.6")
 
 The plugin should wire into all your projects and sign files before they are deployed.  See [Usage](usage.html) for more information.
 
