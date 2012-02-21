@@ -84,7 +84,7 @@ There is currently no way to choose a non-default key from the keyring.
 
 ## Avoiding the password fiasco ##
 
-The PGP plugin will ask for your password once, for every task that requires the use of the PGP signatures.   The prompt will look something like this:
+The PGP plugin will ask for your password once, and cache it for the duration of the SBT process.   The prompt will look something like this:
 
     Please enter your PGP passphrase> ***********
 
@@ -129,7 +129,11 @@ You can configure the public key ring you use with the `gpgPublicRing` setting.
 
 ## Importing keys from public key servers ##
 
-TODO
+    pgp-cmd receive-key <key hex id> hkp://keyserver.ubuntu.com
+    
+Note: To import a key, you have to turn off read only mode:
+
+    set pgpReadOnly := false
 
 ## Export your public key ##
 
@@ -138,6 +142,8 @@ Using the gpg command line, run the following:
     gpg --keyserver hkp://keyserver.ubuntu.com --send-keys <your key id>
 
 
-Not yet implemented for direct plugin usage.
+Inside of the plugin run:
+
+     pgp-cmd send-key <key hex id> hkp://keyserver.ubuntu.com
 
 
