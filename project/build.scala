@@ -28,7 +28,7 @@ object Sonatype {
   
   val BSD = License("BSD", "ttp://www.opensource.org/licenses/bsd-license.php")
   
-  def publishSettings(gitUrl:String, licenses: Seq[License], developers: Seq[Developer]): Seq[Setting[_]] = Seq(
+  def publishSettings(gitUrl:String, url: String, licenses: Seq[License], developers: Seq[Developer]): Seq[Setting[_]] = Seq(
     // If we want on maven central, we need to be in maven style.
     publishMavenStyle := true,
     publishArtifact in Test := false,
@@ -43,6 +43,7 @@ object Sonatype {
     pomIncludeRepository := { x => false },
     // Maven central wants some extra metadata to keep things 'clean'.
     pomExtra := (
+      <url>{url}</url>
       <licenses>
         { licenses map (_.toXml) }
       </licenses>
@@ -84,6 +85,7 @@ object GpgBuild extends Build {
     libraryDependencies += "org.bouncycastle" % "bcpg-jdk16" % "1.46",
     libraryDependencies += "net.databinder" %% "dispatch-http" % "0.8.6"
   ) settings(Sonatype.publishSettings(
+      url="http://scala-sbt.org/xsbt-gpg-plugin/",
       gitUrl="git://github.com/sbt/xsbt-gpg-plugin.git",
       licenses=Seq(Sonatype.BSD),
       developers=Seq(Sonatype.Developer("jsuereth", "Josh Suereth"))):_*)
