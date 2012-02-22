@@ -1,6 +1,7 @@
 package com.jsuereth.pgp
 package cli
 
+/** Helper for printing key info to console. */
 object Display {
   
   def printFileHeader(f: java.io.File) = {
@@ -32,7 +33,7 @@ object Display {
   def printSignatures(k: PublicKey) = 
     k.signatures map printSignature mkString "\n"
   def printKeyWithSignatures(r: PublicKey) =
-    printKey(r) + printSignatures(r)
+    printKey(r) + printSignatures(r) + "\n"
   def printRingWithSignatures(r: PublicKeyRing) =
     r.publicKeys map printKeyWithSignatures mkString "\n"
   def printRing(r: PublicKeyRing) = 
