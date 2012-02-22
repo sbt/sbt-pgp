@@ -34,14 +34,18 @@ class PublicKey(val nested: PGPPublicKey) extends PublicKeyLike with StreamingSa
     }
   }
   
-  object directKeySignatures extends Traversable[Signature] {
+  object signatures extends Traversable[Signature] {
     override def foreach[U](f: Signature => U): Unit = {
-      val i = nested.getSignaturesOfType(PGPSignature.DIRECT_KEY)
+      val i = nested.getSignatures()
       while(i.hasNext) {
         f(Signature(i.next.asInstanceOf[PGPSignature]))
       }
     }
   }
+  
+  def directKeySignatures: Traversable[Signature] =
+    signatures.view filter (_.signatureType == PGPSignature.DIRECT_KEY)
+  
   def verifyMessageStream(input: InputStream, output: OutputStream): Boolean =
     verifyMessageStreamHelper(input,output) { id =>
       assert(id == keyID)
