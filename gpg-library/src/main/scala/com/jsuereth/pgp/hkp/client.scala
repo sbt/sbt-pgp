@@ -4,9 +4,11 @@ package hkp
 /** Represents a client connected to a PGP public key server. */
 trait Client {
   /** Retreives a PGP Public Key from the server. */
-  def getKey(id: Long): Option[PublicKey]
+  def getKey(id: Long): Option[PublicKeyRing]
   /** Pushes a public key to a key server. */
   def pushKey(key: PublicKey, logger: String => Unit): Unit
+  /** Pushes a public key to a key server. */
+  def pushKeyRing(key: PublicKeyRing, logger: String => Unit): Unit
   /** Searches for a term on the keyserver and returns all the results. */
   def search(term: String): Seq[LookupKeyResult]
 }
@@ -22,18 +24,22 @@ private[hkp] class DispatchClient(serverUrl: String) extends Client {
   /** Attempts to pull a public key from the HKP server.
    * @return Some(key) if successful, None otherwise.
    */
-  def getKey(id: Long): Option[PublicKey] =
+  def getKey(id: Long): Option[PublicKeyRing] =
     for {
       ring <- catching(classOf[Exception]) opt Http(
           initiateRequest(GetKey(id)) >> (PublicKeyRing.load _))
       // we have to look for ids matching the string, since IDs tend to be sent with lower 32 bits.
       key <- ring.publicKeys find { k => idToString(k.keyID) contains idToString(id) } 
-    } yield key
+    } yield ring
   
   /** Pushes a key to the given public key server. */
   def pushKey(key: PublicKey, logger: String => Unit): Unit =
     Http(initiateFormPost(AddKey(key)) >- { c => logger("received: " + c) })
   
+  /** Pushes a key to the given public key server. */
+  def pushKeyRing(key: PublicKeyRing, logger: String => Unit): Unit =
+    Http(initiateFormPost(AddKey(key)) >- { c => logger("received: " + c) })
+    
   /** Searches for a term on the keyserver and returns all the results. */
   def search(term: String): Seq[LookupKeyResult] = 
     (catching(classOf[Exception]) opt 

@@ -87,10 +87,10 @@ object SignPublicKey {
 case class SendKey(pubKey: String, hkpUrl: String) extends HkpCommand {
   def run(ctx: PgpCommandContext): Unit = {
     import ctx.{publicKeyRing => pubring, log}
-    val key = pubring findPubKey pubKey getOrElse sys.error("Could not find public key: " + pubKey)
+    val key = pubring findPubKeyRing pubKey getOrElse sys.error("Could not find public key: " + pubKey)
     val client = hkpClient
     log.info("Sending " + key + " to " + client)
-    client.pushKey(key, { s: String => log.debug(s) })
+    client.pushKeyRing(key, { s: String => log.debug(s) })
   }
   override def isReadOnly: Boolean = true
 }
@@ -109,7 +109,7 @@ case class ReceiveKey(pubKeyId: Long, hkpUrl: String) extends HkpCommand {
         getOrElse sys.error("Could not find key: " + pubKeyId + " on server " + hkpUrl))
     ctx.log.info("Adding public key: " + key)
     // TODO - Remove if key already exists...
-    ctx addPublicKey key
+    ctx addPublicKeyRing key
   }
 }
 object ReceiveKey {
@@ -137,8 +137,10 @@ object ImportKey {
 
 case class EncryptFile(file: File, pubKey: String) extends PgpCommand {
   def run(ctx: PgpCommandContext): Unit = {
-    val key = (ctx.publicKeyRing.findPubKey(pubKey) getOrElse 
-        sys.error("Could not find key: " + pubKey))
+    val key = (for {
+      keyring <- ctx.publicKeyRing findPubKeyRing pubKey
+      encKey <- keyring.encryptionKeys.headOption
+    } yield encKey) getOrElse sys.error("Could not find encryption key for: " + pubKey)
     key.encryptFile(file, new File(file.getAbsolutePath + ".asc"))
   }
   override def isReadOnly: Boolean = true
@@ -149,8 +151,10 @@ object EncryptFile {
 
 case class EncryptMessage(msg: String, pubKey: String) extends PgpCommand {
   def run(ctx: PgpCommandContext): Unit = {
-    val key = (ctx.publicKeyRing.findEncryptionKey(pubKey) getOrElse 
-        sys.error("Could not find key: " + pubKey))
+    val key = (for {
+      keyring <- ctx.publicKeyRing findPubKeyRing pubKey
+      encKey <- keyring.encryptionKeys.headOption
+    } yield encKey) getOrElse sys.error("Could not find encryption key for: " + pubKey)
     ctx.output(key.encryptString(msg))
   }
 }
@@ -165,7 +169,7 @@ object EncryptMessage {
 
 case class ExportPublicKey(id: String) extends PgpCommand {
   def run(ctx: PgpCommandContext): Unit = {
-    val key = (ctx.publicKeyRing.findPubKey(id) getOrElse
+    val key = (ctx.publicKeyRing.findPubKeyRing(id) getOrElse
         sys.error("Could not find key: " + id))
     ctx.output(key.saveToString)
   }
