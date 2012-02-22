@@ -49,7 +49,7 @@ object KeyGen {
       keyPair: PGPKeyPair,
       subKeyPairs: PGPKeyPair*): PGPKeyRingGenerator = {
     val keyRingGen = new PGPKeyRingGenerator(
-        PGPSignature.DEFAULT_CERTIFICATION,
+        PGPSignature.POSITIVE_CERTIFICATION,
         keyPair,
         identity,
         SymmetricKeyAlgorithmTags.AES_256,
