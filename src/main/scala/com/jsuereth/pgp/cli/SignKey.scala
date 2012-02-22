@@ -14,21 +14,24 @@ case class SignKey(pubKey: String, notation: (String,String)) extends PgpCommand
       key <- ring.publicKeys
       if PGP.isPublicKeyMatching(pubKey)(key)
     } yield ring -> key
-    ctx.log.info("Found keyring: " + matches)
     val newpubringcol = matches match {
       case Seq((ring, key), _*) =>
         val newkey = ctx withPassphrase { pw => 
-          ctx.log.info("Signing key: " + key)
-          ctx.secretKeyRing.secretKey.signPublicKey(key, notation, pw)
+        ctx.log.info("Signing key: " + key)
+          try {
+            ctx.secretKeyRing.secretKey.signPublicKey(key, notation, pw)
+          } catch {
+            case t => 
+              ctx.log.trace(t)
+              ctx.log.error("Error signing key!")
+              throw t
+          }
         }
-        ctx.log.info("New key: " + key)
         val newpubring = ring :+ newkey
-        ctx.log.info("New pubring: " + newpubring)
         (ctx.publicKeyRing removeRing ring)  :+ newpubring
       case Seq()            => sys.error("Could not find key: " + pubKey)
       case matches          => sys.error("Found more than on pulic key: " + matches.map(_._2).mkString(","))
     }
-    ctx.log.info("Saving public ring changes")
     newpubringcol saveToFile ctx.publicKeyRingFile
   }
 }

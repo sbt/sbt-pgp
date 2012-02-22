@@ -25,9 +25,9 @@ object Display {
     val hexKey: String = ("%x" format (s.keyID)).takeRight(8)
     val notationsString = 
       if(s.notations.isEmpty) ""
-      else s.notations.map { case (l,r) => "\tnotation\t" +l + "\t=\t" + r }.mkString("\n", "\n", "")
+      else s.notations.map { case (l,r) => "note\t\t\t\t" +l + "=" + r}.mkString("\n", "\n", "")
     val user = s.signerUserID getOrElse ""
-    "sig\t%s\t%s\t%s%s" format(hexKey, user, s.signatureTypeString, notationsString)
+    "sig\t%s@%s\t%s%s" format(hexKey, s.signatureTypeString, user, notationsString)
   }
   
   def printSignatures(k: PublicKey) = 
