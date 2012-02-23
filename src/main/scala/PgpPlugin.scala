@@ -41,7 +41,7 @@ object PgpPlugin extends Plugin {
     val readOnly = extracted get pgpReadOnly
     if(readOnly && !cmd.isReadOnly) sys.error("Cannot modify keyrings when in read-only mode.  Run `set pgpReadOnly := false` before running this command.")
     // Create a new task that executes the command.
-    val task = extracted get pgpCmdContext map (cmd run) named "pgp-cmd"
+    val task = extracted get pgpCmdContext map (cmd run) named ("pgp-cmd-" + cmd.getClass.getSimpleName)
     import EvaluateTask._
     val (newstate, _) = withStreams(extracted.structure, state) { streams =>
       runTask(task, state, streams, extracted.structure.index.triggers)(nodeView(state, streams))
