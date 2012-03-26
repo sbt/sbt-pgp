@@ -62,13 +62,18 @@ object Sonatype {
 object GpgBuild extends Build {
   val defaultSettings: Seq[Setting[_]] = Seq(
     organization := "com.jsuereth",
-    version := "0.7",
+    version := "0.7-SNAPSHOT",
     publishTo <<= (version) { v =>
       import Classpaths._
       Option(if(v endsWith "SNAPSHOT") typesafeSnapshots else typesafeResolver)
     },
     publishMavenStyle := false,
-    publishTo := Some(Resolver.url("sbt-plugin-releases", new URL("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns))
+    publishTo <<= (version) { version: String =>
+       val scalasbt = "http://scalasbt.artifactoryonline.com/scalasbt/"
+       val (name, u) = if (version.contains("-SNAPSHOT")) ("sbt-plugin-snapshots", scalasbt+"sbt-plugin-snapshots")
+                       else ("sbt-plugin-releases", scalasbt+"sbt-plugin-releases")
+       Some(Resolver.url(name, url(u))(Resolver.ivyStylePatterns))
+    }
   )
 
   val plugin = Project("plugin", file(".")) dependsOn(library) settings(defaultSettings:_*) settings(
