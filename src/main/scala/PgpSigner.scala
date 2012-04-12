@@ -19,7 +19,7 @@ class CommandLineGpgSigner(command: String, agent: Boolean, optKey: Option[Long]
   def sign(file: File, signatureFile: File, s: TaskStreams): File = {
     if (signatureFile.exists) IO.delete(signatureFile)
     val keyargs: Seq[String] = optKey map (k => Seq("--default-key", "0x%x" format(k))) getOrElse Seq.empty
-    val args = Seq("--detach-sign", "--armor") ++ (if(agent) Seq("-use-agent") else Seq.empty) ++ keyargs
+    val args = Seq("--detach-sign", "--armor") ++ (if(agent) Seq("--use-agent") else Seq.empty) ++ keyargs
     Process(command, args ++ Seq("--output", signatureFile.getAbsolutePath, file.getAbsolutePath)) ! s.log match {
       case 0 => ()
       case n => sys.error("Failure running gpg --detach-sign.  Exit code: " + n)
