@@ -76,14 +76,15 @@ object GpgBuild extends Build {
     name := "xsbt-gpg-plugin"
   ) settings(websiteSettings:_*)  settings(
     //tmp workaround
-    libraryDependencies += "net.databinder" %% "dispatch-http" % "0.8.6")
+    libraryDependencies += "net.databinder" % "dispatch-http_2.9.1" % "0.8.6"
+  )
   /* settings(ScriptedPlugin.scriptedSettings:_*) */
 
   lazy val library = Project("library", file("gpg-library")) settings(defaultSettings:_*) settings(
     name := "gpg-library",
     crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.9.0", "2.8.2", "2.8.1", "2.8.0"),
     libraryDependencies += "org.bouncycastle" % "bcpg-jdk16" % "1.46",
-    libraryDependencies += "net.databinder" %% "dispatch-http" % "0.8.6"
+    libraryDependencies += "net.databinder" % "dispatch-http_2.9.1" % "0.8.6"
   ) settings(Sonatype.publishSettings(
       url="http://scala-sbt.org/xsbt-gpg-plugin/",
       gitUrl="git://github.com/sbt/xsbt-gpg-plugin.git",

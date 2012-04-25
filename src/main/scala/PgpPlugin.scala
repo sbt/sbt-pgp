@@ -39,9 +39,15 @@ object PgpPlugin extends Plugin {
   } { (state, cmd) =>
     val extracted = Project.extract(state)
     val readOnly = extracted get pgpReadOnly
-    val (newstate, ctx) = extracted.runTask(pgpCmdContext, state)
     if(readOnly && !cmd.isReadOnly) sys.error("Cannot modify keyrings when in read-only mode.  Run `set pgpReadOnly := false` before running this command.")
-    cmd run ctx
+    // Create a new task that executes the command.
+    val task = extracted get pgpCmdContext map (cmd run) named ("pgp-cmd-" + cmd.getClass.getSimpleName)
+    import EvaluateTask._
+    val (newstate, _) = withStreams(extracted.structure, state) { streams =>
+      // TODO - Use the config from somwhere else...
+      val config = EvaluateConfig(false, defaultRestrictions(1), false)
+      EvaluateTask.runTask(task, state, streams, extracted.structure.index.triggers, config)(nodeView(state, streams, Nil))
+    }
     newstate
   }
   
