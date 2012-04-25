@@ -131,6 +131,29 @@ object PgpPlugin extends Plugin {
   /** Settings this plugin defines. TODO - require manual setting of these... */
   lazy val allSettings = configurationSettings ++ signingSettings ++ verifySettings ++ Seq(commands += pgpCommand)
   
+  /** Include this setting if you want to control when you can sign artifacts. */
+  lazy val signedPublishSettings: Seq[Setting[_]]= Seq(
+    skip in pgpSigner := true,
+    commands += Command.command("signed-publish") { state =>
+      def fixSkip(s:Setting[_]): Setting[_] = s.key.key match {
+        case skip if s.key.scope.task == pgpSigner => 
+          s.asInstanceOf[Setting[Boolean]].mapInit((_,_) => false)
+        case _ => s
+      }
+      
+      val extracted = Project.extract(state)
+      import extracted._ 
+      val transformedSettings = session.mergeSettings map fixSkip
+      // Now we need to rip into structure and add references to appropriate projects.
+      import Load._      
+      val newStructure2 = Load.reapply(transformedSettings, structure)
+      val state2 = Project.setProject(session, newStructure2, state)
+      Project.evaluateTask(publish, state) 
+      state
+    }
+  )
+  
+  
   /** TODO - Deprecate this usage... */
   override val settings = allSettings
   
