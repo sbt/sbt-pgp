@@ -88,7 +88,7 @@ object PgpPlugin extends Plugin {
    */
   lazy val configurationSettings: Seq[Setting[_]] = gpgConfigurationSettings ++ nativeConfigurationSettings ++ Seq(
     // TODO - move these to the signArtifactSettings?
-    skip in pgpSigner := false,
+    skip in pgpSigner <<= (skip in pgpSigner) ?? false,
     pgpSigner <<= switch(useGpg, gpgSigner, bcPgpSigner),
     pgpVerifier <<= switch(useGpg, gpgVerifier, bcPgpVerifier)
   ) 
