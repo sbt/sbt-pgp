@@ -96,16 +96,14 @@ object GpgBuild extends Build {
       developers=Seq(Sonatype.Developer("jsuereth", "Josh Suereth"))):_*)
 
 
-  def websiteSettings: Seq[Setting[_]] = site.settings ++ ghpages.settings ++ Seq(
-    git.remoteRepo := "git@github.com:sbt/xsbt-gpg-plugin.git",
-    siteMappings <++= (baseDirectory, target, streams) map { (dir, out, s) => 
-      val jekyllSrc = dir / "src" / "jekyll"
-      val jekyllOutput = out / "jekyll"
-      // Run Jekyll
-      sbt.Process(Seq("jekyll", jekyllOutput.getAbsolutePath), Some(jekyllSrc)).!;
-      // Figure out what was generated.
-      (jekyllOutput ** ("*.html" | "*.png" | "*.js" | "*.css") x relativeTo(jekyllOutput))
-    },
-    site.addMappingsToSiteDir(mappings in packageDoc in Compile in library, "library/latest/api")
+  def websiteSettings: Seq[Setting[_]] = (
+    site.settings ++ 
+    ghpages.settings ++ 
+    site.jekyllSupport() ++ 
+    site.includeScaladoc() ++ 
+    Seq(
+      git.remoteRepo := "git@github.com:sbt/xsbt-gpg-plugin.git",
+      site.addMappingsToSiteDir(mappings in packageDoc in Compile in library, "library/latest/api")
+    )
   )
 }
