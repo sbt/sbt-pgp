@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
-          <title>com.jsuereth.pgp.cli.SignPublicKey</title>
+          <title>com.jsuereth.pgp.cli.Display</title>
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link type="text/css" media="screen" rel="stylesheet" href="../../../../lib/template.css" />
@@ -14,23 +14,23 @@
         </head>
         <body class="value">
       <div id="definition">
-        <a title="Go to companion" href="SignPublicKey.html"><img src="../../../../lib/object_to_class_big.png" /></a>
+        <img src="../../../../lib/object_big.png" />
         <p id="owner"><a name="com" class="extype" href="../../../package.html">com</a>.<a name="com.jsuereth" class="extype" href="../../package.html">jsuereth</a>.<a name="com.jsuereth.pgp" class="extype" href="../package.html">pgp</a>.<a name="com.jsuereth.pgp.cli" class="extype" href="package.html">cli</a></p>
-        <h1><a title="Go to companion" href="SignPublicKey.html">SignPublicKey</a></h1>
+        <h1>Display</h1>
       </div>
 
       <h4 class="signature" id="signature">
       <span class="kind">object</span>
       <span class="symbol"> 
-        <span class="name">SignPublicKey</span>
+        <span class="name">Display</span>
         
-        <span class="result"> extends <span name="scala.Serializable" class="extype">Serializable</span></span>
+        <span class="result"> extends AnyRef</span>
       </span>
       </h4>
       
-          <div class="fullcommenttop" id="comment"><div class="toggleContainer block">
+          <div class="fullcommenttop" id="comment"><div class="comment cmt"><p>Helper for printing key info to console.</p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span name="scala.Serializable" class="extype">Serializable</span>, <span name="java.io.Serializable" class="extype">Serializable</span>, AnyRef, <span name="scala.Any" class="extype">Any</span></div>
+          <div class="superTypes hiddenContent">AnyRef, <span name="scala.Any" class="extype">Any</span></div>
         </div></div>
         
 
@@ -46,7 +46,7 @@
                 <span class="filtertype">Inherited</span>
                 <ol><li class="hideall out"><span>Hide All</span></li>
                 <li class="showall in"><span>Show all</span></li></ol>
-                <ol id="linearization"><li name="com.jsuereth.pgp.cli.SignPublicKey" class="in"><span>SignPublicKey</span></li><li name="scala.Serializable" class="in"><span>Serializable</span></li><li name="java.io.Serializable" class="in"><span>Serializable</span></li><li name="scala.AnyRef" class="in"><span>AnyRef</span></li><li name="scala.Any" class="in"><span>Any</span></li></ol>
+                <ol id="linearization"><li name="com.jsuereth.pgp.cli.Display" class="in"><span>Display</span></li><li name="scala.AnyRef" class="in"><span>AnyRef</span></li><li name="scala.Any" class="in"><span>Any</span></li></ol>
               </div>
           <div id="visbl">
               <span class="filtertype">Visibility</span>
@@ -244,28 +244,83 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>final </dd><dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li visbl="pub" name="com.jsuereth.pgp.cli.SignPublicKey#parser" data-isabs="false">
-      <a id="parser(PgpStaticContext):Parser[SignPublicKey]"></a>
+    </li><li visbl="pub" name="com.jsuereth.pgp.cli.Display#printFileHeader" data-isabs="false">
+      <a id="printFileHeader(File):String"></a>
       <h4 class="signature">
       <span class="kind">def</span>
       <span class="symbol"> 
-        <span class="name">parser</span>
+        <span class="name">printFileHeader</span>
         
-        <span class="params">(<span name="ctx">ctx: <a name="com.jsuereth.pgp.cli.PgpStaticContext" class="extype" href="PgpStaticContext.html">PgpStaticContext</a></span>)</span><span class="result">: <span name="sbt.complete.Parser" class="extype">Parser</span>[<a name="com.jsuereth.pgp.cli.SignPublicKey" class="extype" href="SignPublicKey.html">SignPublicKey</a>]</span>
+        <span class="params">(<span name="f">f: <span name="java.io.File" class="extype">File</span></span>)</span><span class="result">: <span name="java.lang.String" class="extype">String</span></span>
       </span>
       </h4>
       
-    </li><li visbl="prt" name="com.jsuereth.pgp.cli.SignPublicKey#readResolve" data-isabs="false">
-      <a id="readResolve():AnyRef"></a>
+    </li><li visbl="pub" name="com.jsuereth.pgp.cli.Display#printKey" data-isabs="false">
+      <a id="printKey(PublicKey):String"></a>
       <h4 class="signature">
       <span class="kind">def</span>
       <span class="symbol"> 
-        <span class="name">readResolve</span>
+        <span class="name">printKey</span>
         
-        <span class="params">()</span><span class="result">: AnyRef</span>
+        <span class="params">(<span name="k">k: <span name="com.jsuereth.pgp.PublicKey" class="extype">PublicKey</span></span>)</span><span class="result">: <span name="java.lang.String" class="extype">String</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+      
+    </li><li visbl="pub" name="com.jsuereth.pgp.cli.Display#printKeyWithSignatures" data-isabs="false">
+      <a id="printKeyWithSignatures(PublicKey):String"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">printKeyWithSignatures</span>
+        
+        <span class="params">(<span name="r">r: <span name="com.jsuereth.pgp.PublicKey" class="extype">PublicKey</span></span>)</span><span class="result">: <span name="java.lang.String" class="extype">String</span></span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="com.jsuereth.pgp.cli.Display#printRing" data-isabs="false">
+      <a id="printRing(PublicKeyRing):String"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">printRing</span>
+        
+        <span class="params">(<span name="r">r: <span name="com.jsuereth.pgp.PublicKeyRing" class="extype">PublicKeyRing</span></span>)</span><span class="result">: String</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="com.jsuereth.pgp.cli.Display#printRingWithSignatures" data-isabs="false">
+      <a id="printRingWithSignatures(PublicKeyRing):String"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">printRingWithSignatures</span>
+        
+        <span class="params">(<span name="r">r: <span name="com.jsuereth.pgp.PublicKeyRing" class="extype">PublicKeyRing</span></span>)</span><span class="result">: String</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="com.jsuereth.pgp.cli.Display#printSignature" data-isabs="false">
+      <a id="printSignature(Signature):String"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">printSignature</span>
+        
+        <span class="params">(<span name="s">s: <span name="com.jsuereth.pgp.Signature" class="extype">Signature</span></span>)</span><span class="result">: String</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="com.jsuereth.pgp.cli.Display#printSignatures" data-isabs="false">
+      <a id="printSignatures(PublicKey):String"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">printSignatures</span>
+        
+        <span class="params">(<span name="k">k: <span name="com.jsuereth.pgp.PublicKey" class="extype">PublicKey</span></span>)</span><span class="result">: String</span>
+      </span>
+      </h4>
+      
     </li><li visbl="pub" name="scala.AnyRef#synchronized" data-isabs="false">
       <a id="synchronized[T0](⇒ T0):T0"></a>
       <h4 class="signature">
@@ -335,11 +390,7 @@
 
         
 
-        <div name="scala.Serializable" class="parent">
-              <h3>Inherited from <span name="scala.Serializable" class="extype">Serializable</span></h3>
-            </div><div name="java.io.Serializable" class="parent">
-              <h3>Inherited from <span name="java.io.Serializable" class="extype">Serializable</span></h3>
-            </div><div name="scala.AnyRef" class="parent">
+        <div name="scala.AnyRef" class="parent">
               <h3>Inherited from AnyRef</h3>
             </div><div name="scala.Any" class="parent">
               <h3>Inherited from <span name="scala.Any" class="extype">Any</span></h3>

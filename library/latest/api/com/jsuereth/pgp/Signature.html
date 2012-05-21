@@ -24,13 +24,13 @@
       <span class="symbol"> 
         <span class="name">Signature</span>
         
-        <span class="result"> extends AnyRef</span>
+        <span class="result"> extends <a name="com.jsuereth.pgp.StreamingSaveable" class="extype" href="StreamingSaveable.html">StreamingSaveable</a></span>
       </span>
       </h4>
       
           <div class="fullcommenttop" id="comment"><div class="comment cmt"><p>Wrapper around a PGP signature for convenience.</p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent">AnyRef, <span name="scala.Any" class="extype">Any</span></div>
+          <div class="superTypes hiddenContent"><a name="com.jsuereth.pgp.StreamingSaveable" class="extype" href="StreamingSaveable.html">StreamingSaveable</a>, AnyRef, <span name="scala.Any" class="extype">Any</span></div>
         </div></div>
         
 
@@ -46,7 +46,7 @@
                 <span class="filtertype">Inherited</span>
                 <ol><li class="hideall out"><span>Hide All</span></li>
                 <li class="showall in"><span>Show all</span></li></ol>
-                <ol id="linearization"><li name="com.jsuereth.pgp.Signature" class="in"><span>Signature</span></li><li name="scala.AnyRef" class="in"><span>AnyRef</span></li><li name="scala.Any" class="in"><span>Any</span></li></ol>
+                <ol id="linearization"><li name="com.jsuereth.pgp.Signature" class="in"><span>Signature</span></li><li name="com.jsuereth.pgp.StreamingSaveable" class="in"><span>StreamingSaveable</span></li><li name="scala.AnyRef" class="in"><span>AnyRef</span></li><li name="scala.Any" class="in"><span>Any</span></li></ol>
               </div>
           <div id="visbl">
               <span class="filtertype">Visibility</span>
@@ -313,14 +313,69 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>final </dd><dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li visbl="pub" name="com.jsuereth.pgp.Signature#saveTo" data-isabs="false">
+      <a id="saveTo(OutputStream):Unit"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">saveTo</span>
+        
+        <span class="params">(<span name="output">output: <span name="java.io.OutputStream" class="extype">OutputStream</span></span>)</span><span class="result">: <span name="scala.Unit" class="extype">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Saves the current entity to an output stream.</p><div class="fullcomment"><div class="comment cmt"><p>Saves the current entity to an output stream.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="com.jsuereth.pgp.Signature" class="extype" href="">Signature</a> → <a name="com.jsuereth.pgp.StreamingSaveable" class="extype" href="StreamingSaveable.html">StreamingSaveable</a></dd></dl></div>
+    </li><li visbl="pub" name="com.jsuereth.pgp.StreamingSaveable#saveToFile" data-isabs="false">
+      <a id="saveToFile(File):Unit"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">saveToFile</span>
+        
+        <span class="params">(<span name="file">file: <span name="java.io.File" class="extype">File</span></span>)</span><span class="result">: <span name="scala.Unit" class="extype">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Saves the current entity to a file.</p><div class="fullcomment"><div class="comment cmt"><p>Saves the current entity to a file.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="com.jsuereth.pgp.StreamingSaveable" class="extype" href="StreamingSaveable.html">StreamingSaveable</a></dd></dl></div>
+    </li><li visbl="pub" name="com.jsuereth.pgp.StreamingSaveable#saveToString" data-isabs="false">
+      <a id="saveToString:String"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">saveToString</span>
+        
+        <span class="result">: String</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Saves the current entity into a string.</p><div class="fullcomment"><div class="comment cmt"><p>Saves the current entity into a string.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="com.jsuereth.pgp.StreamingSaveable" class="extype" href="StreamingSaveable.html">StreamingSaveable</a></dd></dl></div>
+    </li><li visbl="pub" name="com.jsuereth.pgp.Signature#signatureType" data-isabs="false">
+      <a id="signatureType:Int"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">signatureType</span>
+        
+        <span class="result">: <span name="scala.Int" class="extype">Int</span></span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="com.jsuereth.pgp.Signature#signatureTypeString" data-isabs="false">
+      <a id="signatureTypeString:String"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">signatureTypeString</span>
+        
+        <span class="result">: <span name="java.lang.String" class="extype">String</span></span>
+      </span>
+      </h4>
+      
     </li><li visbl="pub" name="com.jsuereth.pgp.Signature#signerUserID" data-isabs="false">
-      <a id="signerUserID:String"></a>
+      <a id="signerUserID:Option[String]"></a>
       <h4 class="signature">
       <span class="kind">def</span>
       <span class="symbol"> 
         <span class="name">signerUserID</span>
         
-        <span class="result">: <span name="java.lang.String" class="extype">String</span></span>
+        <span class="result">: <span name="scala.Option" class="extype">Option</span>[<span name="java.lang.String" class="extype">String</span>]</span>
       </span>
       </h4>
       
@@ -393,7 +448,9 @@
 
         
 
-        <div name="scala.AnyRef" class="parent">
+        <div name="com.jsuereth.pgp.StreamingSaveable" class="parent">
+              <h3>Inherited from <a name="com.jsuereth.pgp.StreamingSaveable" class="extype" href="StreamingSaveable.html">StreamingSaveable</a></h3>
+            </div><div name="scala.AnyRef" class="parent">
               <h3>Inherited from AnyRef</h3>
             </div><div name="scala.Any" class="parent">
               <h3>Inherited from <span name="scala.Any" class="extype">Any</span></h3>
