@@ -9,7 +9,7 @@ This plugin aims to provide PGP signing for XSBT (SBT 0.11+ versions).  The plug
 
 *Please see [here for advanced usage](usage.html).*
 
-If you already have GPG configured, simply add the following to your `~/.sbt/plugins/project/build.scala` file:
+If you already have GPG configured, simply add the following to your `~/.sbt/plugins/gpg.sbt` file:
 
     resolvers += Resolver.url("sbt-plugin-releases", new URL("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns)
     
