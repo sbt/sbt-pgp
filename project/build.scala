@@ -1,10 +1,10 @@
 import sbt._
 import Keys._
 
-import com.jsuereth.sbtsite.SitePlugin.site
-import com.jsuereth.sbtsite.SiteKeys._
-import com.jsuereth.ghpages.GhPages.ghpages
-import com.jsuereth.git.GitPlugin.git
+//import com.jsuereth.sbtsite.SitePlugin.site
+//import com.jsuereth.sbtsite.SiteKeys._
+//import com.jsuereth.ghpages.GhPages.ghpages
+//import com.jsuereth.git.GitPlugin.git
 
 /** Helper object for creating Sonatype OSSRH metadata. */ 
 // TODO - Make this a plugin
@@ -79,10 +79,10 @@ object GpgBuild extends Build {
   val plugin = Project("plugin", file(".")) dependsOn(library) settings(defaultSettings:_*) settings(
     sbtPlugin := true,
     name := "xsbt-gpg-plugin"
-  ) settings(websiteSettings:_*)  settings(
+  ) settings(
     //tmp workaround
     libraryDependencies += "net.databinder" % "dispatch-http_2.9.1" % "0.8.6"
-  )
+  ) //settings(websiteSettings:_*)  
   /* settings(ScriptedPlugin.scriptedSettings:_*) */
 
   lazy val library = Project("library", file("gpg-library")) settings(defaultSettings:_*) settings(
@@ -97,7 +97,7 @@ object GpgBuild extends Build {
       developers=Seq(Sonatype.Developer("jsuereth", "Josh Suereth"))):_*)
 
 
-  def websiteSettings: Seq[Setting[_]] = site.settings ++ ghpages.settings ++ Seq(
+  /*def websiteSettings: Seq[Setting[_]] = site.settings ++ ghpages.settings ++ Seq(
     git.remoteRepo := "git@github.com:sbt/xsbt-gpg-plugin.git",
     siteMappings <++= (baseDirectory, target, streams) map { (dir, out, s) => 
       val jekyllSrc = dir / "src" / "jekyll"
@@ -108,5 +108,5 @@ object GpgBuild extends Build {
       (jekyllOutput ** ("*.html" | "*.png" | "*.js" | "*.css") x relativeTo(jekyllOutput))
     },
     site.addMappingsToSiteDir(mappings in packageDoc in Compile in library, "library/latest/api")
-  )
+  )*/
 }
