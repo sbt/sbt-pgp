@@ -115,7 +115,11 @@ class SecretKey(val nested: PGPSecretKey) {
     sGen.setHashedSubpackets(packetVector)
     bOut.flush()
     out.close()
-    PublicKey(PGPPublicKey.addCertification(key, sGen.generate()))
+    // TODO - Is this correct for GnuPG?
+    key.userIDs.toSeq match {
+      case Seq(user, _*) => PublicKey(PGPPublicKey.addCertification(key, user, sGen.generate()))
+      case _             => PublicKey(PGPPublicKey.addCertification(key, sGen.generate()))
+    } 
   }
   
   /** Decrypts a file, attempting to write to the filename specified in the message. */

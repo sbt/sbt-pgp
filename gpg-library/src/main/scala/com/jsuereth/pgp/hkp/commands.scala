@@ -29,7 +29,7 @@ case class Find(search: String) extends Lookup {
          "search" -> search) ++ super.vars
 }
 
-case class AddKey(key: PublicKey) extends Lookup {
+case class AddKey(key: StreamingSaveable) extends Lookup {
   override def url = "/pks/add"
   override def vars: Map[String,String] = 
      Map("keytext" -> key.saveToString) ++ super.vars

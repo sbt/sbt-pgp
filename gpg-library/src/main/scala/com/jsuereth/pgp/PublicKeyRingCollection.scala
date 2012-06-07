@@ -16,6 +16,17 @@ class PublicKeyRingCollection(val nested: PGPPublicKeyRingCollection) extends Pu
   }
   /** A collection of all the public keys from all the key rings. */
   def publicKeys: Traversable[PublicKey] = keyRings.view flatMap (_.publicKeys)
+  
+  /** Finds the first public key ring that has a public key that:
+   *  - A keyID containing the given hex code
+   *  - A userID containing the given string
+   */
+  def findPubKeyRing(value: String): Option[PublicKeyRing] = 
+    (for {
+      ring <- keyRings
+      pubKey <- ring.publicKeys
+      if PGP.isPublicKeyMatching(value)(pubKey)
+    } yield ring).headOption
   /** Finds the first public key that has:
    *  - A keyID containing the given hex code
    *  - A userID containing the given string
