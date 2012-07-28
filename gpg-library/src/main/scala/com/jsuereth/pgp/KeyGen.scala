@@ -52,7 +52,7 @@ object KeyGen {
         PGPSignature.POSITIVE_CERTIFICATION,
         keyPair,
         identity,
-        SymmetricKeyAlgorithmTags.AES_256,
+        SymmetricKeyAlgorithmTags.CAST5,
         passPhrase,
         true,
         null,
