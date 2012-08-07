@@ -22,7 +22,7 @@ case class SbtPgpCommandContext(
     SimpleReader.readLine(msg, Some('*')) getOrElse sys.error("Failed to grab input")
   }
   def inputPassphrase = readHidden("Please enter PGP passphrase (or ENTER to abort): ") match {
-    case s: String if (!s.isEmpty) => s.toCharArray
+    case s: String if !s.isEmpty => s.toCharArray
     case _ => sys.error("Empty passphrase. aborting...")
   }
 
@@ -37,16 +37,12 @@ case class SbtPgpCommandContext(
     }
   }
 
-  @annotation.tailrec
-  private def retry[A, E <: Exception](n: Int)(body: => A)(implicit desired: Manifest[E]): Either[E, A] = {
-    try
-      return Right(body)
+  private def retry[A, E <: Exception](n: Int)(body: => A)(implicit desired: ClassManifest[E]): Either[E, A] =
+    try Right(body)
     catch {
-      case e: Exception if desired.erasure.isAssignableFrom(e.getClass) => if (n <= 1) return Left(e.asInstanceOf[E])
+      case e: Exception if (desired.erasure isAssignableFrom e.getClass) =>
+        if (n <= 1) Left(e.asInstanceOf[E]) else retry[A, E](n - 1)(body)
     }
-    retry[A, E](n - 1)(body)
-  }
-
 
   def log = s.log
   // TODO - Is this the right thing to do?
