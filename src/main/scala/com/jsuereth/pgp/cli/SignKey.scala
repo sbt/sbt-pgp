@@ -30,7 +30,7 @@ case class SignKey(pubKey: String, notation: (String,String)) extends PgpCommand
         val newpubring = ring :+ newkey
         (ctx.publicKeyRing removeRing ring)  :+ newpubring
       case Seq()            => sys.error("Could not find key: " + pubKey)
-      case matches          => sys.error("Found more than on pulic key: " + matches.map(_._2).mkString(","))
+      case matches          => sys.error("Found more than on public key: " + matches.map(_._2).mkString(","))
     }
     newpubringcol saveToFile ctx.publicKeyRingFile
   }

@@ -7,6 +7,9 @@ import java.util.Date
 import org.bouncycastle.bcpg._
 import org.bouncycastle.openpgp._
 
+class IncorrectPassphraseException(msg: String) extends RuntimeException(msg)
+
+
 /** A SecretKey that can be used to sign things and decrypt messages. */
 class SecretKey(val nested: PGPSecretKey) {
   def keyID = nested.getKeyID
@@ -21,7 +24,7 @@ class SecretKey(val nested: PGPSecretKey) {
    * Note: This will close all streams.
    */
   def signStream(in: InputStream, signature: OutputStream, pass: Array[Char]): Unit = {
-    val privateKey = nested.extractPrivateKey(pass, "BC")        
+    val privateKey = extractPrivateKey(pass)
     val sGen = new PGPSignatureGenerator(nested.getPublicKey().getAlgorithm(), HashAlgorithmTags.SHA1, "BC")
     sGen.initSign(PGPSignature.BINARY_DOCUMENT, privateKey)
     val out = new BCPGOutputStream(new ArmoredOutputStream(signature))
@@ -53,7 +56,7 @@ class SecretKey(val nested: PGPSecretKey) {
   /** Encodes and signs a message into a PGP message. */
   def signMessageStream(input: InputStream, name: String, length: Long, output: OutputStream, pass: Array[Char], lastMod: Date = new Date): Unit = {
     val armoredOut = new ArmoredOutputStream(output)
-    val pgpPrivKey = nested.extractPrivateKey(pass, "BC")       
+    val pgpPrivKey = extractPrivateKey(pass)
     val sGen = new PGPSignatureGenerator(nested.getPublicKey().getAlgorithm(), HashAlgorithmTags.SHA1, "BC")
     sGen.initSign(PGPSignature.BINARY_DOCUMENT, pgpPrivKey)
     for(name <- this.publicKey.userIDs) {
@@ -97,7 +100,7 @@ class SecretKey(val nested: PGPSecretKey) {
   // TODO - notation optional?
   def signPublicKey(key: PublicKey, notation: (String,String), pass: Array[Char]): PublicKey = {
     val out = new ArmoredOutputStream(new ByteArrayOutputStream())
-    val pgpPrivKey = nested.extractPrivateKey(pass, "BC")
+    val pgpPrivKey = extractPrivateKey(pass)
     val sGen = new PGPSignatureGenerator(
         nested.getPublicKey().getAlgorithm(), 
         HashAlgorithmTags.SHA1, 
@@ -184,7 +187,7 @@ class SecretKey(val nested: PGPSecretKey) {
       }
       // TODO - Better exception?
       if(pbe.getKeyID != this.keyID) throw new KeyNotFoundException(pbe.getKeyID)
-      val privKey = nested.extractPrivateKey(passPhrase, "BC")
+      val privKey = extractPrivateKey(passPhrase)
       val clear = pbe.getDataStream(privKey, "BC")
       val plainFact = new PGPObjectFactory(clear)
       // Handle compressed + uncompressed data here.
@@ -204,6 +207,12 @@ class SecretKey(val nested: PGPSecretKey) {
       result
     }
   }
+
+  private[this] def extractPrivateKey(passPhrase: Array[Char]) =
+    try nested.extractPrivateKey(passPhrase, "BC")
+    catch {
+      case e: PGPException if e.getMessage.contains("checksum mismatch") => throw new IncorrectPassphraseException("Incorrect passhprase")
+    }
 
   def userIDs = new Traversable[String] {
     def foreach[U](f: String => U) = {
