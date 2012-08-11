@@ -18,7 +18,7 @@ trait Client {
 private[hkp] class DispatchClient(serverUrl: String) extends Client {
   
   import dispatch._
-  import Http._
+  import com.ning.http.client.RequestBuilder
   import util.control.Exception.catching
   
   /** Attempts to pull a public key from the HKP server.
@@ -27,24 +27,24 @@ private[hkp] class DispatchClient(serverUrl: String) extends Client {
   def getKey(id: Long): Option[PublicKeyRing] =
     for {
       ring <- catching(classOf[Exception]) opt Http(
-          initiateRequest(GetKey(id)) >> (PublicKeyRing.load _))
+          initiateRequest(GetKey(id)) OK (r => PublicKeyRing.load(r.getResponseBodyAsStream)))()
       // we have to look for ids matching the string, since IDs tend to be sent with lower 32 bits.
       key <- ring.publicKeys find { k => idToString(k.keyID) contains idToString(id) } 
     } yield ring
   
   /** Pushes a key to the given public key server. */
   def pushKey(key: PublicKey, logger: String => Unit): Unit =
-    Http(initiateFormPost(AddKey(key)) >- { c => logger("received: " + c) })
+    Http(initiateFormPost(AddKey(key)) OK (as.String andThen {c => logger("received: " + c) }))()
   
   /** Pushes a key to the given public key server. */
   def pushKeyRing(key: PublicKeyRing, logger: String => Unit): Unit =
-    Http(initiateFormPost(AddKey(key)) >- { c => logger("received: " + c) })
+    Http(initiateFormPost(AddKey(key)) OK (as.String andThen { c => logger("received: " + c) }))()
     
   /** Searches for a term on the keyserver and returns all the results. */
   def search(term: String): Seq[LookupKeyResult] = 
     (catching(classOf[Exception]) opt 
         Client.LookupParser.parseFile(Http(
-            initiateRequest(Find(term)).as_str)) getOrElse Seq.empty)
+            initiateRequest(Find(term)) OK as.String)()) getOrElse Seq.empty)
   
   // TODO - Allow search and parse format: http://keyserver.ubuntu.com:11371/pks/lookup?op=index&search=suereth
   /*
@@ -56,10 +56,10 @@ uid:Terry Suereth (CE2008) <tsuereth@digipen.edu>:1137516901::
 
 Note: Type bits/keyID    Date
    */
-  private[this] def initiateRequest(cmd: HkpCommand): Request =
+  private[this] def initiateRequest(cmd: HkpCommand): RequestBuilder =
     url(serverUrl + cmd.url) <<? cmd.vars
   
-  private[this] def initiateFormPost(cmd: HkpCommand): Request =
+  private[this] def initiateFormPost(cmd: HkpCommand): RequestBuilder =
     url(serverUrl + cmd.url).POST << cmd.vars
     
   override def toString = "HkpServer(%s)" format (serverUrl)
