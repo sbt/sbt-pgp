@@ -135,5 +135,5 @@ object PgpPlugin extends Plugin {
   override val settings = allSettings
   
   def usePgpKeyHex(id: String) =
-    pgpSigningKey := Some(java.lang.Long.parseLong(id, 16))
+    pgpSigningKey := Some(new java.math.BigInteger(id, 16).longValue)
 }
