@@ -9,10 +9,10 @@ If you already have GPG configured, simply add the following to your `~/.sbt/plu
 
     resolvers += Resolver.url("sbt-plugin-releases", new URL("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns)
     
-    addSbtPlugin("com.jsuereth" % "xsbt-gpg-plugin" % "0.6")
+    addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.7")
 
 The plugin should wire into all your projects and sign files before they are deployed.
 
 No other configuration should be necessary if you have a `gpg` generated key available.
 
-Please see the [documentation](http://scala-sbt.org/xsbt-gpg-plugin) for more information on usage.
+Please see the [documentation](http://scala-sbt.org/sbt-pgp) for more information on usage.

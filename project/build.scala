@@ -63,10 +63,6 @@ object GpgBuild extends Build {
   val defaultSettings: Seq[Setting[_]] = Seq(
     organization := "com.jsuereth",
     version := "0.7-SNAPSHOT",
-    publishTo <<= (version) { v =>
-      import Classpaths._
-      Option(if(v endsWith "SNAPSHOT") typesafeSnapshots else typesafeResolver)
-    },
     publishMavenStyle := false,
     publishTo <<= (version) { version: String =>
        val scalasbt = "http://scalasbt.artifactoryonline.com/scalasbt/"
@@ -78,20 +74,21 @@ object GpgBuild extends Build {
 
   val plugin = Project("plugin", file(".")) dependsOn(library) settings(defaultSettings:_*) settings(
     sbtPlugin := true,
-    name := "xsbt-gpg-plugin"
+    organization := "com.typesafe.sbt",
+    name := "sbt-pgp"
   ) settings(websiteSettings:_*)  settings(
     //tmp workaround
-    libraryDependencies += "net.databinder" %% "dispatch-http" % "0.8.6")
+    libraryDependencies += "net.databinder" % "dispatch-http_2.9.1" % "0.8.6") aggregate(library)
   /* settings(ScriptedPlugin.scriptedSettings:_*) */
 
   lazy val library = Project("library", file("gpg-library")) settings(defaultSettings:_*) settings(
     name := "gpg-library",
     crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.9.0", "2.8.2", "2.8.1", "2.8.0"),
     libraryDependencies += "org.bouncycastle" % "bcpg-jdk16" % "1.46",
-    libraryDependencies += "net.databinder" %% "dispatch-http" % "0.8.6"
+    libraryDependencies += "net.databinder" % "dispatch-http_2.9.1" % "0.8.6"
   ) settings(Sonatype.publishSettings(
-      url="http://scala-sbt.org/xsbt-gpg-plugin/",
-      gitUrl="git://github.com/sbt/xsbt-gpg-plugin.git",
+      url="http://scala-sbt.org/sbt-gpg/",
+      gitUrl="git://github.com/sbt/sbt-gpg.git",
       licenses=Seq(Sonatype.BSD),
       developers=Seq(Sonatype.Developer("jsuereth", "Josh Suereth"))):_*)
 

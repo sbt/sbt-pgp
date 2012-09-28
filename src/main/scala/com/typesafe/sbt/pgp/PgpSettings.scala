@@ -1,6 +1,5 @@
-package com.jsuereth
+package com.typesafe.sbt
 package pgp
-package sbtplugin
 
 
 import sbt._
@@ -10,12 +9,14 @@ import complete.Parser
 import complete.DefaultParsers._
 import SbtHelpers._
 import PgpKeys._
+import com.jsuereth.pgp._
 
 /**
- * Plugin for doing PGP security tasks.  Signing, verifying, etc.
+ * SBT Settings for doing PGP security tasks.  Signing, verifying, etc.
  */
-object PgpPlugin extends Plugin {
+object PgpSettings {
   // Delegates for better build.sbt configuration.
+  // TODO - DO these belong lower?
   def useGpg = PgpKeys.useGpg in Global
   def useGpgAgent = PgpKeys.useGpgAgent in Global
   def pgpSigningKey = PgpKeys.pgpSigningKey in Global
@@ -130,10 +131,4 @@ object PgpPlugin extends Plugin {
   )
   /** Settings this plugin defines. TODO - require manual setting of these... */
   lazy val allSettings = configurationSettings ++ signingSettings ++ verifySettings ++ Seq(commands += pgpCommand)
-  
-  /** TODO - Deprecate this usage... */
-  override val settings = allSettings
-  
-  def usePgpKeyHex(id: String) =
-    pgpSigningKey := Some(new java.math.BigInteger(id, 16).longValue)
 }
