@@ -1,9 +1,8 @@
-package com.jsuereth
-package pgp
+package com.typesafe.sbt
 
 import sbt._
 
-package object sbtplugin {
+package object pgp {
   /** Default extension for PGP signatures. */
   val gpgExtension = ".asc"
 

@@ -1,8 +1,9 @@
-package com.jsuereth.pgp
-package sbtplugin
+package com.typesafe.sbt
+package pgp
 
 import sbt._
 import sbt.Keys.TaskStreams
+import com.jsuereth.pgp._
 
 case class SbtPgpStaticContext(
     publicKeyRingFile: File,

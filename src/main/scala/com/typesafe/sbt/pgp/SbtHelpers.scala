@@ -1,5 +1,5 @@
-package com.jsuereth.pgp
-package sbtplugin
+package com.typesafe.sbt
+package pgp
 
 import sbt._
 import Project.Initialize
@@ -52,4 +52,4 @@ trait Cache[K,V] {
 // TODO - Less ugly/dangerous hack here... 
 //  - Expire passwords after N minutes etc.
 //  - Kill password only on password exceptions.
-private[sbtplugin] object PasswordCache extends Cache[String, Array[Char]]
+private[pgp] object PasswordCache extends Cache[String, Array[Char]]

@@ -1,12 +1,12 @@
-package com.jsuereth
+package com.typesafe.sbt
 package pgp
-package sbtplugin
 
 import scala.util.matching.Regex
 import scala.util.control.Exception._
 import sbt._
 import Keys._
 import com.jsuereth.pgp.cli.PgpCommandContext
+import com.jsuereth.pgp.KeyNotFoundException
 
 trait PgpVerifier {
   def verifySignature(signatureFile: File, s: TaskStreams): SignatureCheckResult

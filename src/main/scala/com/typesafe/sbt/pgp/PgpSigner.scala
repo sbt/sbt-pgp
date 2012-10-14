@@ -1,10 +1,10 @@
-package com.jsuereth
+package com.typesafe.sbt
 package pgp
-package sbtplugin
 
+import com.jsuereth.pgp._
 import sbt._
 import Keys._
-import pgp.cli.PgpCommandContext
+import com.jsuereth.pgp.cli.PgpCommandContext
 
 /** The interface used to sign plugins. */
 trait PgpSigner {
