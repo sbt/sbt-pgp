@@ -28,33 +28,10 @@ object SbtPgp extends Plugin {
   def pgpPublicRing = PgpKeys.pgpPublicRing in Global
   def pgpSecretRing = PgpKeys.pgpSecretRing in Global
   
-  /** Configuration for GPG command line */
-  def gpgConfigurationSettings: Seq[Setting[_]] = 
-    PgpSettings.gpgConfigurationSettings
-  
-  
-  /** Configuration for BC JVM-local PGP */
-  def nativeConfigurationSettings: Seq[Setting[_]] = 
-    PgpSettings.nativeConfigurationSettings
-  /** These are all the configuration related settings that are common
-   * for a multi-project build, and can be re-used on
-   * ThisBuild or maybe Global.
-   */
-  def configurationSettings: Seq[Setting[_]] =
-    PgpSettings.configurationSettings
-  /** Configuration for signing artifacts.  If you use new scopes for
-   * packagedArtifacts, you need to add this in that scope to your build.
-   */
-  def signingSettings: Seq[Setting[_]] = 
-    PgpSettings.signingSettings
-  /** Settings used to verify signatures on dependent artifacts. */
-  def verifySettings: Seq[Setting[_]] = 
-    PgpSettings.verifySettings 
-  /** Settings this plugin defines. TODO - require manual setting of these... */
-  lazy val allSettings = PgpSettings.allSettings
-  
-  /** TODO - Deprecate this usage... */
-  override val settings = PgpSettings.allSettings
+  /** TODO - Maybe we should opt-in to this usage, for signing. */
+  override val settings = PgpSettings.projectSettings
+  def signingSettings = PgpSettings.signingSettings
+  override val buildSettings = PgpSettings.globalSettings
   
   // TODO - Fix this function!
   def usePgpKeyHex(id: String) =
