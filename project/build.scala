@@ -65,7 +65,7 @@ object GpgBuild extends Build {
     version := "0.8-SNAPSHOT",
     publishMavenStyle := false,
     publishTo <<= (version) { version: String =>
-       val scalasbt = "http://scalasbt.artifactoryonline.com/scalasbt/"
+       val scalasbt = "http://repo.scala-sbt.org/scalasbt/"
        val (name, u) = if (version.contains("-SNAPSHOT")) ("sbt-plugin-snapshots", scalasbt+"sbt-plugin-snapshots")
                        else ("sbt-plugin-releases", scalasbt+"sbt-plugin-releases")
        Some(Resolver.url(name, url(u))(Resolver.ivyStylePatterns))
@@ -87,8 +87,8 @@ object GpgBuild extends Build {
     libraryDependencies += "org.bouncycastle" % "bcpg-jdk16" % "1.46",
     libraryDependencies += "net.databinder" % "dispatch-http_2.9.1" % "0.8.6"
   ) settings(Sonatype.publishSettings(
-      url="http://scala-sbt.org/sbt-gpg/",
-      gitUrl="git://github.com/sbt/sbt-gpg.git",
+      url="http://scala-sbt.org/sbt-pgp/",
+      gitUrl="git://github.com/sbt/sbt-pgp.git",
       licenses=Seq(Sonatype.BSD),
       developers=Seq(Sonatype.Developer("jsuereth", "Josh Suereth"))):_*)
 
@@ -99,7 +99,7 @@ object GpgBuild extends Build {
     site.jekyllSupport() ++ 
     site.includeScaladoc() ++ 
     Seq(
-      git.remoteRepo := "git@github.com:sbt/xsbt-gpg-plugin.git",
+      git.remoteRepo := "git@github.com:sbt/sbt-pgp.git",
       site.addMappingsToSiteDir(mappings in packageDoc in Compile in library, "library/latest/api")
     )
   )
