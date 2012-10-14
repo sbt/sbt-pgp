@@ -1,10 +1,10 @@
 import sbt._
 import Keys._
 
-import com.jsuereth.sbtsite.SitePlugin.site
-import com.jsuereth.sbtsite.SiteKeys._
-import com.jsuereth.ghpages.GhPages.ghpages
-import com.jsuereth.git.GitPlugin.git
+import com.typesafe.sbt.SbtSite.site
+import com.typesafe.sbt.SbtSite.SiteKeys._
+import com.typesafe.sbt.SbtGhPages.ghpages
+import com.typesafe.sbt.SbtGit.git
 
 /** Helper object for creating Sonatype OSSRH metadata. */ 
 // TODO - Make this a plugin
