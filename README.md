@@ -1,6 +1,6 @@
 # PGP Plugin
 
-This plugin aims to provide PGP signing for XSBT (SBT 0.11+ versions).  The plugin currently uses the command line GPG process with the option to use the Bouncy Castle java security library for PGP. 
+This plugin aims to provide PGP signing for XSBT (SBT 0.12+ versions).  The plugin currently uses the command line GPG process with the option to use the Bouncy Castle java security library for PGP. 
 
 
 ## Usage
@@ -10,6 +10,13 @@ If you already have GPG configured, simply add the following to your `~/.sbt/plu
     resolvers += Resolver.url("sbt-plugin-releases", new URL("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns)
     
     addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.7")
+
+
+If you're using SBT 0.11.3 or earlier, please find the PGP plugin at its previous location:
+
+    resolvers += Resolver.url("sbt-plugin-releases", new URL("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns)
+ 
+    addSbtPlugin("com.jsuereth" % "xsbt-gpg-plugin" % "0.5")
 
 The plugin should wire into all your projects and sign files before they are deployed.
 
