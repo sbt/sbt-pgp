@@ -1,6 +1,5 @@
-package com.jsuereth
+package com.typesafe.sbt
 package pgp
-package sbtplugin
 
 
 import sbt._
@@ -10,12 +9,14 @@ import complete.Parser
 import complete.DefaultParsers._
 import SbtHelpers._
 import PgpKeys._
+import com.jsuereth.pgp._
 
 /**
- * Plugin for doing PGP security tasks.  Signing, verifying, etc.
+ * SBT Settings for doing PGP security tasks.  Signing, verifying, etc.
  */
-object PgpPlugin extends Plugin {
+object PgpSettings {
   // Delegates for better build.sbt configuration.
+  // TODO - DO these belong lower?
   def useGpg = PgpKeys.useGpg in Global
   def useGpgAgent = PgpKeys.useGpgAgent in Global
   def pgpSigningKey = PgpKeys.pgpSigningKey in Global
@@ -25,11 +26,11 @@ object PgpPlugin extends Plugin {
   def pgpSecretRing = PgpKeys.pgpSecretRing in Global
   
   /** Configuration for GPG command line */
-  lazy val gpgConfigurationSettings: Seq[Setting[_]] = inScope(GlobalScope)(Seq(
-    initIf(PgpKeys.useGpg, false),
-    initIf(PgpKeys.useGpgAgent, false),
-    initIf(PgpKeys.gpgCommand, (if(isWindows) "gpg.exe" else "gpg"))
-  ))
+  lazy val gpgConfigurationSettings: Seq[Setting[_]] = Seq( 
+    PgpKeys.useGpg := false,
+    PgpKeys.useGpgAgent := false,
+    PgpKeys.gpgCommand := (if(isWindows) "gpg.exe" else "gpg")
+  )
   
   lazy val pgpCommand = Command("pgp-cmd") {
     state => 
@@ -44,18 +45,20 @@ object PgpPlugin extends Plugin {
     val task = extracted get pgpCmdContext map (cmd run) named ("pgp-cmd-" + cmd.getClass.getSimpleName)
     import EvaluateTask._
     val (newstate, _) = withStreams(extracted.structure, state) { streams =>
-      runTask(task, state, streams, extracted.structure.index.triggers)(nodeView(state, streams))
+      
+      val config = EvaluateConfig(false, defaultRestrictions(1), false)
+      EvaluateTask.runTask(task, state, streams, extracted.structure.index.triggers, config)(nodeView(state, streams, Nil))
     }
     newstate
   }
   
   /** Configuration for BC JVM-local PGP */
-  lazy val nativeConfigurationSettings: Seq[Setting[_]] = inScope(GlobalScope)(Seq(
-    initIf(PgpKeys.pgpPassphrase, None),
-    initIf(PgpKeys.pgpPublicRing, file(System.getProperty("user.home")) / ".gnupg" / "pubring.gpg"),
-    initIf(PgpKeys.pgpSecretRing, file(System.getProperty("user.home")) / ".gnupg" / "secring.gpg"),
-    initIf(PgpKeys.pgpSigningKey, None),
-    initIf(PgpKeys.pgpReadOnly, true),
+  lazy val nativeConfigurationSettings: Seq[Setting[_]] = Seq(
+    PgpKeys.pgpPassphrase := None,
+    PgpKeys.pgpPublicRing := file(System.getProperty("user.home")) / ".gnupg" / "pubring.gpg",
+    PgpKeys.pgpSecretRing := file(System.getProperty("user.home")) / ".gnupg" / "secring.gpg",
+    PgpKeys.pgpSigningKey := None,
+    PgpKeys.pgpReadOnly := true,
     // TODO - Are these all ok to place in global scope?
     PgpKeys.pgpPublicRing <<= PgpKeys.pgpPublicRing apply {
       case f if f.exists => f
@@ -67,7 +70,8 @@ object PgpPlugin extends Plugin {
     },
     PgpKeys.pgpStaticContext <<= (PgpKeys.pgpPublicRing, PgpKeys.pgpSecretRing) apply SbtPgpStaticContext.apply,
     PgpKeys.pgpCmdContext <<= (PgpKeys.pgpStaticContext, PgpKeys.pgpPassphrase, streams) map SbtPgpCommandContext.apply
-  ))
+  )
+  
   
   /** Helper to initialize the BC PgpSigner */
   private[this] def bcPgpSigner: Initialize[Task[PgpSigner]] =
@@ -86,7 +90,7 @@ object PgpPlugin extends Plugin {
    * for a multi-project build, and can be re-used on
    * ThisBuild or maybe Global.
    */
-  lazy val configurationSettings: Seq[Setting[_]] = gpgConfigurationSettings ++ nativeConfigurationSettings ++ Seq(
+  lazy val signVerifyConfigurationSettings: Seq[Setting[_]] = Seq(
     // TODO - move these to the signArtifactSettings?
     skip in pgpSigner <<= (skip in pgpSigner) ?? false,
     pgpSigner <<= switch(useGpg, gpgSigner, bcPgpSigner),
@@ -128,12 +132,8 @@ object PgpPlugin extends Plugin {
     },
     checkPgpSignatures <<= (updatePgpSignatures, pgpVerifier, streams) map PgpSignatureCheck.checkSignaturesTask
   )
+  
+  lazy val globalSettings: Seq[Setting[_]] = inScope(Global)(gpgConfigurationSettings ++ nativeConfigurationSettings ++ signVerifyConfigurationSettings)
   /** Settings this plugin defines. TODO - require manual setting of these... */
-  lazy val allSettings = configurationSettings ++ signingSettings ++ verifySettings ++ Seq(commands += pgpCommand)
-  
-  /** TODO - Deprecate this usage... */
-  override val settings = allSettings
-  
-  def usePgpKeyHex(id: String) =
-    pgpSigningKey := Some(new java.math.BigInteger(id, 16).longValue)
+  lazy val projectSettings = signingSettings ++ verifySettings ++ Seq(commands += pgpCommand)
 }

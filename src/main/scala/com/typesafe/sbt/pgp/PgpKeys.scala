@@ -1,10 +1,10 @@
-package com.jsuereth
+package com.typesafe.sbt
 package pgp
-package sbtplugin
 
 
 import sbt._
-import Keys._
+import sbt.Keys._
+import com.jsuereth.pgp._
 
 /** SBT Keys for the PGP plugin. */
 object PgpKeys {
