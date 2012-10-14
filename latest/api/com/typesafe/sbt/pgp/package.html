@@ -1,0 +1,364 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+        <head>
+          <title>com.typesafe.sbt.pgp</title>
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link type="text/css" media="screen" rel="stylesheet" href="../../../../lib/template.css" />
+      <script type="text/javascript" src="../../../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../lib/tools.tooltip.js"></script>
+    
+        </head>
+        <body onload="sh_highlightDocument('../lib/', '.min.js');" class="value">
+      <div id="definition">
+        <img src="../../../../lib/package_big.png" />
+        <p id="owner"><a name="com" class="extype" href="../../../package.html">com</a>.<a name="com.typesafe" class="extype" href="../../package.html">typesafe</a>.<a name="com.typesafe.sbt" class="extype" href="../package.html">sbt</a></p>
+        <h1>pgp</h1>
+      </div>
+
+      <h4 class="signature" id="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">pgp</span>
+      </span>
+      </h4>
+      
+      <div class="fullcommenttop" id="comment"></div>
+    
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input accesskey="/" type="text" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div class="types members" id="types">
+              <h3>Type Members</h3>
+              <ol><li visbl="pub" name="com.typesafe.sbt.pgp.BouncyCastlePgpSigner" data-isabs="false">
+      <a id="BouncyCastlePgpSigner:BouncyCastlePgpSigner"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="BouncyCastlePgpSigner.html"><span class="name">BouncyCastlePgpSigner</span></a><span class="result"> extends PgpSigner</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A GpgSigner that uses bouncy castle.</p>
+    </li><li visbl="pub" name="com.typesafe.sbt.pgp.BouncyCastlePgpVerifier" data-isabs="false">
+      <a id="BouncyCastlePgpVerifier:BouncyCastlePgpVerifier"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="BouncyCastlePgpVerifier.html"><span class="name">BouncyCastlePgpVerifier</span></a><span class="result"> extends PgpVerifier</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="com.typesafe.sbt.pgp.Cache" data-isabs="true">
+      <a id="Cache:Cache[K, V]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Cache.html"><span class="name">Cache</span></a><span class="tparams">[<span name="K">K</span>, <span name="V">V</span>]</span><span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Simple caching api.</p>
+    </li><li visbl="pub" name="com.typesafe.sbt.pgp.CommandLineGpgSigner" data-isabs="false">
+      <a id="CommandLineGpgSigner:CommandLineGpgSigner"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="CommandLineGpgSigner.html"><span class="name">CommandLineGpgSigner</span></a><span class="result"> extends PgpSigner</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A GpgSigner that uses the command-line to run gpg.</p>
+    </li><li visbl="pub" name="com.typesafe.sbt.pgp.CommandLineGpgVerifier" data-isabs="false">
+      <a id="CommandLineGpgVerifier:CommandLineGpgVerifier"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="CommandLineGpgVerifier.html"><span class="name">CommandLineGpgVerifier</span></a><span class="result"> extends PgpVerifier</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="com.typesafe.sbt.pgp.GetSignaturesConfiguration" data-isabs="false">
+      <a id="GetSignaturesConfiguration:GetSignaturesConfiguration"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="GetSignaturesConfiguration.html"><span class="name">GetSignaturesConfiguration</span></a><span class="params">(<span name="module">module: GetSignaturesModule</span>, <span name="configuration">configuration: UpdateConfiguration</span>, <span name="ivyScala">ivyScala: Option[IvyScala]</span>)</span><span class="result"> extends Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Configuration class for using Ivy to get PGP signatures.</p>
+    </li><li visbl="pub" name="com.typesafe.sbt.pgp.GetSignaturesModule" data-isabs="false">
+      <a id="GetSignaturesModule:GetSignaturesModule"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="GetSignaturesModule.html"><span class="name">GetSignaturesModule</span></a><span class="params">(<span name="id">id: ModuleID</span>, <span name="modules">modules: Seq[ModuleID]</span>, <span name="configurations">configurations: Seq[Configuration]</span>)</span><span class="result"> extends Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Configuration class for an Ivy module that will pull PGP signatures.</p>
+    </li><li visbl="pub" name="com.typesafe.sbt.pgp.PgpSigner" data-isabs="true">
+      <a id="PgpSigner:PgpSigner"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="PgpSigner.html"><span class="name">PgpSigner</span></a><span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      <p class="comment cmt">The interface used to sign plugins.</p>
+    </li><li visbl="pub" name="com.typesafe.sbt.pgp.PgpVerifier" data-isabs="true">
+      <a id="PgpVerifier:PgpVerifier"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="PgpVerifier.html"><span class="name">PgpVerifier</span></a><span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="com.typesafe.sbt.pgp.ProcessGrabber" data-isabs="false">
+      <a id="ProcessGrabber:ProcessGrabber"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ProcessGrabber.html"><span class="name">ProcessGrabber</span></a><span class="result"> extends ProcessLogger</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Helper class to grab all the output from a process into one string.</p>
+    </li><li visbl="pub" name="com.typesafe.sbt.pgp.SbtPgpCommandContext" data-isabs="false">
+      <a id="SbtPgpCommandContext:SbtPgpCommandContext"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SbtPgpCommandContext.html"><span class="name">SbtPgpCommandContext</span></a><span class="params">(<span name="ctx">ctx: PgpStaticContext</span>, <span name="optPassphrase">optPassphrase: Option[Array[Char]]</span>, <span name="s">s: TaskStreams</span>)</span><span class="result"> extends PgpCommandContext with DelegatingPgpStaticContext with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Context used by PGP commands as they execute.</p>
+    </li><li visbl="pub" name="com.typesafe.sbt.pgp.SbtPgpStaticContext" data-isabs="false">
+      <a id="SbtPgpStaticContext:SbtPgpStaticContext"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SbtPgpStaticContext.html"><span class="name">SbtPgpStaticContext</span></a><span class="params">(<span name="publicKeyRingFile">publicKeyRingFile: File</span>, <span name="secretKeyRingFile">secretKeyRingFile: File</span>)</span><span class="result"> extends PgpStaticContext with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="com.typesafe.sbt.pgp.SignatureCheck" data-isabs="false">
+      <a id="SignatureCheck:SignatureCheck"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SignatureCheck.html"><span class="name">SignatureCheck</span></a><span class="params">(<span name="module">module: ModuleID</span>, <span name="artifact">artifact: Artifact</span>, <span name="result">result: SignatureCheckResult</span>)</span><span class="result"> extends Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">The result of checking the signature of a given artifact in a module.</p>
+    </li><li visbl="pub" name="com.typesafe.sbt.pgp.SignatureCheckReport" data-isabs="false">
+      <a id="SignatureCheckReport:SignatureCheckReport"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SignatureCheckReport.html"><span class="name">SignatureCheckReport</span></a><span class="params">(<span name="results">results: Seq[SignatureCheck]</span>)</span><span class="result"> extends Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A report of the PGP signature check results.</p>
+    </li><li visbl="pub" name="com.typesafe.sbt.pgp.SignatureCheckResult" data-isabs="true">
+      <a id="SignatureCheckResult:SignatureCheckResult"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="SignatureCheckResult.html"><span class="name">SignatureCheckResult</span></a><span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      <p class="comment cmt">An enumeration for PGP signature verification results.</p>
+    </li></ol>
+            </div>
+
+        
+
+        <div class="values members" id="values">
+              <h3>Value Members</h3>
+              <ol><li visbl="pub" name="com.typesafe.sbt.pgp.PgpKeys" data-isabs="false">
+      <a id="PgpKeys:PgpKeys"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="PgpKeys$.html"><span class="name">PgpKeys</span></a><span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      <p class="comment cmt">SBT Keys for the PGP plugin.</p>
+    </li><li visbl="pub" name="com.typesafe.sbt.pgp.PgpSettings" data-isabs="false">
+      <a id="PgpSettings:PgpSettings"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="PgpSettings$.html"><span class="name">PgpSettings</span></a><span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      <p class="comment cmt">SBT Settings for doing PGP security tasks.</p>
+    </li><li visbl="pub" name="com.typesafe.sbt.pgp.PgpSignatureCheck" data-isabs="false">
+      <a id="PgpSignatureCheck:PgpSignatureCheck"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="PgpSignatureCheck$.html"><span class="name">PgpSignatureCheck</span></a><span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Helper utilties to check PGP signatures in SBT.</p>
+    </li><li visbl="pub" name="com.typesafe.sbt.pgp.SbtHelpers" data-isabs="false">
+      <a id="SbtHelpers:SbtHelpers"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SbtHelpers$.html"><span class="name">SbtHelpers</span></a><span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="com.typesafe.sbt.pgp.SignatureCheckResult" data-isabs="false">
+      <a id="SignatureCheckResult:SignatureCheckResult"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SignatureCheckResult$.html"><span class="name">SignatureCheckResult</span></a><span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="com.typesafe.sbt.pgp.UntrustedKey" data-isabs="false">
+      <a id="UntrustedKey:UntrustedKey"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="UntrustedKey$.html"><span class="name">UntrustedKey</span></a><span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Matcher for an untrusted key.</p>
+    </li><li visbl="pub" name="com.typesafe.sbt.pgp.package#gpgExtension" data-isabs="false">
+      <a id="gpgExtension:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">gpgExtension</span><span class="result">: <span name="java.lang.String" class="extype">String</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Default extension for PGP signatures.</p><div class="fullcomment"><div class="comment cmt"><p>Default extension for PGP signatures.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="com.typesafe.sbt.pgp.package" class="extype" href="package$.html">package</a></dd></dl></div>
+    </li><li visbl="pub" name="com.typesafe.sbt.pgp.package#isWindows" data-isabs="false">
+      <a id="isWindows:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isWindows</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="com.typesafe.sbt.pgp.package" class="extype" href="package$.html">package</a></dd></dl></div>
+    </li><li visbl="pub" name="com.typesafe.sbt.pgp.package#readPassphrase" data-isabs="false">
+      <a id="readPassphrase():Array[Char]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">readPassphrase</span><span class="params">()</span><span class="result">: <span name="scala.Array" class="extype">Array</span>[<span name="scala.Char" class="extype">Char</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Reads the passphrase from the console.</p><div class="fullcomment"><div class="comment cmt"><p>Reads the passphrase from the console.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="com.typesafe.sbt.pgp.package" class="extype" href="package$.html">package</a></dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

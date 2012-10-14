@@ -36,7 +36,7 @@
 <div class="row">
   <div class="span2 columns"><p>&nbsp;</p></div>
   <div class="span10 columns content">
-    <p>This plugin aims to provide PGP signing for XSBT (SBT 0.11+ versions). The plugin currently uses the command line GPG process with the option to use the Bouncy Castle java security library for PGP.</p>
+    <p>This plugin aims to provide PGP signing for XSBT (SBT 0.12+ versions). The plugin currently uses the command line GPG process with the option to use the Bouncy Castle java security library for PGP.</p>
 
 <h2 id='usage'>Usage</h2>
 
@@ -44,9 +44,7 @@
 
 <p>If you already have GPG configured, simply add the following to your <code>~/.sbt/plugins/gpg.sbt</code> file:</p>
 
-<pre><code>resolvers += Resolver.url(&quot;sbt-plugin-releases&quot;, new URL(&quot;http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/&quot;))(Resolver.ivyStylePatterns)
-
-addSbtPlugin(&quot;com.jsuereth&quot; % &quot;xsbt-gpg-plugin&quot; % &quot;0.6&quot;)</code></pre>
+<pre><code>addSbtPlugin(&quot;com.typesafe.sbt&quot; % &quot;sbt-pgp&quot; % &quot;0.7&quot;)</code></pre>
 
 <p>The plugin should wire into all your projects and sign files before they are deployed. See <a href='usage.html'>Usage</a> for more information.</p>   
   </div>

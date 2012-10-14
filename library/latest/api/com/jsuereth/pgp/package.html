@@ -12,7 +12,7 @@
       <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
     
         </head>
-        <body class="value">
+        <body onload="sh_highlightDocument('../lib/', '.min.js');" class="value">
       <div id="definition">
         <img src="../../../lib/package_big.png" />
         <p id="owner"><a name="com" class="extype" href="../../package.html">com</a>.<a name="com.jsuereth" class="extype" href="../package.html">jsuereth</a></p>
@@ -20,179 +20,205 @@
       </div>
 
       <h4 class="signature" id="signature">
-      <span class="kind">package</span>
-      <span class="symbol"> 
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
         <span class="name">pgp</span>
-        
-        
       </span>
       </h4>
       
-          <div class="fullcommenttop" id="comment"></div>
+      <div class="fullcommenttop" id="comment"></div>
+    
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input accesskey="/" type="text" /></span><span class="post"></span></div>
         
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
 
       <div id="template">
-
-        <div id="mbrsel">
-          <div id="textfilter"><span class="pre"></span><span class="input"><input accesskey="/" type="text" /></span><span class="post"></span></div>
-          
-          
-          <div id="visbl">
-              <span class="filtertype">Visibility</span>
-              <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
-            </div>
-        </div>
-
+        <div id="allMembers">
         
 
         <div class="types members" id="types">
               <h3>Type Members</h3>
-              <ol><li visbl="pub" name="com.jsuereth.pgp.IntegrityException" data-isabs="false">
+              <ol><li visbl="pub" name="com.jsuereth.pgp.IncorrectPassphraseException" data-isabs="false">
+      <a id="IncorrectPassphraseException:IncorrectPassphraseException"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="IncorrectPassphraseException.html"><span class="name">IncorrectPassphraseException</span></a><span class="result"> extends RuntimeException</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="com.jsuereth.pgp.IntegrityException" data-isabs="false">
       <a id="IntegrityException:IntegrityException"></a>
       <h4 class="signature">
-      <span class="kind">case class</span>
-      <span class="symbol"> 
-        <a href="IntegrityException.html"><span class="name">IntegrityException</span></a>
-        
-        <span class="params">(<span name="msg">msg: String</span>)</span><span class="result"> extends Exception with PgpException with Product with Serializable</span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="IntegrityException.html"><span class="name">IntegrityException</span></a><span class="params">(<span name="msg">msg: String</span>)</span><span class="result"> extends Exception with PgpException with Product with Serializable</span>
       </span>
       </h4>
       
     </li><li visbl="pub" name="com.jsuereth.pgp.KeyNotFoundException" data-isabs="false">
       <a id="KeyNotFoundException:KeyNotFoundException"></a>
       <h4 class="signature">
-      <span class="kind">case class</span>
-      <span class="symbol"> 
-        <a href="KeyNotFoundException.html"><span class="name">KeyNotFoundException</span></a>
-        
-        <span class="params">(<span name="id">id: Long</span>)</span><span class="result"> extends Exception with PgpException with Product with Serializable</span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="KeyNotFoundException.html"><span class="name">KeyNotFoundException</span></a><span class="params">(<span name="id">id: Long</span>)</span><span class="result"> extends Exception with PgpException with Product with Serializable</span>
       </span>
       </h4>
       <p class="comment cmt">Exception thrown when a key is not found in the keystore.</p>
     </li><li visbl="pub" name="com.jsuereth.pgp.NotEncryptedMessageException" data-isabs="false">
       <a id="NotEncryptedMessageException:NotEncryptedMessageException"></a>
       <h4 class="signature">
-      <span class="kind">case class</span>
-      <span class="symbol"> 
-        <a href="NotEncryptedMessageException.html"><span class="name">NotEncryptedMessageException</span></a>
-        
-        <span class="params">(<span name="msg">msg: String</span>)</span><span class="result"> extends Exception with PgpException with Product with Serializable</span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="NotEncryptedMessageException.html"><span class="name">NotEncryptedMessageException</span></a><span class="params">(<span name="msg">msg: String</span>)</span><span class="result"> extends Exception with PgpException with Product with Serializable</span>
       </span>
       </h4>
       
     </li><li visbl="pub" name="com.jsuereth.pgp.PgpException" data-isabs="true">
       <a id="PgpException:PgpException"></a>
       <h4 class="signature">
-      <span class="kind">trait</span>
-      <span class="symbol"> 
-        <a href="PgpException.html"><span class="name">PgpException</span></a>
-        
-        <span class="result"> extends Exception</span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="PgpException.html"><span class="name">PgpException</span></a><span class="result"> extends Exception</span>
       </span>
       </h4>
       <p class="comment cmt">Base class for exceptions thrown in PGP library.</p>
     </li><li visbl="pub" name="com.jsuereth.pgp.PublicKey" data-isabs="false">
       <a id="PublicKey:PublicKey"></a>
       <h4 class="signature">
-      <span class="kind">class</span>
-      <span class="symbol"> 
-        <a href="PublicKey.html"><span class="name">PublicKey</span></a>
-        
-        <span class="result"> extends PublicKeyLike with StreamingSaveable</span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="PublicKey.html"><span class="name">PublicKey</span></a><span class="result"> extends PublicKeyLike with StreamingSaveable</span>
       </span>
       </h4>
       <p class="comment cmt">This class represents a public PGP key.</p>
     </li><li visbl="pub" name="com.jsuereth.pgp.PublicKeyLike" data-isabs="true">
       <a id="PublicKeyLike:PublicKeyLike"></a>
       <h4 class="signature">
-      <span class="kind">trait</span>
-      <span class="symbol"> 
-        <a href="PublicKeyLike.html"><span class="name">PublicKeyLike</span></a>
-        
-        <span class="result"> extends AnyRef</span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="PublicKeyLike.html"><span class="name">PublicKeyLike</span></a><span class="result"> extends AnyRef</span>
       </span>
       </h4>
       <p class="comment cmt">This trait defines things that can act like a public key.</p>
     </li><li visbl="pub" name="com.jsuereth.pgp.PublicKeyRing" data-isabs="false">
       <a id="PublicKeyRing:PublicKeyRing"></a>
       <h4 class="signature">
-      <span class="kind">class</span>
-      <span class="symbol"> 
-        <a href="PublicKeyRing.html"><span class="name">PublicKeyRing</span></a>
-        
-        <span class="result"> extends PublicKeyLike with StreamingSaveable</span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="PublicKeyRing.html"><span class="name">PublicKeyRing</span></a><span class="result"> extends PublicKeyLike with StreamingSaveable</span>
       </span>
       </h4>
       <p class="comment cmt">A collection of public keys, known as a 'ring'.</p>
     </li><li visbl="pub" name="com.jsuereth.pgp.PublicKeyRingCollection" data-isabs="false">
       <a id="PublicKeyRingCollection:PublicKeyRingCollection"></a>
       <h4 class="signature">
-      <span class="kind">class</span>
-      <span class="symbol"> 
-        <a href="PublicKeyRingCollection.html"><span class="name">PublicKeyRingCollection</span></a>
-        
-        <span class="result"> extends PublicKeyLike with StreamingSaveable</span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="PublicKeyRingCollection.html"><span class="name">PublicKeyRingCollection</span></a><span class="result"> extends PublicKeyLike with StreamingSaveable</span>
       </span>
       </h4>
       <p class="comment cmt">A collection of nested key rings.</p>
     </li><li visbl="pub" name="com.jsuereth.pgp.SecretKey" data-isabs="false">
       <a id="SecretKey:SecretKey"></a>
       <h4 class="signature">
-      <span class="kind">class</span>
-      <span class="symbol"> 
-        <a href="SecretKey.html"><span class="name">SecretKey</span></a>
-        
-        <span class="result"> extends AnyRef</span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="SecretKey.html"><span class="name">SecretKey</span></a><span class="result"> extends AnyRef</span>
       </span>
       </h4>
       <p class="comment cmt">A SecretKey that can be used to sign things and decrypt messages.</p>
     </li><li visbl="pub" name="com.jsuereth.pgp.SecretKeyRing" data-isabs="false">
       <a id="SecretKeyRing:SecretKeyRing"></a>
       <h4 class="signature">
-      <span class="kind">class</span>
-      <span class="symbol"> 
-        <a href="SecretKeyRing.html"><span class="name">SecretKeyRing</span></a>
-        
-        <span class="result"> extends StreamingSaveable</span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="SecretKeyRing.html"><span class="name">SecretKeyRing</span></a><span class="result"> extends StreamingSaveable</span>
       </span>
       </h4>
       <p class="comment cmt">A secret PGP key ring.</p>
     </li><li visbl="pub" name="com.jsuereth.pgp.Signature" data-isabs="false">
       <a id="Signature:Signature"></a>
       <h4 class="signature">
-      <span class="kind">class</span>
-      <span class="symbol"> 
-        <a href="Signature.html"><span class="name">Signature</span></a>
-        
-        <span class="result"> extends StreamingSaveable</span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Signature.html"><span class="name">Signature</span></a><span class="result"> extends StreamingSaveable</span>
       </span>
       </h4>
       <p class="comment cmt">Wrapper around a PGP signature for convenience.</p>
     </li><li visbl="pub" name="com.jsuereth.pgp.StreamingLoadable" data-isabs="true">
       <a id="StreamingLoadable:StreamingLoadable[T]"></a>
       <h4 class="signature">
-      <span class="kind">trait</span>
-      <span class="symbol"> 
-        <a href="StreamingLoadable.html"><span class="name">StreamingLoadable</span></a>
-        <span class="tparams">[<span name="T">T</span>]</span>
-        <span class="result"> extends AnyRef</span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="StreamingLoadable.html"><span class="name">StreamingLoadable</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends AnyRef</span>
       </span>
       </h4>
       <p class="comment cmt">This trait is for companion objects that have objects which can streamed in.</p>
     </li><li visbl="pub" name="com.jsuereth.pgp.StreamingSaveable" data-isabs="true">
       <a id="StreamingSaveable:StreamingSaveable"></a>
       <h4 class="signature">
-      <span class="kind">trait</span>
-      <span class="symbol"> 
-        <a href="StreamingSaveable.html"><span class="name">StreamingSaveable</span></a>
-        
-        <span class="result"> extends AnyRef</span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="StreamingSaveable.html"><span class="name">StreamingSaveable</span></a><span class="result"> extends AnyRef</span>
       </span>
       </h4>
       <p class="comment cmt">This trait represents something that can be saved.</p>
     </li></ol>
             </div>
-        
+
         
 
         <div class="values members" id="values">
@@ -200,99 +226,108 @@
               <ol><li visbl="pub" name="com.jsuereth.pgp.KeyGen" data-isabs="false">
       <a id="KeyGen:KeyGen"></a>
       <h4 class="signature">
-      <span class="kind">object</span>
-      <span class="symbol"> 
-        <a href="KeyGen$.html"><span class="name">KeyGen</span></a>
-        
-        <span class="result"> extends AnyRef</span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="KeyGen$.html"><span class="name">KeyGen</span></a><span class="result"> extends AnyRef</span>
       </span>
       </h4>
       <p class="comment cmt">Helpers to generate various keys.</p>
     </li><li visbl="pub" name="com.jsuereth.pgp.PGP" data-isabs="false">
       <a id="PGP:PGP"></a>
       <h4 class="signature">
-      <span class="kind">object</span>
-      <span class="symbol"> 
-        <a href="PGP$.html"><span class="name">PGP</span></a>
-        
-        <span class="result"> extends AnyRef</span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="PGP$.html"><span class="name">PGP</span></a><span class="result"> extends AnyRef</span>
       </span>
       </h4>
       
     </li><li visbl="pub" name="com.jsuereth.pgp.PublicKey" data-isabs="false">
       <a id="PublicKey:PublicKey"></a>
       <h4 class="signature">
-      <span class="kind">object</span>
-      <span class="symbol"> 
-        <a href="PublicKey$.html"><span class="name">PublicKey</span></a>
-        
-        <span class="result"> extends AnyRef</span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="PublicKey$.html"><span class="name">PublicKey</span></a><span class="result"> extends AnyRef</span>
       </span>
       </h4>
       
     </li><li visbl="pub" name="com.jsuereth.pgp.PublicKeyRing" data-isabs="false">
       <a id="PublicKeyRing:PublicKeyRing"></a>
       <h4 class="signature">
-      <span class="kind">object</span>
-      <span class="symbol"> 
-        <a href="PublicKeyRing$.html"><span class="name">PublicKeyRing</span></a>
-        
-        <span class="result"> extends StreamingLoadable[PublicKeyRing]</span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="PublicKeyRing$.html"><span class="name">PublicKeyRing</span></a><span class="result"> extends StreamingLoadable[PublicKeyRing]</span>
       </span>
       </h4>
       
     </li><li visbl="pub" name="com.jsuereth.pgp.PublicKeyRingCollection" data-isabs="false">
       <a id="PublicKeyRingCollection:PublicKeyRingCollection"></a>
       <h4 class="signature">
-      <span class="kind">object</span>
-      <span class="symbol"> 
-        <a href="PublicKeyRingCollection$.html"><span class="name">PublicKeyRingCollection</span></a>
-        
-        <span class="result"> extends StreamingLoadable[PublicKeyRingCollection]</span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="PublicKeyRingCollection$.html"><span class="name">PublicKeyRingCollection</span></a><span class="result"> extends StreamingLoadable[PublicKeyRingCollection]</span>
       </span>
       </h4>
       
     </li><li visbl="pub" name="com.jsuereth.pgp.SecretKey" data-isabs="false">
       <a id="SecretKey:SecretKey"></a>
       <h4 class="signature">
-      <span class="kind">object</span>
-      <span class="symbol"> 
-        <a href="SecretKey$.html"><span class="name">SecretKey</span></a>
-        
-        <span class="result"> extends AnyRef</span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SecretKey$.html"><span class="name">SecretKey</span></a><span class="result"> extends AnyRef</span>
       </span>
       </h4>
       
     </li><li visbl="pub" name="com.jsuereth.pgp.SecretKeyRing" data-isabs="false">
       <a id="SecretKeyRing:SecretKeyRing"></a>
       <h4 class="signature">
-      <span class="kind">object</span>
-      <span class="symbol"> 
-        <a href="SecretKeyRing$.html"><span class="name">SecretKeyRing</span></a>
-        
-        <span class="result"> extends StreamingLoadable[SecretKeyRing]</span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="SecretKeyRing$.html"><span class="name">SecretKeyRing</span></a><span class="result"> extends StreamingLoadable[SecretKeyRing]</span>
       </span>
       </h4>
       
     </li><li visbl="pub" name="com.jsuereth.pgp.Signature" data-isabs="false">
       <a id="Signature:Signature"></a>
       <h4 class="signature">
-      <span class="kind">object</span>
-      <span class="symbol"> 
-        <a href="Signature$.html"><span class="name">Signature</span></a>
-        
-        <span class="result"> extends AnyRef</span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Signature$.html"><span class="name">Signature</span></a><span class="result"> extends AnyRef</span>
       </span>
       </h4>
       
     </li><li visbl="pub" name="com.jsuereth.pgp.hkp" data-isabs="false">
       <a id="hkp:hkp"></a>
       <h4 class="signature">
-      <span class="kind">package</span>
-      <span class="symbol"> 
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
         <a href="hkp/package.html"><span class="name">hkp</span></a>
-        
-        
       </span>
       </h4>
       
@@ -300,12 +335,18 @@
             </div>
 
         
+        </div>
 
+        <div id="inheritedMembers">
         
+        </div>
 
       </div>
-      
+
       <div id="tooltip"></div>
-      
+
+      <div id="footer">  </div>
+
+
     </body>
       </html>
