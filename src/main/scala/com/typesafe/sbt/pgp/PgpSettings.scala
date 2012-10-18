@@ -102,15 +102,26 @@ object PgpSettings {
   lazy val signingSettings: Seq[Setting[_]] = Seq(
     packagedArtifacts <<= (packagedArtifacts, pgpSigner, skip in pgpSigner, streams) map {
       (artifacts, r, skipZ, s) =>
-        if (!skipZ) {
-          artifacts flatMap {
-            case (art, file) =>
-              Seq(art                                                -> file, 
-                  art.copy(extension = art.extension + gpgExtension) -> r.sign(file, new File(file.getAbsolutePath + gpgExtension), s))
-          }
-        } else artifacts
+        if (!skipZ) signArtifactsUnlessAborted(artifacts, r, s)
+        else artifacts
     }
   )
+  
+  /** Sign all artifacts, unless the password entry is aborted. */
+  private def signArtifactsUnlessAborted(artifacts: Map[Artifact,File], signer: PgpSigner, streams: TaskStreams) =
+    try signArtifacts(artifacts, signer, streams)
+    catch {
+      case e: AbortPgpSigningException => artifacts
+    }
+  
+  /** Sign all artifacts. */
+  private def signArtifacts(artifacts: Map[Artifact,File], signer: PgpSigner, streams: TaskStreams) =
+    artifacts flatMap {
+      case (art, file) if !(file.getName endsWith gpgExtension) =>
+        Seq(art                                                -> file, 
+            art.copy(extension = art.extension + gpgExtension) -> signer.sign(file, new File(file.getAbsolutePath + gpgExtension), streams))
+    }
+  
   /** Settings used to verify signatures on dependent artifacts. */
   lazy val verifySettings: Seq[Setting[_]] = Seq(
     // TODO - This is checking SBT and its plugins signatures..., maybe we can have this be a separate config or something.
