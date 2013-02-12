@@ -147,3 +147,8 @@ Inside of the plugin run:
      pgp-cmd send-key <key hex id> hkp://keyserver.ubuntu.com
 
 
+## Publishing artifacts ##
+
+The PGP plugin *NO LONGER* wires into the default `publish` and `publish-local` tasks of sbt.   If you want to published signed artifacts, you must use the new `publish-signed` and `publish-local-signed` tasks.
+
+
