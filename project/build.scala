@@ -62,7 +62,7 @@ object Sonatype {
 object GpgBuild extends Build {
   val defaultSettings: Seq[Setting[_]] = Seq(
     organization := "com.jsuereth",
-    version := "0.8",
+    version := "0.9-SNAPSHOT",
     publishMavenStyle := false,
     publishTo <<= (version) { version: String =>
        val scalasbt = "http://repo.scala-sbt.org/scalasbt/"
