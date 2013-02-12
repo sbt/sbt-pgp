@@ -14,7 +14,7 @@ This plugin aims to provide PGP signing for XSBT (SBT 0.12+ versions).  The plug
 
 If you already have GPG configured, simply add the following to your `~/.sbt/plugins/gpg.sbt` file:
    
-    addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.7")
+    addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.8")
 
 The plugin should wire into all your projects and sign files before they are deployed.  Make sure to use the `publish-signed` task rather than the normal `publish` task.
 
