@@ -98,9 +98,13 @@ object PgpSettings {
   ) 
   /** Configuration for signing artifacts.  If you use new scopes for
    * packagedArtifacts, you need to add this in that scope to your build.
+   * 
+   * Right now, this also adds duplicate "publish" tasks that will ensure signed
+   * artifacts.   While this isn't as friendly to other plugins that want to
+   * use our signed artifacts in normal publish flow, it should be more user friendly.
    */
   lazy val signingSettings: Seq[Setting[_]] = Seq(
-    packagedArtifacts <<= (packagedArtifacts, pgpSigner, skip in pgpSigner, streams) map {
+    signedArtifacts <<= (packagedArtifacts, pgpSigner, skip in pgpSigner, streams) map {
       (artifacts, r, skipZ, s) =>
         if (!skipZ) {
           artifacts flatMap {
@@ -109,7 +113,15 @@ object PgpSettings {
                   art.copy(extension = art.extension + gpgExtension) -> r.sign(file, new File(file.getAbsolutePath + gpgExtension), s))
           }
         } else artifacts
-    }
+    },
+    publishSignedConfiguration <<= (signedArtifacts, publishTo, publishMavenStyle, deliver, checksums in publish, ivyLoggingLevel) map { (arts, publishTo, mavenStyle, ivyFile, checks, level) =>
+      Classpaths.publishConfig(arts, if(mavenStyle) None else Some(ivyFile), resolverName = Classpaths.getPublishTo(publishTo).name, checksums = checks, logging = level)
+    },
+    publishSigned <<= Classpaths.publishTask(publishSignedConfiguration, deliver),
+    publishLocalSignedConfiguration <<= (signedArtifacts, deliverLocal, checksums in publishLocal, ivyLoggingLevel) map {
+      (arts, ivyFile, checks, level) => Classpaths.publishConfig(arts, Some(ivyFile), checks, logging = level )
+    },
+    publishLocalSigned <<= Classpaths.publishTask(publishLocalSignedConfiguration, deliver)
   )
   /** Settings used to verify signatures on dependent artifacts. */
   lazy val verifySettings: Seq[Setting[_]] = Seq(
