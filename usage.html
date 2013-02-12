@@ -170,7 +170,11 @@ pgpPublicRing := file(&quot;/tmp/pubring.asc&quot;)</code></pre>
 
 <p>Inside of the plugin run:</p>
 
-<pre><code> pgp-cmd send-key &lt;key hex id&gt; hkp://keyserver.ubuntu.com</code></pre>   
+<pre><code> pgp-cmd send-key &lt;key hex id&gt; hkp://keyserver.ubuntu.com</code></pre>
+
+<h2 id='publishing_artifacts'>Publishing artifacts</h2>
+
+<p>The PGP plugin <em>NO LONGER</em> wires into the default <code>publish</code> and <code>publish-local</code> tasks of sbt. If you want to published signed artifacts, you must use the new <code>publish-signed</code> and <code>publish-local-signed</code> tasks.</p>   
   </div>
   <div class="span6 columns blogroll">
     <!-- TODO - links here -->

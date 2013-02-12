@@ -408,7 +408,9 @@ ThisBuild or maybe Global.</p>
       </span>
       </h4>
       <p class="shortcomment cmt">Configuration for signing artifacts.</p><div class="fullcomment"><div class="comment cmt"><p>Configuration for signing artifacts.  If you use new scopes for
-packagedArtifacts, you need to add this in that scope to your build.
+packagedArtifacts, you need to add this in that scope to your build.</p><p>Right now, this also adds duplicate &quot;publish&quot; tasks that will ensure signed
+artifacts.   While this isn't as friendly to other plugins that want to
+use our signed artifacts in normal publish flow, it should be more user friendly.
 </p></div></div>
     </li><li visbl="pub" name="scala.AnyRef#synchronized" data-isabs="false">
       <a id="synchronized[T0](⇒ T0):T0"></a>

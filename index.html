@@ -38,6 +38,8 @@
   <div class="span10 columns content">
     <p>This plugin aims to provide PGP signing for XSBT (SBT 0.12+ versions). The plugin currently uses the command line GPG process with the option to use the Bouncy Castle java security library for PGP.</p>
 
+<p><strong>WARNING</strong> The PGP plugin <em>NO LONGER</em> signs artifacts using the <code>publish</code> and <code>publish-local</code> task. To sign artifacts, please use <code>publish-signed</code> and <code>publish-local-signed</code> tasks.</p>
+
 <h2 id='usage'>Usage</h2>
 
 <p><em>Please see <a href='usage.html'>here for advanced usage</a>.</em></p>
@@ -46,7 +48,9 @@
 
 <pre><code>addSbtPlugin(&quot;com.typesafe.sbt&quot; % &quot;sbt-pgp&quot; % &quot;0.7&quot;)</code></pre>
 
-<p>The plugin should wire into all your projects and sign files before they are deployed. See <a href='usage.html'>Usage</a> for more information.</p>   
+<p>The plugin should wire into all your projects and sign files before they are deployed. Make sure to use the <code>publish-signed</code> task rather than the normal <code>publish</code> task.</p>
+
+<p>See <a href='usage.html'>Usage</a> for more information.</p>   
   </div>
   <div class="span6 columns blogroll">
     <!-- TODO - links here -->
