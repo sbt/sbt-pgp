@@ -19,7 +19,7 @@ If you're using SBT 0.11.3 or earlier, please find the PGP plugin at its previou
 
     resolvers += Resolver.url("sbt-plugin-releases", new URL("http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns)
  
-    addSbtPlugin("com.jsuereth" % "xsbt-gpg-plugin" % "0.5")
+    addSbtPlugin("com.jsuereth" % "xsbt-gpg-plugin" % "0.6")
 
 The plugin should wire into all your projects and sign files before they are deployed when using the `publish-signed` task.
 
