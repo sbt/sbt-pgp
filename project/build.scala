@@ -84,7 +84,7 @@ object GpgBuild extends Build {
   lazy val library = Project("library", file("gpg-library")) settings(defaultSettings:_*) settings(
     name := "gpg-library",
     crossScalaVersions := Seq("2.9.1", "2.9.0-1", "2.9.0", "2.8.2", "2.8.1", "2.8.0"),
-    libraryDependencies += "org.bouncycastle" % "bcpg-jdk16" % "1.46",
+    libraryDependencies += "org.bouncycastle" % "bcpg-jdk15on" % "1.48",
     libraryDependencies += "net.databinder" % "dispatch-http_2.9.1" % "0.8.6"
   ) settings(Sonatype.publishSettings(
       url="http://scala-sbt.org/sbt-pgp/",
