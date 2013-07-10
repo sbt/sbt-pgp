@@ -1,10 +1,9 @@
 ---
 layout: default
-title: PGP plugin Usage
+title: PGP Plugin Usage
 ---
 
-
-By default, the `xsbt-gpg-plugin` will use the [Bouncy Castle](http://www.bouncycastle.org/) library, an implementation of PGP.   It is a java-only solution that gives the plugin great flexibility in what it can do and how it performs it.   It als works well with `gpg` command line utility, and keys generated using it.   By default the PGP plugin will attempt to use your GPG key for PGP encryption.  GPG is the GNU project's PGP implementation.   It provides great support and is available on many platforms.
+By default, the `sbt-pgp` plugin will use the [Bouncy Castle](http://www.bouncycastle.org/) library, an implementation of PGP.  It is a Java-only solution that gives the plugin great flexibility in what it can do and how it performs it.  It also works well with the `gpg` command line utility and keys generated using it.  By default the PGP plugin will attempt to use your GPG key for PGP encryption.  GPG is the GNU project's PGP implementation.  It provides great support and is available on many platforms.
 
 # Creating a Key Pair #
 
@@ -126,7 +125,6 @@ You can configure the public key ring you use with the `gpgPublicRing` setting.
 
 *By default the `~/.gnupg/pubring.gpg` file is used, if it exists.*
 
-
 ## Importing Keys from Public Key Servers ##
 
     pgp-cmd receive-key <key hex id> hkp://keyserver.ubuntu.com
@@ -141,10 +139,9 @@ Using the gpg command line, run the following:
 
     gpg --keyserver hkp://keyserver.ubuntu.com --send-keys <your key id>
 
-
 Inside of the plugin run:
 
-     pgp-cmd send-key <key hex id> hkp://keyserver.ubuntu.com
+    pgp-cmd send-key <key hex id> hkp://keyserver.ubuntu.com
 
 
 ## Publishing Artifacts ##
