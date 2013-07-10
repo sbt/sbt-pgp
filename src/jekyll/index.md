@@ -9,20 +9,18 @@ This plugin provides PGP signing for SBT (0.12+ versions).  Some OSS repositorie
 
 Add the following to your `~/.sbt/plugins/gpg.sbt` file:
    
-    addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.8")
-
-The plugin should wire into all your projects and sign files before they are deployed.  Make sure to use the `publish-signed` task rather than the normal `publish` task.
+```
+   addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.8")
+```
 
 ## Usage ##
 
-There are two modes of use:
+There are two modes of use, depending on your PGP provider:
 
-* (Default) The [Bouncy Castle](http://www.bouncycastle.org/) Java PGP library, a dependency automatically provided with `sbt-pgp`.
-* The `gpg` command-line utility: GNU's PGP implementation.  Note that you'll need to make sure this is installed prior to usage as this dependency is not provided.
+* [Usage Instructions](builtin.md) - The Bouncy Castle Java PGP library, a dependency automatically provided with `sbt-pgp`.
 
-[Detailed usage instructions](usage.html).
+* [Usage Instructions](gpg.md) - The `gpg` command-line utility: GNU's PGP implementation.  Note that you'll need to make sure this is installed prior to usage as this dependency is not provided.
 
-## Changes From Previous Versions ##
+`sbt-pgp` will wire into all of your projects and sign files before they are deployed.
 
-Note that the `sbt-pgp` plugin *NO LONGER* signs artifacts using the `publish` and `publish-local` tasks.  To sign artifacts, please use the `publish-signed` and `publish-local-signed` tasks instead.
-
+**Make sure to use the `publish-signed` or `publish-local-signed` tasks rather than the normal `publish` or `publish-local` tasks.**
