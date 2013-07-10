@@ -129,11 +129,17 @@ Note: To import a key, you have to turn off read only mode:
 
 Use the `receive-key` command to import keys.
 
-    pgp-cmd receive-key <key hex id> hkp://keyserver.ubuntu.com   
+    pgp-cmd receive-key <key id> hkp://keyserver.ubuntu.com   
 
 Use the `send-key` command to export keys.
 
-    pgp-cmd send-key <key hex id> hkp://keyserver.ubuntu.com
+    pgp-cmd send-key <key id> hkp://keyserver.ubuntu.com
+
+The value of `key id` is one of the following:
+
+* Hex Key ID
+* "Name" of the key (e.g. "LAMP/EPFL" in the above example)
+* "Email" of the key (e.g. "lamp@gmail.com" in the above example)
 
 ## Publishing Artifacts ##
 
