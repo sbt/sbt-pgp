@@ -6,7 +6,7 @@ title: PGP plugin Usage
 
 By default, the `xsbt-gpg-plugin` will use the [Bouncy Castle](http://www.bouncycastle.org/) library, an implementation of PGP.   It is a java-only solution that gives the plugin great flexibility in what it can do and how it performs it.   It als works well with `gpg` command line utility, and keys generated using it.   By default the PGP plugin will attempt to use your GPG key for PGP encryption.  GPG is the GNU project's PGP implementation.   It provides great support and is available on many platforms.
 
-# Creating a key pair #
+# Creating a Key Pair #
 
 To use the GPG comand line tool.  Simply run the command:
 
@@ -43,7 +43,7 @@ Or you can enter it on the command line when prompted by SBT:
 _Note: While some may want the feature to create a key without a passphrase, this plugin will not support that.   The purpose of this plugin is to promote security and authentication.  If you're not using a passphrase on you're key, you're not helping._
 
 
-## Configuring key-pair locations ##
+## Configuring Key Pair Locations ##
 
 If you'd like to use a key that isn't in the standard location, you can configure it in your `~/.sbt/gpg.sbt` file:
 
@@ -51,7 +51,7 @@ If you'd like to use a key that isn't in the standard location, you can configur
 
     pgpPublicRing := file("/tmp/pubring.asc")
 
-## Configuring signing key ##
+## Configuring a Signing Key ##
 
 If you'd like to use a different private key besides the default, then you can configure it with the `pgpSigningKey` settings. 
 
@@ -66,7 +66,7 @@ or you can use the `usePgpKeyHex` method.
 Note:  While it is general practice to drop the higher-order bits of 64-bit integer keys when passing ids around, the
 PGP plugin requires the full key id currently.
 
-## Configuring for using GPG ##
+## Configuring For Use With GPG ##
 
 The first step towards using the GPG command line tool is to configure the plugin to use it.
 
@@ -82,7 +82,7 @@ By default, the gpg plugin will use the default private keys from the standard g
 
 There is currently no way to choose a non-default key from the keyring.
 
-## Avoiding the password fiasco ##
+## Avoiding the Password Fiasco ##
 
 The PGP plugin will ask for your password once, and cache it for the duration of the SBT process.   The prompt will look something like this:
 
@@ -118,7 +118,7 @@ The plugin can be used to validate the PGP signatures of the dependencies of the
 In the above output, the signature for derby is from an untrusted key (id: `0x98e21827`).  You can import this key into your public key ring, and then the plugin will trust artifacts from that key.   The public, by default, accepts any keys included in your public key ring file.
 
 
-## Configuring a public key ring ##
+## Configuring a Public Key Ring ##
 
 You can configure the public key ring you use with the `gpgPublicRing` setting.
 
@@ -127,7 +127,7 @@ You can configure the public key ring you use with the `gpgPublicRing` setting.
 *By default the `~/.gnupg/pubring.gpg` file is used, if it exists.*
 
 
-## Importing keys from public key servers ##
+## Importing Keys from Public Key Servers ##
 
     pgp-cmd receive-key <key hex id> hkp://keyserver.ubuntu.com
     
@@ -135,7 +135,7 @@ Note: To import a key, you have to turn off read only mode:
 
     set pgpReadOnly := false
 
-## Export your public key ##
+## Export Your Public Key ##
 
 Using the gpg command line, run the following:
 
@@ -147,7 +147,7 @@ Inside of the plugin run:
      pgp-cmd send-key <key hex id> hkp://keyserver.ubuntu.com
 
 
-## Publishing artifacts ##
+## Publishing Artifacts ##
 
 The PGP plugin *NO LONGER* wires into the default `publish` and `publish-local` tasks of sbt.   If you want to published signed artifacts, you must use the new `publish-signed` and `publish-local-signed` tasks.
 
