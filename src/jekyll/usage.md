@@ -5,7 +5,7 @@ title: SBT PGP Plugin - Usage
 
 ## Overview ##
 
-This page contains detailed usage and configuration information for the `sbt-pgp` SBT plugin.  For general information on the `sbt-pgp` plugin, look [here](index.md).
+This page contains detailed usage and configuration information for the `sbt-pgp` SBT plugin.  For general information on the `sbt-pgp` plugin, look [here](index.html).
 
 ## Configuration: GPG Command-Line Utility ##
 
