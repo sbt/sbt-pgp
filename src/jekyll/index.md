@@ -21,6 +21,6 @@ There are two modes of use:
 
 * The `gpg` command-line utility which is GNU's PGP implementation.  It provides great support and is available on many platforms.  You'll need to make sure this is installed prior to usage as this dependency is not provided.
 
-[Detailed usage and configuration instructions](usage.md).
+[Detailed usage and configuration instructions](usage.html).
 
 To publish signed artifacts, you must use the new `publish-signed` and `publish-local-signed` tasks.  `sbt-pgp` no longer wires in to the default `publish` and `publish-local` tasks of SBT.
