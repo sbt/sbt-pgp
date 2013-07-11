@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 <head>
    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-   <title>SBT PGP plugin. - </title>
+   <title>SBT PGP Plugin - Overview - </title>
    <meta name="author" content="Josh Suereth" />
 
    <!-- Homepage CSS -->
@@ -36,21 +36,33 @@
 <div class="row">
   <div class="span2 columns"><p>&nbsp;</p></div>
   <div class="span10 columns content">
-    <p>This plugin aims to provide PGP signing for XSBT (SBT 0.12+ versions). The plugin currently uses the command line GPG process with the option to use the Bouncy Castle java security library for PGP.</p>
+    <p>The <code>sbt-pgp</code> plugin provides PGP signing for SBT 0.12+. Some OSS repositories (e.g. Sonatype) will require that you sign artifacts with publicly available keys prior to release. These are two of the services that <code>sbt-pgp</code> provides.</p>
 
-<p><strong>WARNING</strong> The PGP plugin <em>NO LONGER</em> signs artifacts using the <code>publish</code> and <code>publish-local</code> task. To sign artifacts, please use <code>publish-signed</code> and <code>publish-local-signed</code> tasks.</p>
+<h2 id='installation'>Installation</h2>
+
+<p>Add the following to your <code>~/.sbt/plugins/gpg.sbt</code> file:</p>
+
+<p><code>
+   addSbtPlugin(&quot;com.typesafe.sbt&quot; % &quot;sbt-pgp&quot; % &quot;0.8&quot;)
+</code></p>
 
 <h2 id='usage'>Usage</h2>
 
-<p><em>Please see <a href='usage.html'>here for advanced usage</a>.</em></p>
+<p>There are two modes of use:</p>
 
-<p>If you already have GPG configured, simply add the following to your <code>~/.sbt/plugins/gpg.sbt</code> file:</p>
+<ul>
+<li>
+<p>By default, the <code>sbt-pgp</code> plugin will use the <a href='http://www.bouncycastle.org/'>Bouncy Castle</a> library, an implementation of PGP that is included with the plugin. It is a Java-only solution that gives the plugin great flexibility in what it can do and how it performs it.</p>
+</li>
 
-<pre><code>addSbtPlugin(&quot;com.typesafe.sbt&quot; % &quot;sbt-pgp&quot; % &quot;0.8&quot;)</code></pre>
+<li>
+<p>The <code>gpg</code> command-line utility which is GNU&#8217;s PGP implementation. It provides great support and is available on many platforms. You&#8217;ll need to make sure this is installed prior to usage as this dependency is not provided.</p>
+</li>
+</ul>
 
-<p>The plugin should wire into all your projects and sign files before they are deployed. Make sure to use the <code>publish-signed</code> task rather than the normal <code>publish</code> task.</p>
+<p><a href='usage.md'>Detailed usage and configuration instructions</a>.</p>
 
-<p>See <a href='usage.html'>Usage</a> for more information.</p>   
+<p>To publish signed artifacts, you must use the new <code>publish-signed</code> and <code>publish-local-signed</code> tasks. <code>sbt-pgp</code> no longer wires in to the default <code>publish</code> and <code>publish-local</code> tasks of SBT.</p>   
   </div>
   <div class="span6 columns blogroll">
     <!-- TODO - links here -->
