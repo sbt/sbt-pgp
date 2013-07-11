@@ -1,22 +1,37 @@
 ---
 layout: default
-title: PGP plugin Usage
+title: SBT PGP Plugin - Usage
 ---
 
+## Overview ##
 
-By default, the `xsbt-gpg-plugin` will use the [Bouncy Castle](http://www.bouncycastle.org/) library, an implementation of PGP.   It is a java-only solution that gives the plugin great flexibility in what it can do and how it performs it.   It als works well with `gpg` command line utility, and keys generated using it.   By default the PGP plugin will attempt to use your GPG key for PGP encryption.  GPG is the GNU project's PGP implementation.   It provides great support and is available on many platforms.
+This page contains detailed usage and configuration information for the `sbt-pgp` SBT plugin.  For general information on the `sbt-pgp` plugin, look [here](index.md).
 
-# Creating a key pair #
+## Configuration: GPG Command-Line Utility ##
 
-To use the GPG comand line tool.  Simply run the command:
+**If you're using the built-in Bouncy Castle PGP implementation, skip this step.**
 
-    gpg --gen-key
+The first step towards using the GPG command line tool is to make `sbt-pgp` `gpg`-aware.
 
-To create a key pair using the SBT plugin (and Bouncy Castle), In the SBT prompt, enter the following:
+    useGpg := true
+
+`sbt-pgp` needs to know where the `gpg` executable is to run.  It will look for a either a `gpg` or `gpg.exe` executable on your `PATH` depdending on your platform.  To configure a different location, place the following in your `~/.sbt/gpg.sbt` file:
+
+    gpgCommand := "/path/to/gpg"
+
+By default `sbt-pgp` will use the default private keys from the standard gpg keyrings.   If you'd like to use a different private key for signing artifacts, add the following to your `~/.sbt/gpg.sbt` file:
+
+    pgpSecretRing := file("/path/to/my/secring.gpg")
+
+There is currently no way to choose a non-default key from the keyring.
+
+# Creating a Key Pair #
+
+To create a key pair, enter the following:
 
     > pgp-cmd gen-key
     
-You will see something like the following:
+You will see something like:
  
     Please enter the name associated with the key: LAMP/EPFL
     Please enter the email associated with the key: lamp@gmail.com
@@ -27,10 +42,13 @@ You will see something like the following:
     [info] Secret key := /home/jsuereth/test-pubring.pgp
     [info] Please do not share your secret key.   Your public key is free to share.
 
-
 This will create a new public/secret key pair for you using the configured passphrase in the default location (`~/.sbt/gpg`).  If you already have a key in place, this will warn you and not generate a new key.
 
-_Note: If you have a GPG key pair (the `~/.gnupg/pubring.gpg` and `~/.gnupg/secring.gpg` files exist), then the GPG plugin will assume you want these and prevent you from generating a new key.  You can override this by configuring your own key locations._
+If you have a GPG key pair (the `~/.gnupg/pubring.gpg` and `~/.gnupg/secring.gpg` files exist), then the GPG plugin will assume you want these and prevent you from generating a new key.  You can override this by configuring your own key locations.
+
+Alternatively, if you're using the `gpg` command-line utility:
+
+    gpg --gen-key
 
 You can record your password in a user-specific setting file:
 
@@ -40,10 +58,23 @@ Or you can enter it on the command line when prompted by SBT:
 
     Please enter your PGP passphrase> ******
 
-_Note: While some may want the feature to create a key without a passphrase, this plugin will not support that.   The purpose of this plugin is to promote security and authentication.  If you're not using a passphrase on you're key, you're not helping._
+The purpose of this plugin is to promote security and authentication.  While some may want the feature to create a key without a passphrase, this plugin will not support that.
 
+## Configuration: Automating Passphrase Entry ##
 
-## Configuring key-pair locations ##
+`sbt-pgp` will ask for your password once, and cache it for the duration of the SBT process.   The prompt will look something like this:
+
+    Please enter your PGP passphrase> ***********
+
+If you would like to avoid entering your password over and over, you can configure it with a setting:
+
+    pgpPassphrase := Some(Array('M', 'y', 'P', 'a', 's', 's', 'p', 'h', 'r', 'a', 's', 'e'))
+
+Note: The passphrase *must* be an array of characters.   It's midly more secure.  We hope to provide even more secure ways of storing passphrases in the future.
+
+Also make sure that the above setting is in a user-specific directory and that you don't advertise your password in the source code repository!
+
+## Configuration: Key Pair Locations ##
 
 If you'd like to use a key that isn't in the standard location, you can configure it in your `~/.sbt/gpg.sbt` file:
 
@@ -51,7 +82,7 @@ If you'd like to use a key that isn't in the standard location, you can configur
 
     pgpPublicRing := file("/tmp/pubring.asc")
 
-## Configuring signing key ##
+## Configuration: Signing Key ##
 
 If you'd like to use a different private key besides the default, then you can configure it with the `pgpSigningKey` settings. 
 
@@ -63,42 +94,15 @@ or you can use the `usePgpKeyHex` method.
 
     usePgpKeyHex("7cf8d72be29df322")
 
-Note:  While it is general practice to drop the higher-order bits of 64-bit integer keys when passing ids around, the
-PGP plugin requires the full key id currently.
+Note:  While it is general practice to drop the higher-order bits of 64-bit integer keys when passing ids around, the PGP plugin requires the full key id currently.
 
-## Configuring for using GPG ##
+## Configuration: Public Key Ring ##
 
-The first step towards using the GPG command line tool is to configure the plugin to use it.
+You can configure the public key ring you use with the `gpgPublicRing` setting.
 
-    useGpg := true
+    pgpPublicRing := file("/home/me/pgp/pubring.asc")
 
-The gpg plugin needs to know where the `gpg` executable is to run.  On linux/mac it will look for a `gpg` executable on the path and in windows it will look for a `gpg.exe` executable on the path.   To configure a different location, place the following in your `~/.sbt/gpg.sbt` file:
-
-    gpgCommand := "/path/to/gpg"
-
-By default, the gpg plugin will use the default private keys from the standard gpg keyrings.   If you'd like to use a different private key for signing artifacts, add the following to your `~/.sbt/gpg.sbt` file:
-
-    pgpSecretRing := file("/path/to/my/secring.gpg")
-
-There is currently no way to choose a non-default key from the keyring.
-
-## Avoiding the password fiasco ##
-
-The PGP plugin will ask for your password once, and cache it for the duration of the SBT process.   The prompt will look something like this:
-
-    Please enter your PGP passphrase> ***********
-
-If you would like to avoid entering your password over and over, you can configure it with a setting:
-
-    pgpPassphrase := Some(Array('M', 'y', 'P', 'a', 's', 's', 'p', 'h', 'r', 'a', 's', 'e'))
-
-_Note: The passphrase *must* be an array of characters.   It's midly more secure.  We hope to provide even more secure ways of storing passphrases in the future._
-
-Also make sure that the above setting is in a user-specific directory and that you don't advertise your password in the source code repository!
-
-IF you are using the GPG command line tool, then the plugin supports the use of the `gpg-agent`.   You can enable its usage with the following setting:
-
-    useGpgAgent := true
+By default the `~/.gnupg/pubring.gpg` file is used, if it exists.
 
 ## Validating PGP Keys ##
 
@@ -117,38 +121,26 @@ The plugin can be used to validate the PGP signatures of the dependencies of the
     
 In the above output, the signature for derby is from an untrusted key (id: `0x98e21827`).  You can import this key into your public key ring, and then the plugin will trust artifacts from that key.   The public, by default, accepts any keys included in your public key ring file.
 
+## Importing and Exporting Keys from Public Key Servers ##
 
-## Configuring a public key ring ##
-
-You can configure the public key ring you use with the `gpgPublicRing` setting.
-
-    pgpPublicRing := file("/home/me/pgp/pubring.asc")
-
-*By default the `~/.gnupg/pubring.gpg` file is used, if it exists.*
-
-
-## Importing keys from public key servers ##
-
-    pgp-cmd receive-key <key hex id> hkp://keyserver.ubuntu.com
-    
 Note: To import a key, you have to turn off read only mode:
 
     set pgpReadOnly := false
 
-## Export your public key ##
+Use the `receive-key` command to import keys.
 
-Using the gpg command line, run the following:
+    pgp-cmd receive-key <key id> hkp://keyserver.ubuntu.com   
 
-    gpg --keyserver hkp://keyserver.ubuntu.com --send-keys <your key id>
+Use the `send-key` command to export keys.
 
+    pgp-cmd send-key <key id> hkp://keyserver.ubuntu.com
 
-Inside of the plugin run:
+The value of `key id` is one of the following:
 
-     pgp-cmd send-key <key hex id> hkp://keyserver.ubuntu.com
+* Hex Key ID
+* "Name" of the key (e.g. "LAMP/EPFL" in the above example)
+* "Email" of the key (e.g. "lamp@gmail.com" in the above example)
 
+## Publishing Artifacts ##
 
-## Publishing artifacts ##
-
-The PGP plugin *NO LONGER* wires into the default `publish` and `publish-local` tasks of sbt.   If you want to published signed artifacts, you must use the new `publish-signed` and `publish-local-signed` tasks.
-
-
+If you want to published signed artifacts, you must use the new `publish-signed` and `publish-local-signed` tasks.  `sbt-pgp` no longer wires in to the default `publish` and `publish-local` tasks of SBT.  
