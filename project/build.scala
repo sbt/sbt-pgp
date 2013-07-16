@@ -80,22 +80,26 @@ object GpgBuild extends Build {
     }
   )
 
+  val dispatchDependency: Setting[_] =
+    libraryDependencies <+= (scalaVersion) apply { (sv) =>
+      if(sv startsWith "2.9")       "net.databinder" % "dispatch-http_2.9.1" % "0.8.10"
+      else                          "net.databinder" %% "dispatch-http" % "0.8.10"
+    }
+  val bouncyCastlePgp = "org.bouncycastle" % "bcpg-jdk15on" % "1.49"
+
   val plugin = Project("plugin", file(".")) dependsOn(library) settings(defaultSettings:_*) settings(
     sbtPlugin := true,
     organization := "com.typesafe.sbt",
     name := "sbt-pgp"
   ) settings(websiteSettings:_*)  settings(
     //tmp workaround
-    libraryDependencies += "net.databinder" % "dispatch-http_2.9.1" % "0.8.6") aggregate(library)
+    dispatchDependency) aggregate(library)
   /* settings(ScriptedPlugin.scriptedSettings:_*) */
 
   lazy val library = Project("library", file("gpg-library")) settings(defaultSettings:_*) settings(
     name := "gpg-library",
-    libraryDependencies += "org.bouncycastle" % "bcpg-jdk15on" % "1.49",
-    libraryDependencies <+= (scalaVersion) apply { (sv) =>
-      if(sv startsWith "2.9")       "net.databinder" % "dispatch-http_2.9.1" % "0.8.10"
-      else                          "net.databinder" %% "dispatch-http" % "0.8.10"
-    }
+    libraryDependencies += bouncyCastlePgp,
+    dispatchDependency
   ) settings(Sonatype.publishSettings(
       url="http://scala-sbt.org/sbt-pgp/",
       gitUrl="git://github.com/sbt/sbt-pgp.git",
