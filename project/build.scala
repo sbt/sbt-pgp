@@ -87,7 +87,17 @@ object GpgBuild extends Build {
     }
   val bouncyCastlePgp = "org.bouncycastle" % "bcpg-jdk15on" % "1.49"
 
-  val plugin = Project("plugin", file(".")) dependsOn(library) settings(defaultSettings:_*) settings(
+  lazy val root = (
+    Project("sbt-pgp", file(".")) 
+    aggregate(plugin, library)
+    settings(websiteSettings:_*)
+    settings(
+      publishLocal := (),
+      publish := ()
+    )
+  )
+
+  lazy val plugin = Project("plugin", file("pgp-plugin")) dependsOn(library) settings(defaultSettings:_*) settings(
     sbtPlugin := true,
     organization := "com.typesafe.sbt",
     name := "sbt-pgp"
