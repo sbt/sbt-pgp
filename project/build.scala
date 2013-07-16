@@ -59,10 +59,18 @@ object Sonatype {
   
 }
 
+import com.typesafe.sbt.SbtGit._
+
 object GpgBuild extends Build {
-  val defaultSettings: Seq[Setting[_]] = Seq(
+
+  override val settings: Seq[Setting[_]] =
+    super.settings ++ versionWithGit ++ Seq(
+      git.baseVersion := "0.8.2"
+    )
+
+  val defaultSettings: Seq[Setting[_]] =
+   Seq(
     organization := "com.jsuereth",
-    version := "0.9-SNAPSHOT",
     publishMavenStyle := false,
     publishTo <<= (version) { version: String =>
        val scalasbt = "http://repo.scala-sbt.org/scalasbt/"
