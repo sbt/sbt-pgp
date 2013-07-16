@@ -4,31 +4,15 @@ import Keys._
 import com.typesafe.sbt.SbtSite.site
 import com.typesafe.sbt.SbtSite.SiteKeys._
 import com.typesafe.sbt.SbtGhPages.ghpages
-import com.typesafe.sbt.SbtGit.git
+import com.typesafe.sbt.SbtGit._
 
-/** Helper object for creating Sonatype OSSRH metadata. */ 
-// TODO - Make this a plugin
-object Sonatype {
-  case class Developer(id: String, name: String) {
-    def toXml = 
-      (<developer>
-          <id>{id}</id>
-          <name>{name}</name>
-        </developer>)
-  }
-  
-  case class License(name: String, url: String, distribution: String = "repo") {
-    def toXml = 
-      (<license>
-         <name>{name}</name>
-         <url>{url}</url>
-         <distribution>{distribution}</distribution>
-       </license>)
-  }
-  
-  val BSD = License("BSD", "ttp://www.opensource.org/licenses/bsd-license.php")
-  
-  def publishSettings(gitUrl:String, url: String, licenses: Seq[License], developers: Seq[Developer]): Seq[Setting[_]] = Seq(
+object SbtPgpBuild extends Build {
+
+  override val settings: Seq[Setting[_]] =
+    super.settings ++ versionWithGit
+
+  // Sonatype Publishing gunk
+  def sonatypePublishSettings: Seq[Setting[_]] = Seq(
     // If we want on maven central, we need to be in maven style.
     publishMavenStyle := true,
     publishArtifact in Test := false,
@@ -41,34 +25,33 @@ object Sonatype {
     // Maven central cannot allow other repos.  We're ok here because the artifacts we
     // we use externally are *optional* dependencies.
     pomIncludeRepository := { x => false },
+    licenses += ("BSD" -> url("http://www.opensource.org/licenses/bsd-license.php")),
+    homepage := Some(url("http://scala-sbt.org/sbt-pgp/")),
+    scmInfo := Some(ScmInfo(url("http://github.com/sbt/sbt-pgp/"),"git://github.com/sbt/sbt-pgp.git")),
     // Maven central wants some extra metadata to keep things 'clean'.
     pomExtra := (
-      <url>{url}</url>
-      <licenses>
-        { licenses map (_.toXml) }
-      </licenses>
-      <scm>
-        <url>{gitUrl}</url>
-        <connection>scm:{gitUrl}</connection>
-      </scm>
       <developers>
-        { developers map (_.toXml) }
+        <developer>
+          <id>jsuereth</id>
+          <name>Josh Suereth</name>
+        </developer>
       </developers>)
   )
-  
-  
-}
 
-import com.typesafe.sbt.SbtGit._
-
-object GpgBuild extends Build {
-
-  override val settings: Seq[Setting[_]] =
-    super.settings ++ versionWithGit ++ Seq(
-      git.baseVersion := "0.8.2"
+  // Website publishing settings.
+  def websiteSettings: Seq[Setting[_]] = (
+    site.settings ++ 
+    ghpages.settings ++ 
+    site.jekyllSupport() ++ 
+    site.includeScaladoc() ++ 
+    Seq(
+      git.remoteRepo := "git@github.com:sbt/sbt-pgp.git",
+      site.addMappingsToSiteDir(mappings in packageDoc in Compile in library, "library/latest/api")
     )
+  )
 
-  val defaultSettings: Seq[Setting[_]] =
+  // Common Settings
+  val commonSettings: Seq[Setting[_]] =
    Seq(
     organization := "com.jsuereth",
     publishMavenStyle := false,
@@ -80,6 +63,7 @@ object GpgBuild extends Build {
     }
   )
 
+  // Dependencies
   val dispatchDependency: Setting[_] =
     libraryDependencies <+= (scalaVersion) apply { (sv) =>
       if(sv startsWith "2.9")       "net.databinder" % "dispatch-http_2.9.1" % "0.8.10"
@@ -87,7 +71,9 @@ object GpgBuild extends Build {
     }
   val bouncyCastlePgp = "org.bouncycastle" % "bcpg-jdk15on" % "1.49"
 
-  lazy val root = (
+
+  // Root project.  Just makes website and aggregates others.
+  val root = (
     Project("sbt-pgp", file(".")) 
     aggregate(plugin, library)
     settings(websiteSettings:_*)
@@ -97,34 +83,17 @@ object GpgBuild extends Build {
     )
   )
 
-  lazy val plugin = Project("plugin", file("pgp-plugin")) dependsOn(library) settings(defaultSettings:_*) settings(
+  // The sbt plugin.
+  lazy val plugin = Project("plugin", file("pgp-plugin")) dependsOn(library) settings(commonSettings:_*) settings(
     sbtPlugin := true,
     organization := "com.typesafe.sbt",
     name := "sbt-pgp"
-  ) settings(websiteSettings:_*)  settings(
-    //tmp workaround
-    dispatchDependency) aggregate(library)
-  /* settings(ScriptedPlugin.scriptedSettings:_*) */
+  ) settings(websiteSettings:_*)  settings(dispatchDependency)
 
-  lazy val library = Project("library", file("gpg-library")) settings(defaultSettings:_*) settings(
+  // The library of PGP functions.
+  lazy val library = Project("library", file("gpg-library")) settings(commonSettings:_*) settings(
     name := "gpg-library",
     libraryDependencies += bouncyCastlePgp,
     dispatchDependency
-  ) settings(Sonatype.publishSettings(
-      url="http://scala-sbt.org/sbt-pgp/",
-      gitUrl="git://github.com/sbt/sbt-pgp.git",
-      licenses=Seq(Sonatype.BSD),
-      developers=Seq(Sonatype.Developer("jsuereth", "Josh Suereth"))):_*)
-
-
-  def websiteSettings: Seq[Setting[_]] = (
-    site.settings ++ 
-    ghpages.settings ++ 
-    site.jekyllSupport() ++ 
-    site.includeScaladoc() ++ 
-    Seq(
-      git.remoteRepo := "git@github.com:sbt/sbt-pgp.git",
-      site.addMappingsToSiteDir(mappings in packageDoc in Compile in library, "library/latest/api")
-    )
-  )
+  ) settings(sonatypePublishSettings:_*)
 }
