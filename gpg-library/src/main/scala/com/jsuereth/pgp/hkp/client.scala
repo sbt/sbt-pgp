@@ -17,7 +17,7 @@ trait Client {
 
 private[hkp] class DispatchClient(serverUrl: String) extends Client {
   
-  import dispatch._
+  import dispatch.classic._
   import Http._
   import util.control.Exception.catching
   
