@@ -36,9 +36,11 @@ object PGP {
   def loadPublicKeyRing(file: File) = PublicKeyRing loadFromFile file
   /** This can load your local PGP keyring. */
   def loadSecretKeyRing(file: File) = SecretKeyRing loadFromFile file
-  /** Loads a collection of public key rings froma file. */
+  /** Loads a collection of public key rings from a file. */
   def loadPublicKeyRingCollection(file: File) = PublicKeyRingCollection loadFromFile file
-
+  /** Loads a collection of public key rings from a file. */
+  def loadSecretKeyRingCollection(file: File) = SecretKeyRingCollection loadFromFile file
+  
   /** Creates a new public/secret keyring pair in memory. */
   def makeNewKeyRings(identity: String, passPhrase: Array[Char]): (PublicKeyRing, SecretKeyRing) = {
     val gen = KeyGen.makeRsaKeyRingGenerator(identity, passPhrase)
@@ -49,6 +51,7 @@ object PGP {
   def makeKeys(identity: String, passPhrase: Array[Char], publicKey: File, secretKey: File): Unit = {
     // TODO - Should we create the parent directory?
     val (pub, sec) = makeNewKeyRings(identity, passPhrase)
+    // TODO - GPG usually saves out key-rings, but I think the file formats are basically the same.
     pub saveToFile publicKey
     sec saveToFile secretKey
   }
