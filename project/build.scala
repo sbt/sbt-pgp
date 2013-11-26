@@ -64,11 +64,7 @@ object SbtPgpBuild extends Build {
   )
 
   // Dependencies
-  val dispatchDependency: Setting[_] =
-    libraryDependencies <+= (scalaVersion) apply { (sv) =>
-      if(sv startsWith "2.9")       "net.databinder" % "dispatch-http_2.9.1" % "0.8.10"
-      else                          "net.databinder" %% "dispatch-http" % "0.8.10"
-    }
+  val dispatchDependency = "net.databinder" %% "dispatch-http" % "0.8.10"
   val bouncyCastlePgp = "org.bouncycastle" % "bcpg-jdk15on" % "1.49"
 
 
@@ -87,13 +83,13 @@ object SbtPgpBuild extends Build {
   lazy val plugin = Project("plugin", file("pgp-plugin")) dependsOn(library) settings(commonSettings:_*) settings(
     sbtPlugin := true,
     organization := "com.typesafe.sbt",
-    name := "sbt-pgp"
-  ) settings(websiteSettings:_*)  settings(dispatchDependency)
+    name := "sbt-pgp",
+    libraryDependencies += dispatchDependency
+  ) settings(websiteSettings:_*)
 
   // The library of PGP functions.
   lazy val library = Project("library", file("gpg-library")) settings(commonSettings:_*) settings(
     name := "gpg-library",
-    libraryDependencies += bouncyCastlePgp,
-    dispatchDependency
+    libraryDependencies ++= Seq(bouncyCastlePgp, dispatchDependency)
   ) settings(sonatypePublishSettings:_*)
 }
