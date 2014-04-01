@@ -12,8 +12,10 @@ case class GeneratePgpKey() extends PgpCommand {
     import ctx.{publicKeyRingFile=>pub,secretKeyRingFile=>sec, log}
     if(pub.exists) sys.error("Public key ring (" + pub.getAbsolutePath + ") already exists!")
     if(sec.exists) sys.error("Secret key ring (" + sec.getAbsolutePath + ") already exists!")
-    if(!pub.getParentFile.exists) IO.createDirectory(pub.getParentFile)
-    if(!sec.getParentFile.exists) IO.createDirectory(sec.getParentFile)
+    val pparent = pub.getCanonicalFile.getParentFile
+    val sparent = sec.getCanonicalFile.getParentFile
+    if(!pparent.exists) IO.createDirectory(pparent)
+    if(!sparent.exists) IO.createDirectory(sparent)
     val name = ctx.readInput("Please enter the name associated with the key: ")
     val email = ctx.readInput("Please enter the email associated with the key: ")
     val pw = ctx.readHidden("Please enter the passphrase for the key: ")
