@@ -67,6 +67,8 @@ object SbtPgpBuild extends Build {
   // Dependencies
   val dispatchDependency = "net.databinder" %% "dispatch-http" % "0.8.10"
   val bouncyCastlePgp = "org.bouncycastle" % "bcpg-jdk15on" % "1.51"
+  val specs2 = "org.specs2" %% "specs2" % "2.3.11"
+  val sbtIo  = "org.scala-sbt" % "io" % "0.13.6"
 
 
   // Root project.  Just makes website and aggregates others.
@@ -92,6 +94,6 @@ object SbtPgpBuild extends Build {
   // Note:  We're going to just publish this to the sbt repo now.
   lazy val library = Project("library", file("gpg-library")) settings(commonSettings:_*) settings(
     name := "gpg-library",
-    libraryDependencies ++= Seq(bouncyCastlePgp, dispatchDependency)
-  ) settings(sonatypePublishSettings:_*)
+    libraryDependencies ++= Seq(bouncyCastlePgp, dispatchDependency, specs2 % "test", sbtIo % "test")
+  )
 }

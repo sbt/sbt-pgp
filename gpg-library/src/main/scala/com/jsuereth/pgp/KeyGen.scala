@@ -23,7 +23,7 @@ object KeyGen {
     new JcaPGPKeyPair(PublicKeyAlgorithmTags.RSA_GENERAL, rsa, new Date())
   }
   /** Constructs a new DSA PGP Pair. (only useful for signing) */
-  def makeDsaKeyPair(bitStrength: Int = 2048): PGPKeyPair = {
+  def makeDsaKeyPair(bitStrength: Int = 1024): PGPKeyPair = {
     val dsa = {
       val generator = KeyPairGenerator.getInstance("DSA", "BC")
       generator.initialize(bitStrength)
@@ -69,11 +69,11 @@ object KeyGen {
   }
   
   /** Instantiates a KeyRingGenerator for combined DSA/ElGamal keys */
-  def makeDsaKeyRingGenerator(identity: String, passPhrase: Array[Char]): PGPKeyRingGenerator =
+  def makeDsaKeyRingGenerator(identity: String, passPhrase: Array[Char], bitStrength: Int = 1024): PGPKeyRingGenerator =
     makePgpKeyRingGenerator(
         identity, 
         passPhrase,
-        makeDsaKeyPair(),
+        makeDsaKeyPair(bitStrength),
         makeElGamalKeyPair(encryptOnly=true))
         
   /** Instantiates a KeyRingGenerator for RSA keys */
