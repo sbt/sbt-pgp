@@ -89,6 +89,7 @@ object SbtPgpBuild extends Build {
   ) settings(websiteSettings:_*)
 
   // The library of PGP functions.
+  // Note:  We're going to just publish this to the sbt repo now.
   lazy val library = Project("library", file("gpg-library")) settings(commonSettings:_*) settings(
     name := "gpg-library",
     libraryDependencies ++= Seq(bouncyCastlePgp, dispatchDependency)
