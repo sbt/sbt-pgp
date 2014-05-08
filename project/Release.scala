@@ -44,8 +44,9 @@ object Release {
   def releaseAction(state: State, tag: String): State = {
     // TODO - Ensure we're releasing on JDK 6, so we're binary compatible.
     // First check to ensure we have a sane publishing environment...
-    "bintrayCheckCredentials" ::
-    "all test scripted" ::
+    "checkBintrayCredentials" ::
+    "test" ::
+    //"publishLocal" :: "scripted" ::
     // TODO - Signed tags, possibly using pgp keys?
     ("git tag " + tag) ::
     "reload" ::
