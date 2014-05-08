@@ -19,7 +19,8 @@ object SbtPgp extends AutoPlugin {
 
   override def trigger = allRequirements
   
-  object autoImport {
+  // Note - workaround for issues in sbt 0.13.5 autoImport
+  object autoImportImpl {
 
     val PgpKeys = pgp.PgpKeys
   
@@ -38,6 +39,7 @@ object SbtPgp extends AutoPlugin {
 
     def signingSettings = PgpSettings.signingSettings
   }
+  val autoImport = autoImportImpl
   // TODO - Maybe signing settigns should be a different plugin...
   override val projectSettings = PgpSettings.projectSettings
   override val buildSettings = PgpSettings.globalSettings
