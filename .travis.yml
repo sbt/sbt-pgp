@@ -1,6 +1,6 @@
 language: scala
 script:
-  - sbt "all test"
+  - sbt test
 jdk:
   - openjdk6
 notifications:
