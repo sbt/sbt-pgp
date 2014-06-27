@@ -13,7 +13,7 @@ object CommonParsers {
     try {
       ctx.publicKeyRing.publicKeys.view map (_.keyID) map ("%x" format (_)) toSeq
     } catch {
-      case _ => Seq.empty
+      case _: Throwable => Seq.empty
     }
   /** Parser for existing public key ids. */
   def existingPublicKeyId(ctx: PgpStaticContext) = 
@@ -25,7 +25,7 @@ object CommonParsers {
     try {
       ctx.publicKeyRing.publicKeys.view flatMap (_.userIDs) toSeq
     } catch {
-      case _ => Seq.empty
+      case _: Throwable => Seq.empty
     }
   
   def existingKeyIdOrUser(ctx: PgpStaticContext): Parser[String] =
