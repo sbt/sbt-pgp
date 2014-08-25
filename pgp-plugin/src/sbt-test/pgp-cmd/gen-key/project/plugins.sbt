@@ -1,0 +1,1 @@
+addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % sys.props("project.version"))

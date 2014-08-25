@@ -1,0 +1,8 @@
+language: scala
+script:
+  - sbt test
+jdk:
+  - openjdk6
+notifications:
+  email:
+    - qbranch@typesafe.com

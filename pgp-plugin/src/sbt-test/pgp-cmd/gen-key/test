@@ -1,0 +1,4 @@
+> pgp-cmd gen-key
+
+$ exists secring.pgp
+$ exists pubring.pgp
