@@ -21,7 +21,7 @@ case class SignKey(pubKey: String, notation: (String,String)) extends PgpCommand
           try {
             ctx.secretKeyRing.secretKey.signPublicKey(key, notation, pw)
           } catch {
-            case t => 
+            case t: Throwable => 
               ctx.log.trace(t)
               ctx.log.error("Error signing key!")
               throw t

@@ -25,7 +25,7 @@ object PGP {
     }
     java.security.Security.addProvider(newProvider)
   } catch {
-    case t => error("Could not initialize bouncy castle encryption.")
+    case t: Throwable => error("Could not initialize bouncy castle encryption.")
   }
 
   /** This is a helper method used to make sure the above initialization happens. */
