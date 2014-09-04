@@ -54,6 +54,7 @@ object SbtPgpBuild extends Build {
   val commonSettings: Seq[Setting[_]] =
    Seq(
     organization := "com.jsuereth",
+    scalacOptions in Compile := Seq("-feature", "-deprecation", "-Xlint"),
     publishMavenStyle := false,
     publishTo <<= (version) { version: String =>
        val scalasbt = "http://repo.scala-sbt.org/scalasbt/"
@@ -65,7 +66,7 @@ object SbtPgpBuild extends Build {
 
   // Dependencies
   val dispatchDependency = "net.databinder" %% "dispatch-http" % "0.8.10"
-  val bouncyCastlePgp = "org.bouncycastle" % "bcpg-jdk15on" % "1.49"
+  val bouncyCastlePgp = "org.bouncycastle" % "bcpg-jdk15on" % "1.51"
 
 
   // Root project.  Just makes website and aggregates others.
