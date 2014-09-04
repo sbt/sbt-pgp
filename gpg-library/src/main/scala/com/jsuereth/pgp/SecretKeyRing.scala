@@ -11,6 +11,7 @@ import org.bouncycastle.bcpg._
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.jce.spec.ElGamalParameterSpec
 import org.bouncycastle.openpgp._
+import org.bouncycastle.openpgp.operator.jcajce.JcaKeyFingerprintCalculator
 
 /** A secret PGP key ring. Can be used to decrypt messages and to sign files/messages.  */
 class SecretKeyRing(val nested: PGPSecretKeyRing) extends StreamingSaveable {
@@ -31,7 +32,7 @@ class SecretKeyRing(val nested: PGPSecretKeyRing) extends StreamingSaveable {
   /** Looks for a secret key with the given id on this key ring. */
   def get(id: Long): Option[SecretKey] = secretKeys find (_.keyID == id)
   /** Gets the secret key with a given id from this key ring or throws. */
-  def apply(id: Long): SecretKey = get(id).getOrElse(error("Could not find secret key: " + id))
+  def apply(id: Long): SecretKey = get(id).getOrElse(sys.error("Could not find secret key: " + id))
   
   /** The default public key for this key ring. */
   def publicKey = PublicKey(nested.getPublicKey)
@@ -52,7 +53,7 @@ object SecretKeyRing extends StreamingLoadable[SecretKeyRing] {
   implicit def unwrap(ring: SecretKeyRing) = ring.nested
   def apply(ring: PGPSecretKeyRing) = new SecretKeyRing(ring)
   // TODO - Another way of generating SecretKeyRing from SecretKey objects.
-  def load(input: InputStream) = apply(new PGPSecretKeyRing(PGPUtil.getDecoderStream(input)))
+  def load(input: InputStream) = apply(new PGPSecretKeyRing(PGPUtil.getDecoderStream(input),  new JcaKeyFingerprintCalculator()))
   
   /** Creates a new secret key. */
   def create(identity: String, passPhrase: Array[Char]) = 

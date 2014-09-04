@@ -3,7 +3,9 @@ package com.jsuereth.pgp
 import java.io._
 import org.bouncycastle.bcpg._
 import org.bouncycastle.openpgp._
-import java.security.SecureRandom
+import java.security.{Security, SecureRandom}
+
+import org.bouncycastle.openpgp.operator.jcajce.{JcePublicKeyKeyEncryptionMethodGenerator, JcePGPDataEncryptorBuilder}
 
 /** This class represents a public PGP key. It can be used to encrypt messages for a person and validate that messages were signed correctly. */
 class PublicKey(val nested: PGPPublicKey) extends PublicKeyLike with StreamingSaveable {
@@ -62,7 +64,7 @@ class PublicKey(val nested: PGPPublicKey) extends PublicKeyLike with StreamingSa
     }
   def verifySignatureStreams(msg: InputStream, signature: InputStream): Boolean = 
     verifySignatureStreamsHelper(msg,signature) { id =>
-      if(keyID != id) error("Signature is not for this key.  %x != %x".format(id, keyID))
+      if(keyID != id) sys.error("Signature is not for this key.  %x != %x".format(id, keyID))
       nested
     }
   /** Encrypts a file such that only the secret key associated with this public key can decrypt. */
@@ -97,12 +99,15 @@ class PublicKey(val nested: PGPPublicKey) extends PublicKeyLike with StreamingSa
     val aout = new ArmoredOutputStream(output)
     // TODO - Compress on the way into bytes
     val bytes = Array.empty[Byte]
-    val encGen = new PGPEncryptedDataGenerator(
-                SymmetricKeyAlgorithmTags.CAST5, 
-                true, 
-                new SecureRandom(), 
-                "BC")
-    encGen.addMethod(nested)
+    val rand = new SecureRandom()
+    val provider = Security.getProvider("BC")
+    val encGen = {
+      val encAlgorithm = SymmetricKeyAlgorithmTags.CAST5
+      val withIntegrityPacket = true
+      val encryptorBuilder = new JcePGPDataEncryptorBuilder(encAlgorithm).setWithIntegrityPacket(withIntegrityPacket).setSecureRandom(rand).setProvider(provider)
+      new PGPEncryptedDataGenerator(encryptorBuilder)
+    }
+    encGen.addMethod(new JcePublicKeyKeyEncryptionMethodGenerator(nested).setProvider(provider).setSecureRandom(rand))
     val cOut = encGen.open(aout, new Array[Byte](1024))
     val lit = new PGPLiteralDataGenerator
     val lOut = lit.open(cOut, PGPLiteralDataGenerator.BINARY, fileName, size, lastMod)

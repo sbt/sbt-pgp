@@ -1,10 +1,11 @@
 package com.jsuereth.pgp
 
 import java.io._
+import java.security.Security
 import org.bouncycastle._
 import org.bouncycastle.bcpg._
 import org.bouncycastle.openpgp._
-
+import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentVerifierBuilderProvider
 
 
 /** This trait defines things that can act like a public key.  That is they can verify signed files and messages and encrypt data for an individual. */
@@ -71,7 +72,7 @@ trait PublicKeyLike {
     val p2 = pgpFact.nextObject().asInstanceOf[PGPLiteralData]
     val dIn = p2.getInputStream()
     val key = getKey(ops.getKeyID)
-    ops.initVerify(key, "BC")
+    ops.init(new JcaPGPContentVerifierBuilderProvider().setProvider(Security.getProvider("BC")), key)
     var ch = dIn.read()
     while (ch >= 0) {
       ops.update(ch.asInstanceOf[Byte])
@@ -102,7 +103,7 @@ trait PublicKeyLike {
       // TODO - special return for key not found.
       case null => throw KeyNotFoundException(sig.getKeyID())
       case key =>
-        sig.initVerify(key, "BC")
+        sig.init(new JcaPGPContentVerifierBuilderProvider().setProvider(Security.getProvider("BC")), key)
         var ch = dIn.read()
         while(ch >= 0) {
           sig.update(ch.asInstanceOf[Byte])

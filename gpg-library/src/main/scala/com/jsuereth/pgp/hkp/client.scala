@@ -104,7 +104,7 @@ object Client {
       println("Parsing lookup value: " + input)
       parseAll(queryresponse, input) match {
         case Success(data, _) => data
-        case _                => error("Issues")
+        case _                => sys.error("Issues")
       }
     }
   }

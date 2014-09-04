@@ -1,11 +1,14 @@
 package com.jsuereth.pgp
 
+import java.security.Security
+
 import org.bouncycastle._
 import java.io._
 import java.util.Date
 
 import org.bouncycastle.bcpg._
 import org.bouncycastle.openpgp._
+import org.bouncycastle.openpgp.operator.jcajce.{JcaPGPContentSignerBuilder, JcaPGPDigestCalculatorProviderBuilder, JcePBESecretKeyDecryptorBuilder, JcePublicKeyDataDecryptorFactoryBuilder}
 
 class IncorrectPassphraseException(msg: String) extends RuntimeException(msg)
 
@@ -25,8 +28,13 @@ class SecretKey(val nested: PGPSecretKey) {
    */
   def signStream(in: InputStream, signature: OutputStream, pass: Array[Char]): Unit = {
     val privateKey = extractPrivateKey(pass)
-    val sGen = new PGPSignatureGenerator(nested.getPublicKey().getAlgorithm(), HashAlgorithmTags.SHA1, "BC")
-    sGen.initSign(PGPSignature.BINARY_DOCUMENT, privateKey)
+    val sGen = {
+      val keyAlgorithm = nested.getPublicKey.getAlgorithm
+      val provider = Security.getProvider("BC")
+      val contentSignerBuilder = new JcaPGPContentSignerBuilder(keyAlgorithm, HashAlgorithmTags.SHA1).setProvider(provider).setDigestProvider(provider)
+      new PGPSignatureGenerator(contentSignerBuilder)
+    }
+    sGen.init(PGPSignature.BINARY_DOCUMENT, privateKey)
     val out = new BCPGOutputStream(new ArmoredOutputStream(signature))
     try {
       var ch: Int = in.read()
@@ -57,8 +65,13 @@ class SecretKey(val nested: PGPSecretKey) {
   def signMessageStream(input: InputStream, name: String, length: Long, output: OutputStream, pass: Array[Char], lastMod: Date = new Date): Unit = {
     val armoredOut = new ArmoredOutputStream(output)
     val pgpPrivKey = extractPrivateKey(pass)
-    val sGen = new PGPSignatureGenerator(nested.getPublicKey().getAlgorithm(), HashAlgorithmTags.SHA1, "BC")
-    sGen.initSign(PGPSignature.BINARY_DOCUMENT, pgpPrivKey)
+    val sGen = {
+      val keyAlgorithm = nested.getPublicKey.getAlgorithm
+      val provider = Security.getProvider("BC")
+      val contentSignerBuilder = new JcaPGPContentSignerBuilder(keyAlgorithm, HashAlgorithmTags.SHA1).setProvider(provider).setDigestProvider(provider)
+      new PGPSignatureGenerator(contentSignerBuilder)
+    }
+    sGen.init(PGPSignature.BINARY_DOCUMENT, pgpPrivKey)
     for(name <- this.publicKey.userIDs) {
       val spGen = new PGPSignatureSubpacketGenerator()
       spGen.setSignerUserID(false, name)
@@ -101,11 +114,12 @@ class SecretKey(val nested: PGPSecretKey) {
   def signPublicKey(key: PublicKey, notation: (String,String), pass: Array[Char]): PublicKey = {
     val out = new ArmoredOutputStream(new ByteArrayOutputStream())
     val pgpPrivKey = extractPrivateKey(pass)
-    val sGen = new PGPSignatureGenerator(
-        nested.getPublicKey().getAlgorithm(), 
-        HashAlgorithmTags.SHA1, 
-        "BC")
-    sGen.initSign(PGPSignature.DIRECT_KEY, pgpPrivKey)
+    val sGen = {
+      val provider = Security.getProvider("BC")
+      val contentSignerBuilder = new JcaPGPContentSignerBuilder(nested.getPublicKey.getAlgorithm, HashAlgorithmTags.SHA1).setProvider(provider).setDigestProvider(provider)
+      new PGPSignatureGenerator(contentSignerBuilder)
+    }
+    sGen.init(PGPSignature.DIRECT_KEY, pgpPrivKey)
     val bOut = new BCPGOutputStream(out)
     sGen.generateOnePassVersion(false).encode(bOut)
     val spGen = new PGPSignatureSubpacketGenerator()
@@ -188,7 +202,11 @@ class SecretKey(val nested: PGPSecretKey) {
       // TODO - Better exception?
       if(pbe.getKeyID != this.keyID) throw new KeyNotFoundException(pbe.getKeyID)
       val privKey = extractPrivateKey(passPhrase)
-      val clear = pbe.getDataStream(privKey, "BC")
+      val clear = {
+        val provider = Security.getProvider("BC")
+        val dataDecryptorFactory = new JcePublicKeyDataDecryptorFactoryBuilder().setProvider(provider).setContentProvider(provider).build(privKey)
+        pbe.getDataStream(dataDecryptorFactory)
+      }
       val plainFact = new PGPObjectFactory(clear)
       // Handle compressed + uncompressed data here.
       def extractLiteral(x: Any): PGPLiteralData = x match {
@@ -209,7 +227,11 @@ class SecretKey(val nested: PGPSecretKey) {
   }
 
   private[this] def extractPrivateKey(passPhrase: Array[Char]) =
-    try nested.extractPrivateKey(passPhrase, "BC")
+    try {
+      val provider =  Security.getProvider("BC")
+      val decryptorFactory = new JcePBESecretKeyDecryptorBuilder(new JcaPGPDigestCalculatorProviderBuilder().setProvider(provider).build()).setProvider(provider).build(passPhrase)
+      nested.extractPrivateKey(decryptorFactory)
+    }
     catch {
       case e: PGPException if e.getMessage.contains("checksum mismatch") => throw new IncorrectPassphraseException("Incorrect passhprase")
     }

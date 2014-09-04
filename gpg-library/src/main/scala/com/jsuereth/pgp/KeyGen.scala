@@ -9,6 +9,7 @@ import org.bouncycastle.bcpg._
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.jce.spec.ElGamalParameterSpec
 import org.bouncycastle.openpgp._
+import org.bouncycastle.openpgp.operator.jcajce.{JcaPGPDigestCalculatorProviderBuilder, JcaPGPContentSignerBuilder, JcePBESecretKeyEncryptorBuilder, JcaPGPKeyPair}
 
 /** Helpers to generate various keys. */
 object KeyGen {
@@ -19,7 +20,7 @@ object KeyGen {
       generator.initialize(bitStrength)
       generator.generateKeyPair()
     }
-    new PGPKeyPair(PublicKeyAlgorithmTags.RSA_GENERAL, rsa, new Date())    
+    new JcaPGPKeyPair(PublicKeyAlgorithmTags.RSA_GENERAL, rsa, new Date())
   }
   /** Constructs a new DSA PGP Pair. (only useful for signing) */
   def makeDsaKeyPair(bitStrength: Int = 2048): PGPKeyPair = {
@@ -28,7 +29,7 @@ object KeyGen {
       generator.initialize(bitStrength)
       generator.generateKeyPair()
     }
-    new PGPKeyPair(PublicKeyAlgorithmTags.DSA, dsa, new Date())
+    new JcaPGPKeyPair(PublicKeyAlgorithmTags.DSA, dsa, new Date())
   }
   /** Make a new El Gamal key for signing/encrypting things. */
   def makeElGamalKeyPair(params: Option[ElGamalParameterSpec] = None,
@@ -38,8 +39,8 @@ object KeyGen {
       params foreach generator.initialize
       generator.generateKeyPair()
     }
-    if(encryptOnly) new PGPKeyPair(PublicKeyAlgorithmTags.ELGAMAL_ENCRYPT, elg, new Date())
-    else new PGPKeyPair(PublicKeyAlgorithmTags.ELGAMAL_GENERAL, elg, new Date())
+    if(encryptOnly) new JcaPGPKeyPair(PublicKeyAlgorithmTags.ELGAMAL_ENCRYPT, elg, new Date())
+    else new JcaPGPKeyPair(PublicKeyAlgorithmTags.ELGAMAL_GENERAL, elg, new Date())
   }
   
   /** Makes a new PGP Key ring generator, fully configured with reasonable defaults. */
@@ -48,17 +49,21 @@ object KeyGen {
       passPhrase: Array[Char], 
       keyPair: PGPKeyPair,
       subKeyPairs: PGPKeyPair*): PGPKeyRingGenerator = {
-    val keyRingGen = new PGPKeyRingGenerator(
-        PGPSignature.POSITIVE_CERTIFICATION,
+    val keyRingGen = {
+      val provider = Security.getProvider("BC")
+      val keyEncryptor = new JcePBESecretKeyEncryptorBuilder(SymmetricKeyAlgorithmTags.CAST5).setProvider(provider).setSecureRandom(new SecureRandom()).build(passPhrase)
+      val keySignerBuilder = new JcaPGPContentSignerBuilder(keyPair.getPublicKey.getAlgorithm, HashAlgorithmTags.SHA1)
+      val digestCalculator =  new JcaPGPDigestCalculatorProviderBuilder().build().get(HashAlgorithmTags.SHA1)
+      val certificationLevel = PGPSignature.POSITIVE_CERTIFICATION
+      new PGPKeyRingGenerator(certificationLevel,
         keyPair,
         identity,
-        SymmetricKeyAlgorithmTags.CAST5,
-        passPhrase,
-        true,
+        digestCalculator,
         null,
         null,
-        new SecureRandom(),
-        "BC")
+        keySignerBuilder,
+        keyEncryptor)
+    }
     subKeyPairs foreach keyRingGen.addSubKey
     keyRingGen
   }
