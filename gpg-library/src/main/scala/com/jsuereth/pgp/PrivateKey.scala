@@ -8,6 +8,7 @@ import java.util.Date
 
 import org.bouncycastle.bcpg._
 import org.bouncycastle.openpgp._
+import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory
 import org.bouncycastle.openpgp.operator.jcajce.{JcaPGPContentSignerBuilder, JcaPGPDigestCalculatorProviderBuilder, JcePBESecretKeyDecryptorBuilder, JcePublicKeyDataDecryptorFactoryBuilder}
 
 class IncorrectPassphraseException(msg: String) extends RuntimeException(msg)
@@ -185,7 +186,7 @@ class SecretKey(val nested: PGPSecretKey) {
   private[this] def decryptHelper[U](input: InputStream, passPhrase: Array[Char])(handler: PGPLiteralData => U): U = {
      val fixIn = PGPUtil.getDecoderStream(input)
     try {
-      val objF = new PGPObjectFactory(fixIn)
+      val objF = new JcaPGPObjectFactory(fixIn)
       // TODO - better method to advance to encrypted data.
       val enc = objF.nextObject match {
         case e: PGPEncryptedDataList => e
@@ -207,14 +208,14 @@ class SecretKey(val nested: PGPSecretKey) {
         val dataDecryptorFactory = new JcePublicKeyDataDecryptorFactoryBuilder().setProvider(provider).setContentProvider(provider).build(privKey)
         pbe.getDataStream(dataDecryptorFactory)
       }
-      val plainFact = new PGPObjectFactory(clear)
+      val plainFact = new JcaPGPObjectFactory(clear)
       // Handle compressed + uncompressed data here.
       def extractLiteral(x: Any): PGPLiteralData = x match {
         case msg: PGPLiteralData => msg
         case cData: PGPCompressedData =>
           // Now we need to read the compressed stream of data.
           val compressedStream = new BufferedInputStream(cData.getDataStream)
-          val pgpFact = new PGPObjectFactory(compressedStream)
+          val pgpFact = new JcaPGPObjectFactory(compressedStream)
           extractLiteral(pgpFact.nextObject)
         case msg: PGPOnePassSignature => throw new NotEncryptedMessageException("Message is a signature")
         case _                        => throw new NotEncryptedMessageException("Message is not a simple encyrpted file")      

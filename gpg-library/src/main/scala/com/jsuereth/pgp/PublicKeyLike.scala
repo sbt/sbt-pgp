@@ -5,6 +5,7 @@ import java.security.Security
 import org.bouncycastle._
 import org.bouncycastle.bcpg._
 import org.bouncycastle.openpgp._
+import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentVerifierBuilderProvider
 
 
@@ -63,9 +64,9 @@ trait PublicKeyLike {
  protected def verifyMessageStreamHelper(input: InputStream, output: OutputStream)(getKey: Long => PGPPublicKey): Boolean = {
     val in = PGPUtil.getDecoderStream(input)
     val pgpFact = {
-      val tmp = new PGPObjectFactory(in)
+      val tmp = new JcaPGPObjectFactory(in)
       val c1 = tmp.nextObject().asInstanceOf[PGPCompressedData]
-      new PGPObjectFactory(c1.getDataStream())
+      new JcaPGPObjectFactory(c1.getDataStream())
     }
     val sigList = pgpFact.nextObject().asInstanceOf[PGPOnePassSignatureList]
     val ops = sigList.get(0)
@@ -90,10 +91,10 @@ trait PublicKeyLike {
     val in = PGPUtil.getDecoderStream(signature)
     // We extract the signature list and object factory based on whether or not the signature is compressed.
     val (sigList,pgpFact) = {
-      val pgpFact = new PGPObjectFactory(in)
+      val pgpFact = new JcaPGPObjectFactory(in)
       val o = pgpFact.nextObject()
       o match {
-        case c1: PGPCompressedData => (pgpFact.nextObject.asInstanceOf[PGPSignatureList], new PGPObjectFactory(c1.getDataStream()))
+        case c1: PGPCompressedData => (pgpFact.nextObject.asInstanceOf[PGPSignatureList], new JcaPGPObjectFactory(c1.getDataStream()))
         case sigList: PGPSignatureList   => (sigList, pgpFact)
       }
     }
