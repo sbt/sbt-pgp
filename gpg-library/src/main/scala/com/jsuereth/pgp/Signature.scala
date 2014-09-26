@@ -12,7 +12,7 @@ class Signature(val nested: PGPSignature) extends StreamingSaveable {
   object notations extends Traversable[(String,String)] {
     override def foreach[U](f: ((String,String)) => U): Unit = 
       for {
-        data <- nested.getHashedSubPackets.getNotationDataOccurences
+        data <- nested.getHashedSubPackets.getNotationDataOccurrences
       } f(data.getNotationName() -> data.getNotationValue())
   }
   def keyID = nested.getKeyID

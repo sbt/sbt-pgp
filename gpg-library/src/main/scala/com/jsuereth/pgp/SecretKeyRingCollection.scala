@@ -11,6 +11,7 @@ import org.bouncycastle.bcpg._
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.jce.spec.ElGamalParameterSpec
 import org.bouncycastle.openpgp._
+import org.bouncycastle.openpgp.operator.bc.BcKeyFingerprintCalculator
 
 /** A secret PGP key ring. Can be used to decrypt messages and to sign files/messages.  */
 class SecretKeyRingCollection(val nested: PGPSecretKeyRingCollection) extends StreamingSaveable {
@@ -62,5 +63,5 @@ class SecretKeyRingCollection(val nested: PGPSecretKeyRingCollection) extends St
 object SecretKeyRingCollection extends StreamingLoadable[SecretKeyRingCollection] {
   implicit def unwrap(ring: SecretKeyRingCollection) = ring.nested
   def apply(nested: PGPSecretKeyRingCollection) = new SecretKeyRingCollection(nested)
-  def load(input: InputStream) = apply(new PGPSecretKeyRingCollection(PGPUtil.getDecoderStream(input)))
+  def load(input: InputStream) = apply(new PGPSecretKeyRingCollection(PGPUtil.getDecoderStream(input), new BcKeyFingerprintCalculator))
 }

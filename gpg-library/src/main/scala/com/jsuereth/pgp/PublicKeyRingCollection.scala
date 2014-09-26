@@ -4,6 +4,8 @@ import org.bouncycastle.bcpg._
 import org.bouncycastle.openpgp._
 import java.io.{InputStream,OutputStream}
 
+import org.bouncycastle.openpgp.operator.bc.BcKeyFingerprintCalculator
+
 /** A collection of nested key rings. */
 class PublicKeyRingCollection(val nested: PGPPublicKeyRingCollection) extends PublicKeyLike with StreamingSaveable {
   /** A collection of all the nested key rings. */
@@ -69,5 +71,5 @@ class PublicKeyRingCollection(val nested: PGPPublicKeyRingCollection) extends Pu
 object PublicKeyRingCollection extends StreamingLoadable[PublicKeyRingCollection] {
   implicit def unwrap(ring: PublicKeyRingCollection) = ring.nested
   def apply(nested: PGPPublicKeyRingCollection) = new PublicKeyRingCollection(nested)
-  def load(input: InputStream) = apply(new PGPPublicKeyRingCollection(PGPUtil.getDecoderStream(input)))
+  def load(input: InputStream) = apply(new PGPPublicKeyRingCollection(PGPUtil.getDecoderStream(input), new BcKeyFingerprintCalculator))
 }

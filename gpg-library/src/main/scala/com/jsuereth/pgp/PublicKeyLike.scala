@@ -1,10 +1,12 @@
 package com.jsuereth.pgp
 
 import java.io._
+import java.security.Security
 import org.bouncycastle._
 import org.bouncycastle.bcpg._
 import org.bouncycastle.openpgp._
-
+import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory
+import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentVerifierBuilderProvider
 
 
 /** This trait defines things that can act like a public key.  That is they can verify signed files and messages and encrypt data for an individual. */
@@ -62,16 +64,16 @@ trait PublicKeyLike {
  protected def verifyMessageStreamHelper(input: InputStream, output: OutputStream)(getKey: Long => PGPPublicKey): Boolean = {
     val in = PGPUtil.getDecoderStream(input)
     val pgpFact = {
-      val tmp = new PGPObjectFactory(in)
+      val tmp = new JcaPGPObjectFactory(in)
       val c1 = tmp.nextObject().asInstanceOf[PGPCompressedData]
-      new PGPObjectFactory(c1.getDataStream())
+      new JcaPGPObjectFactory(c1.getDataStream())
     }
     val sigList = pgpFact.nextObject().asInstanceOf[PGPOnePassSignatureList]
     val ops = sigList.get(0)
     val p2 = pgpFact.nextObject().asInstanceOf[PGPLiteralData]
     val dIn = p2.getInputStream()
     val key = getKey(ops.getKeyID)
-    ops.initVerify(key, "BC")
+    ops.init(new JcaPGPContentVerifierBuilderProvider().setProvider(Security.getProvider("BC")), key)
     var ch = dIn.read()
     while (ch >= 0) {
       ops.update(ch.asInstanceOf[Byte])
@@ -89,10 +91,10 @@ trait PublicKeyLike {
     val in = PGPUtil.getDecoderStream(signature)
     // We extract the signature list and object factory based on whether or not the signature is compressed.
     val (sigList,pgpFact) = {
-      val pgpFact = new PGPObjectFactory(in)
+      val pgpFact = new JcaPGPObjectFactory(in)
       val o = pgpFact.nextObject()
       o match {
-        case c1: PGPCompressedData => (pgpFact.nextObject.asInstanceOf[PGPSignatureList], new PGPObjectFactory(c1.getDataStream()))
+        case c1: PGPCompressedData => (pgpFact.nextObject.asInstanceOf[PGPSignatureList], new JcaPGPObjectFactory(c1.getDataStream()))
         case sigList: PGPSignatureList   => (sigList, pgpFact)
       }
     }
@@ -102,7 +104,7 @@ trait PublicKeyLike {
       // TODO - special return for key not found.
       case null => throw KeyNotFoundException(sig.getKeyID())
       case key =>
-        sig.initVerify(key, "BC")
+        sig.init(new JcaPGPContentVerifierBuilderProvider().setProvider(Security.getProvider("BC")), key)
         var ch = dIn.read()
         while(ch >= 0) {
           sig.update(ch.asInstanceOf[Byte])
