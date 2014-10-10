@@ -5,7 +5,7 @@
         <div class="container">
           <a class="brand" href="index.html">SBT PGP plugin</a>
           <ul class="nav">
-           <li><a target="_blank" href="latest/api/index.html">Plugin Scaladoc</a></li>
+           <li><a target="_blank" href="plugin/latest/api/index.html">Plugin Scaladoc</a></li>
            <li><a target="_blank" href="library/latest/api/index.html">Library Scaladoc</a></li>
            <li><a href="usage.html">Usage</a></li>
           </ul>
