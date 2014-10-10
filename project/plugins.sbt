@@ -4,4 +4,5 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "0.6.2")
 
 libraryDependencies += "org.scala-sbt" % "scripted-plugin" % sbtVersion.value
 
-ibraryDependencies += "net.databinder" %% "dispatch" % "0.8.10"
+libraryDependencies += "net.databinder" %% "dispatch" % "0.8.10"
+
