@@ -34,18 +34,11 @@ object Release {
        |4. publish all the artifacts to bintray.""".stripMargin
   )
 
-  def scriptedForPlatform: String = {
-  	// TODO - Implement.   Instead of only running tests we can, we should 
-  	// probably ping some service to see if all platform tests have
-  	// succeeded.
-  	"scripted universal/* debian/* rpm/*"
-  }
-
   def releaseAction(state: State, tag: String): State = {
     // TODO - Ensure we're releasing on JDK 6, so we're binary compatible.
     // First check to ensure we have a sane publishing environment...
     "checkBintrayCredentials" ::
-    "test" ::
+    "test" :: "scripted" ::
     //"publishLocal" :: "scripted" ::
     // TODO - Signed tags, possibly using pgp keys?
     ("git tag " + tag) ::
