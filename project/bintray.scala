@@ -48,7 +48,11 @@ object Bintray {
        },
        bintrayPublishAllStaged := {
        	 val creds = credentials.value
-       	 publishContent(projectID.value.name, bintrayUserId.value, bintrayRepoId.value, version.value, creds)
+         // Here we need to push two different projects...
+         def push(projId: String): Unit = 
+       	   publishContent(projId, bintrayUserId.value, bintrayRepoId.value, version.value, creds)
+         // TODO - autodetect these from projects.
+         Seq("sbt-pgp", "pgp-library") foreach push
        }
     )
 }
