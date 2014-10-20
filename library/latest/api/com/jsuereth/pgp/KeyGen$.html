@@ -275,20 +275,20 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">makeDsaKeyPair</span><span class="params">(<span name="bitStrength">bitStrength: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">2048</span></span>)</span><span class="result">: <span class="extype" name="org.bouncycastle.openpgp.PGPKeyPair">PGPKeyPair</span></span>
+        <span class="name">makeDsaKeyPair</span><span class="params">(<span name="bitStrength">bitStrength: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">1024</span></span>)</span><span class="result">: <span class="extype" name="org.bouncycastle.openpgp.PGPKeyPair">PGPKeyPair</span></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Constructs a new DSA PGP Pair.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a new DSA PGP Pair. (only useful for signing)</p></div></div>
     </li><li name="com.jsuereth.pgp.KeyGen#makeDsaKeyRingGenerator" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="makeDsaKeyRingGenerator(identity:String,passPhrase:Array[Char]):org.bouncycastle.openpgp.PGPKeyRingGenerator"></a>
-      <a id="makeDsaKeyRingGenerator(String,Array[Char]):PGPKeyRingGenerator"></a>
+      <a id="makeDsaKeyRingGenerator(identity:String,passPhrase:Array[Char],bitStrength:Int):org.bouncycastle.openpgp.PGPKeyRingGenerator"></a>
+      <a id="makeDsaKeyRingGenerator(String,Array[Char],Int):PGPKeyRingGenerator"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">makeDsaKeyRingGenerator</span><span class="params">(<span name="identity">identity: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="passPhrase">passPhrase: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Char">Char</span>]</span>)</span><span class="result">: <span class="extype" name="org.bouncycastle.openpgp.PGPKeyRingGenerator">PGPKeyRingGenerator</span></span>
+        <span class="name">makeDsaKeyRingGenerator</span><span class="params">(<span name="identity">identity: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="passPhrase">passPhrase: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Char">Char</span>]</span>, <span name="bitStrength">bitStrength: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">1024</span></span>)</span><span class="result">: <span class="extype" name="org.bouncycastle.openpgp.PGPKeyRingGenerator">PGPKeyRingGenerator</span></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Instantiates a KeyRingGenerator for combined DSA/ElGamal keys</p>

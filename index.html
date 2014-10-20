@@ -24,7 +24,7 @@
         <div class="container">
           <a class="brand" href="index.html">SBT PGP plugin</a>
           <ul class="nav">
-           <li><a target="_blank" href="latest/api/index.html">Plugin Scaladoc</a></li>
+           <li><a target="_blank" href="plugin/latest/api/index.html">Plugin Scaladoc</a></li>
            <li><a target="_blank" href="library/latest/api/index.html">Library Scaladoc</a></li>
            <li><a href="usage.html">Usage</a></li>
           </ul>
@@ -36,33 +36,51 @@
 <div class="row">
   <div class="span2 columns"><p>&nbsp;</p></div>
   <div class="span10 columns content">
-    <p>The <code>sbt-pgp</code> plugin provides PGP signing for SBT 0.12+. Some OSS repositories (e.g. Sonatype) will require that you sign artifacts with publicly available keys prior to release. These are two of the services that <code>sbt-pgp</code> provides.</p>
+    <p>The <code>sbt-pgp</code> plugin provides PGP signing for SBT 0.12+.  Some OSS repositories (e.g. Sonatype) will require that you sign artifacts with publicly available keys prior to release.  These are two of the services that <code>sbt-pgp</code> provides.</p>
 
-<h2 id='installation'>Installation</h2>
+<h2 id="installation">Installation</h2>
+
+<h3 id="for-sbt-0135">For sbt 0.13.5+:</h3>
+
+<p>Add the following to your <code>~/.sbt/0.13/plugins/gpg.sbt</code> file:</p>
+
+<p><code>
+   addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.0.0")
+</code></p>
+
+<h3 id="for-sbt-013x">For sbt 0.13.x:</h3>
+
+<p>Add the following to your <code>~/.sbt/0.13/plugins/gpg.sbt</code> file:</p>
+
+<p><code>
+   addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.8.3")
+</code></p>
+
+<h3 id="for-sbt-012x">For sbt 0.12.x:</h3>
 
 <p>Add the following to your <code>~/.sbt/plugins/gpg.sbt</code> file:</p>
 
 <p><code>
-   addSbtPlugin(&quot;com.typesafe.sbt&quot; % &quot;sbt-pgp&quot; % &quot;0.8.3&quot;)
+   addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.8.3")
 </code></p>
 
-<h2 id='usage'>Usage</h2>
+<h2 id="usage">Usage</h2>
 
 <p>There are two modes of use:</p>
 
 <ul>
-<li>
-<p>By default, the <code>sbt-pgp</code> plugin will use the <a href='http://www.bouncycastle.org/'>Bouncy Castle</a> library, an implementation of PGP that is included with the plugin. It is a Java-only solution that gives the plugin great flexibility in what it can do and how it performs it.</p>
-</li>
-
-<li>
-<p>The <code>gpg</code> command-line utility which is GNU&#8217;s PGP implementation. It provides great support and is available on many platforms. You&#8217;ll need to make sure this is installed prior to usage as this dependency is not provided.</p>
-</li>
+  <li>
+    <p>By default, the <code>sbt-pgp</code> plugin will use the <a href="http://www.bouncycastle.org/">Bouncy Castle</a> library, an implementation of PGP that is included with the plugin.  It is a Java-only solution that gives the plugin great flexibility in what it can do and how it performs it.</p>
+  </li>
+  <li>
+    <p>The <code>gpg</code> command-line utility which is GNU’s PGP implementation.  It provides great support and is available on many platforms.  You’ll need to make sure this is installed prior to usage as this dependency is not provided.</p>
+  </li>
 </ul>
 
-<p><a href='usage.html'>Detailed usage and configuration instructions</a>.</p>
+<p><a href="usage.html">Detailed usage and configuration instructions</a>.</p>
 
-<p>To publish signed artifacts, you must use the new <code>publish-signed</code> and <code>publish-local-signed</code> tasks. <code>sbt-pgp</code> no longer wires in to the default <code>publish</code> and <code>publish-local</code> tasks of SBT.</p>   
+<p>To publish signed artifacts, you must use the new <code>publish-signed</code> and <code>publish-local-signed</code> tasks.  <code>sbt-pgp</code> no longer wires in to the default <code>publish</code> and <code>publish-local</code> tasks of SBT.</p>
+   
   </div>
   <div class="span6 columns blogroll">
     <!-- TODO - links here -->
