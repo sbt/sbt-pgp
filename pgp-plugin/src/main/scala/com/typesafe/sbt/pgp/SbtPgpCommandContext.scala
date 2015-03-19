@@ -12,15 +12,21 @@ case class SbtPgpStaticContext(
 /** Context used by PGP commands as they execute. */
 case class SbtPgpCommandContext(
     ctx: cli.PgpStaticContext,
+    interaction: sbt.InteractionService,
     optPassphrase: Option[Array[Char]],
     s: TaskStreams
   ) extends cli.PgpCommandContext with cli.DelegatingPgpStaticContext {
+
+  // For binary compatibility
+  def this(ctx: cli.PgpStaticContext,
+           optPassphrase: Option[Array[Char]],
+           s: TaskStreams) = this(ctx, HackInteractionAccess.defaultInteraction, optPassphrase, s)
   
   def readInput(msg: String): String = System.out.synchronized {
-    SimpleReader.readLine(msg) getOrElse sys.error("Failed to grab input")
+    interaction.readLine(msg, mask=false) getOrElse sys.error("Failed to grab input")
   }
   def readHidden(msg: String): String = System.out.synchronized {
-    SimpleReader.readLine(msg, Some('*')) getOrElse sys.error("Failed to grab input")
+    interaction.readLine(msg, mask=true) getOrElse sys.error("Failed to grab input")
   }
   def inputPassphrase = readHidden("Please enter PGP passphrase (or ENTER to abort): ") match {
     case s: String if !s.isEmpty => s.toCharArray

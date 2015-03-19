@@ -18,6 +18,7 @@ import PgpKeys._
 object SbtPgp extends AutoPlugin {
 
   override def trigger = allRequirements
+  override def requires = sbt.plugins.InteractionServicePlugin && sbt.plugins.IvyPlugin
   
   // Note - workaround for issues in sbt 0.13.5 autoImport
   object autoImportImpl {
