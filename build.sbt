@@ -21,7 +21,7 @@ lazy val plugin =
     settings(
       sbtPlugin := true,
       name := "sbt-pgp",
-      libraryDependencies += dispatchDependency,
+      libraryDependencies ++= Seq(dispatchDependency, sbtCoreNext.value),
       publishLocal <<= publishLocal.dependsOn(publishLocal in library)
     ).
     //settings(websiteSettings:_*).

@@ -14,6 +14,10 @@ object PgpCommonSettings extends AutoPlugin {
     val bouncyCastlePgp = "org.bouncycastle" % "bcpg-jdk15on" % "1.51"
     val specs2 = "org.specs2" %% "specs2" % "2.3.11"
     val sbtIo  = "org.scala-sbt" % "io" % "0.13.6"
+
+    val sbtCoreNext = Def.setting {
+      Defaults.sbtPluginExtra("org.scala-sbt" % "sbt-core-next" % "0.1.1", sbtBinaryVersion.value, scalaBinaryVersion.value)
+    }
   }
 
   override def projectSettings =

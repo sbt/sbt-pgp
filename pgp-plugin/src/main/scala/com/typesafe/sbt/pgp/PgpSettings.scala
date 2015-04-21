@@ -10,6 +10,7 @@ import complete.DefaultParsers._
 import SbtHelpers._
 import PgpKeys._
 import com.jsuereth.pgp._
+import sbt.InteractionServiceKeys.interactionService
 
 /**
  * SBT Settings for doing PGP security tasks.  Signing, verifying, etc.
@@ -76,7 +77,7 @@ object PgpSettings {
       case _ => file(System.getProperty("user.home")) / ".sbt" / "gpg" / "secring.asc"
     },
     PgpKeys.pgpStaticContext <<= (PgpKeys.pgpPublicRing, PgpKeys.pgpSecretRing) apply SbtPgpStaticContext.apply,
-    PgpKeys.pgpCmdContext <<= (PgpKeys.pgpStaticContext, PgpKeys.pgpPassphrase, streams) map SbtPgpCommandContext.apply
+    PgpKeys.pgpCmdContext <<= (PgpKeys.pgpStaticContext, interactionService, PgpKeys.pgpPassphrase, streams) map SbtPgpCommandContext.apply
   )
   
   
