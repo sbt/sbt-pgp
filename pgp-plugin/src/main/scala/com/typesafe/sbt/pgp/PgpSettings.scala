@@ -63,6 +63,8 @@ object PgpSettings {
   /** Configuration for BC JVM-local PGP */
   lazy val nativeConfigurationSettings: Seq[Setting[_]] = Seq(
     PgpKeys.pgpPassphrase := None,
+    PgpKeys.pgpSelectPassphrase := PgpKeys.pgpPassphrase.value orElse
+      (Credentials.forHost(credentials.value, "pgp") map (_.passwd.toCharArray)),
     PgpKeys.pgpPublicRing := file(System.getProperty("user.home")) / ".gnupg" / "pubring.gpg",
     PgpKeys.pgpSecretRing := file(System.getProperty("user.home")) / ".gnupg" / "secring.gpg",
     PgpKeys.pgpSigningKey := None,
@@ -77,7 +79,7 @@ object PgpSettings {
       case _ => file(System.getProperty("user.home")) / ".sbt" / "gpg" / "secring.asc"
     },
     PgpKeys.pgpStaticContext <<= (PgpKeys.pgpPublicRing, PgpKeys.pgpSecretRing) apply SbtPgpStaticContext.apply,
-    PgpKeys.pgpCmdContext <<= (PgpKeys.pgpStaticContext, interactionService, PgpKeys.pgpPassphrase, streams) map SbtPgpCommandContext.apply
+    PgpKeys.pgpCmdContext <<= (PgpKeys.pgpStaticContext, interactionService, PgpKeys.pgpSelectPassphrase, streams) map SbtPgpCommandContext.apply
   )
   
   
