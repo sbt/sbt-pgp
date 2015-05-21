@@ -10,11 +10,12 @@ import KeyRanks._
 /** SBT Keys for the PGP plugin. */
 object PgpKeys {
    // PGP related setup
-  val pgpSigner     = TaskKey[PgpSigner]("pgp-signer", "The helper class to run GPG commands.", CTask)  
+  val pgpSigner     = TaskKey[PgpSigner]("pgp-signer", "The helper class to run GPG commands.", CTask)
   val pgpVerifier   = TaskKey[PgpVerifier]("pgp-verifier", "The helper class to verify public keys from a public key ring.", CTask)
   val pgpSecretRing = SettingKey[File]("pgp-secret-ring", "The location of the secret key ring.  Only needed if using bouncy castle.", ASetting)
   val pgpPublicRing = SettingKey[File]("pgp-public-ring", "The location of the secret key ring.  Only needed if using bouncy castle.", ASetting)
   val pgpPassphrase = SettingKey[Option[Array[Char]]]("pgp-passphrase", "The passphrase associated with the secret used to sign artifacts.", BSetting)
+  val pgpSelectPassphrase = TaskKey[Option[Array[Char]]]("pgp-select-passphrase", "The passphrase associated with the secret used to sign artifacts.", CTask)
   val pgpSigningKey = SettingKey[Option[Long]]("pgp-signing-key", "The key used to sign artifacts in this project.  Must be the full key id (not just lower 32 bits).", BSetting)
   
   // PGP Related tasks  (TODO - make these commands?)

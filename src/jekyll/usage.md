@@ -70,9 +70,22 @@ If you would like to avoid entering your password over and over, you can configu
 
     pgpPassphrase := Some(Array('M', 'y', 'P', 'a', 's', 's', 'p', 'h', 'r', 'a', 's', 'e'))
 
-Note: The passphrase *must* be an array of characters.   It's midly more secure.  We hope to provide even more secure ways of storing passphrases in the future.
+Note: The passphrase *must* be an array of characters.   It's mildy more secure.  We hope to provide even more secure ways of storing passphrases in the future.
 
 Also make sure that the above setting is in a user-specific directory and that you don't advertise your password in the source code repository!
+
+Another alternative for configuring the passphrase is to add it to your credentials, using a host name of `pgp`.  This allows you to globally configure a passphrase without having the pgp plugin installed globally.
+ 
+For example, create the following file `~/.sbt/pgp.credentials`:
+
+    realm=PGP Secret Key
+    host=pgp
+    user=sbt
+    password=MyPassphrase
+    
+The `realm` and `user` values can be anything, the `host` must be `pgp`, and `password` must be your passphrase. Now add the this file to your sbt credentials in `~/.sbt/0.13/global.sbt`:
+
+    credentials += Credentials(Path.userHome / ".sbt" / "pgp.credentials")    
 
 ## Configuration: Key Pair Locations ##
 
