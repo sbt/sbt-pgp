@@ -1,5 +1,4 @@
-package com.typesafe.sbt
-package pgp
+package com.jsuereth.sbtpgp
 
 import sbt._
 import Keys._
@@ -87,7 +86,7 @@ object PgpSignatureCheck {
   }
 
   /** Pretty-prints a report to the logs of all the PGP signature results. */
-  def prettyPrintSingatureReport(report: SignatureCheckReport, s: TaskStreams): Unit = 
+  def prettyPrintSingatureReport(report: SignatureCheckReport, s: TaskStreams): Unit =
     if(report.results.isEmpty) s.log.info("----- No Dependencies for PGP check -----")
     else {
       import report._
@@ -108,14 +107,14 @@ object PgpSignatureCheck {
       } foreach { x => s.log.info(prettify(x)) }
     }
   /** Returns the SignatureCheck results for all missing signature artifacts in an update. */
-  private def missingSignatures(update: UpdateReport, s: TaskStreams): Seq[SignatureCheck] = 
+  private def missingSignatures(update: UpdateReport, s: TaskStreams): Seq[SignatureCheck] =
     for {
       config <- update.configurations
       module <- config.modules
       artifact <- module.missingArtifacts
       if artifact.extension endsWith gpgExtension
     } yield SignatureCheck(module.module, artifact, SignatureCheckResult.MISSING)
-    
+
   /** Returns the SignatureCheck results for all downloaded signature artifacts. */
   private def checkArtifactSignatures(update: UpdateReport, pgp: PgpVerifierFactory, s: TaskStreams): Seq[SignatureCheck] = {
     pgp.withVerifier(pgp => for {
@@ -126,5 +125,3 @@ object PgpSignatureCheck {
     } yield SignatureCheck(module.module, artifact, pgp.verifySignature(file, s)))
   }
 }
-
-

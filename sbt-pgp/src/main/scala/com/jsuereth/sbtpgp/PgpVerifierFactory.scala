@@ -1,5 +1,4 @@
-package com.typesafe.sbt
-package pgp
+package com.jsuereth.sbtpgp
 
 import scala.util.matching.Regex
 import scala.util.control.Exception._

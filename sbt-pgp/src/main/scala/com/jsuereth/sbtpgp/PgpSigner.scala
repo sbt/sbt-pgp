@@ -1,5 +1,4 @@
-package com.typesafe.sbt
-package pgp
+package com.jsuereth.sbtpgp
 
 import sbt._
 import Keys._
@@ -8,8 +7,8 @@ import sbt.sbtpgp.Compat._
 
 /** The interface used to sign plugins. */
 trait PgpSigner {
-  /** Signs a given file and writes the output to the signature file specified.  
-   * Returns the signature file, throws on errors. 
+  /** Signs a given file and writes the output to the signature file specified.
+   * Returns the signature file, throws on errors.
    */
   def sign(file: File, signatureFile: File, s: TaskStreams): File
 }

@@ -18,12 +18,11 @@ object PGP {
     }
     java.security.Security.addProvider(newProvider)
   } catch {
-    case t => sys.error("Could not initialize bouncy castle encryption.")
+    case t: Throwable => sys.error("Could not initialize bouncy castle encryption.")
   }
 
   /** This is a helper method used to make sure the above initialization happens. */
-  def init = ()
-        
+  def init(): Unit = ()
 
   /** This can load your local PGP keyring. */
   def loadPublicKeyRing(file: File) = PublicKeyRing loadFromFile file

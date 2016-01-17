@@ -24,7 +24,7 @@ lazy val library =
 
 // The sbt plugin.
 lazy val plugin =
-  Project("plugin", file("pgp-plugin"))
+  Project("plugin", file("sbt-pgp"))
     .dependsOn(library)
     .settings(
       sbtPlugin := true,

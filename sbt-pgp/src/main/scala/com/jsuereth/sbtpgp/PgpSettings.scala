@@ -1,6 +1,4 @@
-package com.typesafe.sbt
-package pgp
-
+package com.jsuereth.sbtpgp
 
 import sbt._
 import Keys._
@@ -225,6 +223,7 @@ object PgpSettings {
       PgpSignatureCheck.checkSignaturesTask(updatePgpSignatures.value, pgpVerifierFactory.value, streams.value)
     }
   )
+
   lazy val globalSettings: Seq[Setting[_]] = inScope(Global)(gpgConfigurationSettings ++ nativeConfigurationSettings ++ signVerifyConfigurationSettings)
   /** Settings this plugin defines. TODO - require manual setting of these... */
   lazy val projectSettings: Seq[Setting[_]] = signingSettings ++ verifySettings ++ Seq(commands += pgpCommand)

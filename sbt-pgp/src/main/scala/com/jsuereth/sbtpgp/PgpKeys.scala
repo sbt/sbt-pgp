@@ -1,15 +1,14 @@
-package com.typesafe.sbt
-package pgp
+package com.jsuereth.sbtpgp
 
 
 import sbt._
-import com.jsuereth.pgp._
 import KeyRanks._
+import com.jsuereth.pgp._
 import sbt.sbtpgp.Compat._
 
 /** SBT Keys for the PGP plugin. */
 object PgpKeys {
-   // PGP related setup
+  // PGP related setup
   val pgpSigner     = taskKey[PgpSigner]("The helper class to run GPG commands.")
   val pgpVerifierFactory   = taskKey[PgpVerifierFactory]("The helper class to verify public keys from a public key ring.")
   val pgpSecretRing = settingKey[File]("The location of the secret key ring.  Only needed if using bouncy castle.")

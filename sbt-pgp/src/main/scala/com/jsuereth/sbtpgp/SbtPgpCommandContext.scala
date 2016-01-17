@@ -1,5 +1,4 @@
-package com.typesafe.sbt
-package pgp
+package com.jsuereth.sbtpgp
 
 import sbt._
 import sbt.Keys.TaskStreams
