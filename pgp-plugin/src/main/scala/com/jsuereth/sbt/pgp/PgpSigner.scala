@@ -1,4 +1,4 @@
-package com.typesafe.sbt
+package com.jsuereth.sbt
 package pgp
 
 import com.jsuereth.pgp._
@@ -8,8 +8,8 @@ import com.jsuereth.pgp.cli.PgpCommandContext
 
 /** The interface used to sign plugins. */
 trait PgpSigner {
-  /** Signs a given file and writes the output to the signature file specified.  
-   * Returns the signature file, throws on errors. 
+  /** Signs a given file and writes the output to the signature file specified.
+   * Returns the signature file, throws on errors.
    */
   def sign(file: File, signatureFile: File, s: TaskStreams): File
 }
@@ -24,22 +24,22 @@ class CommandLineGpgSigner(command: String, agent: Boolean, optKey: Option[Long]
       case 0 => ()
       case n => sys.error("Failure running gpg --detach-sign.  Exit code: " + n)
     }
-    signatureFile 
-  }  
+    signatureFile
+  }
 
   override val toString = "GPG-Command(" + command + ")"
 }
 /** A GpgSigner that uses bouncy castle. */
 class BouncyCastlePgpSigner(ctx: PgpCommandContext, optKey: Option[Long]) extends PgpSigner {
   import ctx.{secretKeyRing => secring, withPassphrase}
-  
-  def sign(file: File, signatureFile: File, s: TaskStreams): File = 
+
+  def sign(file: File, signatureFile: File, s: TaskStreams): File =
     withPassphrase { pw =>
       if (signatureFile.exists) IO.delete(signatureFile)
       if (!signatureFile.getParentFile.exists) IO.createDirectory(signatureFile.getParentFile)
       optKey match {
         case Some(id) => secring(id).sign(file,signatureFile, pw)
-        case _        => secring.secretKey.sign(file, signatureFile, pw) 
+        case _        => secring.secretKey.sign(file, signatureFile, pw)
       }
     }
   override lazy val toString = "BC-PGP(" + secring + ")"

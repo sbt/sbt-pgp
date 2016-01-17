@@ -1,4 +1,4 @@
-package com.typesafe.sbt
+package com.jsuereth.sbt
 package pgp
 
 import sbt._
@@ -10,8 +10,8 @@ import complete.DefaultParsers._
 /** Configuration class for an Ivy module that will pull PGP signatures. */
 final case class GetSignaturesModule(id: ModuleID, modules: Seq[ModuleID], configurations: Seq[Configuration])
 /** Configuration class for using Ivy to get PGP signatures. */
-final case class GetSignaturesConfiguration(module: GetSignaturesModule, 
-                                            configuration: UpdateConfiguration, 
+final case class GetSignaturesConfiguration(module: GetSignaturesModule,
+                                            configuration: UpdateConfiguration,
                                             ivyScala: Option[IvyScala])
 
 /** An enumeration for PGP signature verification results. */
@@ -72,20 +72,20 @@ object PgpSignatureCheck {
     prettyPrintSingatureReport(report, s)
     if(report.results exists (x => x.result != SignatureCheckResult.OK && x.result != SignatureCheckResult.MISSING))
       sys.error("Some artifacts have bad signatures or are signed by untrusted sources!")
-    
+
     report
   }
-  
+
   /** Pretty-prints a report to the logs of all the PGP signature results. */
-  def prettyPrintSingatureReport(report: SignatureCheckReport, s: TaskStreams): Unit = 
+  def prettyPrintSingatureReport(report: SignatureCheckReport, s: TaskStreams): Unit =
     if(report.results.isEmpty) s.log.info("----- No Dependencies for PGP check -----")
     else {
       import report._
       s.log.info("----- PGP Signature Results -----")
-      val maxOrgWidth = (results.view map { case SignatureCheck(m, _, _) => m.organization.size } max)
-      val maxNameWidth = (results.view map { case SignatureCheck(m, _, _) => m.name.size } max)
-      val maxVersionWidth = (results.view map { case SignatureCheck(m, _, _) => m.revision.size } max)
-      val maxTypeWidth = (results.view map { case SignatureCheck(_, a, _) => a.`type`.size } max)
+      val maxOrgWidth = (results.view.map { case SignatureCheck(m, _, _) => m.organization.size }.max)
+      val maxNameWidth = (results.view.map { case SignatureCheck(m, _, _) => m.name.size }.max)
+      val maxVersionWidth = (results.view.map { case SignatureCheck(m, _, _) => m.revision.size }.max)
+      val maxTypeWidth = (results.view.map { case SignatureCheck(_, a, _) => a.`type`.size }.max)
       val formatString = "  %"+maxOrgWidth+"s : %"+maxNameWidth+"s : %"+maxVersionWidth+"s : %"+maxTypeWidth+"s   [%s]"
       def prettify(s: SignatureCheck) = formatString format (s.module.organization, s.module.name, s.module.revision, s.artifact.`type`, s.result)
       results sortWith {
@@ -98,14 +98,14 @@ object PgpSignatureCheck {
       } foreach { x => s.log.info(prettify(x)) }
     }
   /** Returns the SignatureCheck results for all missing signature artifacts in an update. */
-  private def missingSignatures(update: UpdateReport, s: TaskStreams): Seq[SignatureCheck] = 
+  private def missingSignatures(update: UpdateReport, s: TaskStreams): Seq[SignatureCheck] =
     for {
       config <- update.configurations
       module <- config.modules
       artifact <- module.missingArtifacts
       if artifact.extension endsWith gpgExtension
     } yield SignatureCheck(module.module, artifact, SignatureCheckResult.MISSING)
-    
+
   /** Returns the SignatureCheck results for all downloaded signature artifacts. */
   private def checkArtifactSignatures(update: UpdateReport, pgp: PgpVerifier, s: TaskStreams): Seq[SignatureCheck] =
     for {
@@ -116,5 +116,3 @@ object PgpSignatureCheck {
     } yield SignatureCheck(module.module, artifact, pgp.verifySignature(file, s))
 
 }
-
-

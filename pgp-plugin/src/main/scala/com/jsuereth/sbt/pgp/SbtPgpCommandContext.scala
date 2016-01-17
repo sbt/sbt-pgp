@@ -1,4 +1,4 @@
-package com.typesafe.sbt
+package com.jsuereth.sbt
 package pgp
 
 import sbt._
@@ -21,7 +21,7 @@ case class SbtPgpCommandContext(
   def this(ctx: cli.PgpStaticContext,
            optPassphrase: Option[Array[Char]],
            s: TaskStreams) = this(ctx, HackInteractionAccess.defaultInteraction, optPassphrase, s)
-  
+
   def readInput(msg: String): String = System.out.synchronized {
     interaction.readLine(msg, mask=false) getOrElse sys.error("Failed to grab input")
   }
@@ -44,10 +44,10 @@ case class SbtPgpCommandContext(
     }
   }
 
-  private def retry[A, E <: Exception](n: Int)(body: => A)(implicit desired: ClassManifest[E]): Either[E, A] =
+  private def retry[A, E <: Exception](n: Int)(body: => A)(implicit desired: scala.reflect.ClassTag[E]): Either[E, A] =
     try Right(body)
     catch {
-      case e: Exception if (desired.erasure isAssignableFrom e.getClass) =>
+      case e: Exception if (desired.runtimeClass isAssignableFrom e.getClass) =>
         if (n <= 1) Left(e.asInstanceOf[E]) else retry[A, E](n - 1)(body)
     }
 

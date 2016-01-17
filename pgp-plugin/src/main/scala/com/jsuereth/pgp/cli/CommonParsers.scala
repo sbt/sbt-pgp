@@ -11,9 +11,9 @@ object CommonParsers {
   
   private def hexPublicKeyIds(ctx: PgpStaticContext): Seq[String] =
     try {
-      ctx.publicKeyRing.publicKeys.view map (_.keyID) map ("%x" format (_)) toSeq
+      ctx.publicKeyRing.publicKeys.view.map(_.keyID).map("%x" format (_)).toSeq
     } catch {
-      case _ => Seq.empty
+      case _: Throwable => Seq.empty
     }
   /** Parser for existing public key ids. */
   def existingPublicKeyId(ctx: PgpStaticContext) = 
@@ -23,9 +23,9 @@ object CommonParsers {
   
   private def userIds(ctx: PgpStaticContext): Seq[String] =
     try {
-      ctx.publicKeyRing.publicKeys.view flatMap (_.userIDs) toSeq
+      ctx.publicKeyRing.publicKeys.view.flatMap(_.userIDs).toSeq
     } catch {
-      case _ => Seq.empty
+      case _: Throwable => Seq.empty
     }
   
   def existingKeyIdOrUser(ctx: PgpStaticContext): Parser[String] =

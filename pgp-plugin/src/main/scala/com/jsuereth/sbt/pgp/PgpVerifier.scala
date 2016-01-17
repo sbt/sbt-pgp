@@ -1,4 +1,4 @@
-package com.typesafe.sbt
+package com.jsuereth.sbt
 package pgp
 
 import scala.util.matching.Regex
@@ -15,8 +15,8 @@ trait PgpVerifier {
 /** Matcher for an untrusted key. */
 object UntrustedKey {
   val Pattern = new Regex(".*gpg:.*Signature.*key\\s+ID\\s+([A-F0-9]+).*public\\skey\\snot\\sfound.*")
-  
-  def unapply(content: String): Option[Long] = 
+
+  def unapply(content: String): Option[Long] =
     content match {
       case Pattern(id) => catching(classOf[NumberFormatException]) opt (java.lang.Long.parseLong(id, 16))
       case _           => None
@@ -26,11 +26,11 @@ object UntrustedKey {
 /** Helper class to grab all the output from a process into one string. */
 class ProcessGrabber extends ProcessLogger {
   private[this] val sb = new StringBuilder
-  
+
   def buffer [T] (f: ⇒ T): T = f
   def error (s: ⇒ String): Unit = sb append s
   def info (s: ⇒ String): Unit = sb append s
-  
+
   def result = sb.toString
 }
 
