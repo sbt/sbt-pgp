@@ -90,11 +90,11 @@ object PgpSettings {
   private[this] def gpgSigner: Initialize[Task[PgpSigner]] =
     (gpgCommand, useGpgAgent, pgpSigningKey) map (new CommandLineGpgSigner(_, _, _))
   /** Helper to initialize the BC PgpVerifier */
-  private[this] def bcPgpVerifier: Initialize[Task[PgpVerifier]] =
-    pgpCmdContext map (new BouncyCastlePgpVerifier(_))
+  private[this] def bcPgpVerifierFactory: Initialize[Task[PgpVerifierFactory]] =
+    pgpCmdContext  map (new BouncyCastlePgpVerifierFactory(_))
   /** Helper to initialize the GPG PgpVerifier */
-  private[this] def gpgVerifier: Initialize[Task[PgpVerifier]] =
-    gpgCommand map (new CommandLineGpgVerifier(_))
+  private[this] def gpgVerifierFactory: Initialize[Task[PgpVerifierFactory]] =
+    (gpgCommand, pgpCmdContext) map (new CommandLineGpgVerifierFactory(_, _))
      
   /** These are all the configuration related settings that are common
    * for a multi-project build, and can be re-used on
@@ -104,7 +104,7 @@ object PgpSettings {
     // TODO - move these to the signArtifactSettings?
     skip in pgpSigner <<= (skip in pgpSigner) ?? false,
     pgpSigner <<= switch(useGpg, gpgSigner, bcPgpSigner),
-    pgpVerifier <<= switch(useGpg, gpgVerifier, bcPgpVerifier)
+    pgpVerifierFactory <<= switch(useGpg, gpgVerifierFactory, bcPgpVerifierFactory)
   ) 
   /** Configuration for signing artifacts.  If you use new scopes for
    * packagedArtifacts, you need to add this in that scope to your build.
@@ -152,7 +152,7 @@ object PgpSettings {
                           streams) map { (is, mod, c, ivyScala, out, app, s) =>
       PgpSignatureCheck.resolveSignatures(is, GetSignaturesConfiguration(mod, c, ivyScala), s.log)
     },
-    checkPgpSignatures <<= (updatePgpSignatures, pgpVerifier, streams) map PgpSignatureCheck.checkSignaturesTask
+    checkPgpSignatures <<= (updatePgpSignatures, pgpVerifierFactory, streams) map PgpSignatureCheck.checkSignaturesTask
   )
   
   lazy val globalSettings: Seq[Setting[_]] = inScope(Global)(gpgConfigurationSettings ++ nativeConfigurationSettings ++ signVerifyConfigurationSettings)

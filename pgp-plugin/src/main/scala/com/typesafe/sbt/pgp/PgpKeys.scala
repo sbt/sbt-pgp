@@ -11,7 +11,7 @@ import KeyRanks._
 object PgpKeys {
    // PGP related setup
   val pgpSigner     = TaskKey[PgpSigner]("pgp-signer", "The helper class to run GPG commands.", CTask)
-  val pgpVerifier   = TaskKey[PgpVerifier]("pgp-verifier", "The helper class to verify public keys from a public key ring.", CTask)
+  val pgpVerifierFactory   = TaskKey[PgpVerifierFactory]("pgp-verifier", "The helper class to verify public keys from a public key ring.", CTask)
   val pgpSecretRing = SettingKey[File]("pgp-secret-ring", "The location of the secret key ring.  Only needed if using bouncy castle.", ASetting)
   val pgpPublicRing = SettingKey[File]("pgp-public-ring", "The location of the secret key ring.  Only needed if using bouncy castle.", ASetting)
   val pgpPassphrase = SettingKey[Option[Array[Char]]]("pgp-passphrase", "The passphrase associated with the secret used to sign artifacts.", BSetting)
