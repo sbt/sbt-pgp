@@ -3,6 +3,7 @@ package pgp
 
 import sbt._
 import Keys._
+import com.typesafe.sbt.pgp
 import sbt.Project.Initialize
 import complete.Parser
 import complete.DefaultParsers._
@@ -64,7 +65,7 @@ object PgpSignatureCheck {
 		IvyActions.update(module, upConf, log)
   }
 
-  def checkSignaturesTask(update: UpdateReport, pgp: PgpVerifier, s: TaskStreams): SignatureCheckReport = {
+  def checkSignaturesTask(update: UpdateReport, pgp: PgpVerifierFactory, s: TaskStreams): SignatureCheckReport = {
     val report = SignatureCheckReport(checkArtifactSignatures(update, pgp, s) ++ missingSignatures(update,s))
     // TODO - Print results in differnt taks, or provide a report as well.
     // TODO - Allow different log levels
@@ -107,14 +108,14 @@ object PgpSignatureCheck {
     } yield SignatureCheck(module.module, artifact, SignatureCheckResult.MISSING)
     
   /** Returns the SignatureCheck results for all downloaded signature artifacts. */
-  private def checkArtifactSignatures(update: UpdateReport, pgp: PgpVerifier, s: TaskStreams): Seq[SignatureCheck] =
-    for {
+  private def checkArtifactSignatures(update: UpdateReport, pgp: PgpVerifierFactory, s: TaskStreams): Seq[SignatureCheck] = {
+    pgp.withVerifier(pgp => for {
       config <- update.configurations
       module <- config.modules
       (artifact, file) <- module.artifacts
       if file.getName endsWith gpgExtension
-    } yield SignatureCheck(module.module, artifact, pgp.verifySignature(file, s))
-
+    } yield SignatureCheck(module.module, artifact, pgp.verifySignature(file, s)))
+  }
 }
 
 
