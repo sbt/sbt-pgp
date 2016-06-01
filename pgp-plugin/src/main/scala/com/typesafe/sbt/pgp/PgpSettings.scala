@@ -61,26 +61,32 @@ object PgpSettings {
   }
   
   /** Configuration for BC JVM-local PGP */
-  lazy val nativeConfigurationSettings: Seq[Setting[_]] = Seq(
-    PgpKeys.pgpPassphrase := None,
-    PgpKeys.pgpSelectPassphrase := PgpKeys.pgpPassphrase.value orElse
-      (Credentials.forHost(credentials.value, "pgp") map (_.passwd.toCharArray)),
-    PgpKeys.pgpPublicRing := file(System.getProperty("user.home")) / ".gnupg" / "pubring.gpg",
-    PgpKeys.pgpSecretRing := file(System.getProperty("user.home")) / ".gnupg" / "secring.gpg",
-    PgpKeys.pgpSigningKey := None,
-    PgpKeys.pgpReadOnly := true,
-    // TODO - Are these all ok to place in global scope?
-    PgpKeys.pgpPublicRing <<= PgpKeys.pgpPublicRing apply {
-      case f if f.exists => f
-      case _ => file(System.getProperty("user.home")) / ".sbt" / "gpg" / "pubring.asc"
-    },
-    PgpKeys.pgpSecretRing <<= PgpKeys.pgpSecretRing apply {
-      case f if f.exists => f
-      case _ => file(System.getProperty("user.home")) / ".sbt" / "gpg" / "secring.asc"
-    },
-    PgpKeys.pgpStaticContext <<= (PgpKeys.pgpPublicRing, PgpKeys.pgpSecretRing) apply SbtPgpStaticContext.apply,
-    PgpKeys.pgpCmdContext <<= (PgpKeys.pgpStaticContext, interactionService, PgpKeys.pgpSelectPassphrase, streams) map SbtPgpCommandContext.apply
-  )
+  lazy val nativeConfigurationSettings: Seq[Setting[_]] = {
+    val gnuPGHome = scala.util.Properties.envOrNone("GNUPGHOME") match {
+      case Some(dir) => file(dir)
+      case None => file(System.getProperty("user.home")) / ".gnupg"
+    }
+    Seq(
+      PgpKeys.pgpPassphrase := None,
+      PgpKeys.pgpSelectPassphrase := PgpKeys.pgpPassphrase.value orElse
+        (Credentials.forHost(credentials.value, "pgp") map (_.passwd.toCharArray)),
+      PgpKeys.pgpPublicRing := gnuPGHome / "pubring.gpg",
+      PgpKeys.pgpSecretRing := gnuPGHome / "secring.gpg",
+      PgpKeys.pgpSigningKey := None,
+      PgpKeys.pgpReadOnly := true,
+      // TODO - Are these all ok to place in global scope?
+      PgpKeys.pgpPublicRing <<= PgpKeys.pgpPublicRing apply {
+        case f if f.exists => f
+        case _ => file(System.getProperty("user.home")) / ".sbt" / "gpg" / "pubring.asc"
+      },
+      PgpKeys.pgpSecretRing <<= PgpKeys.pgpSecretRing apply {
+        case f if f.exists => f
+        case _ => file(System.getProperty("user.home")) / ".sbt" / "gpg" / "secring.asc"
+      },
+      PgpKeys.pgpStaticContext <<= (PgpKeys.pgpPublicRing, PgpKeys.pgpSecretRing) apply SbtPgpStaticContext.apply,
+      PgpKeys.pgpCmdContext <<= (PgpKeys.pgpStaticContext, interactionService, PgpKeys.pgpSelectPassphrase, streams) map SbtPgpCommandContext.apply
+    )
+  }
   
   
   /** Helper to initialize the BC PgpSigner */
