@@ -11,7 +11,14 @@ versionWithGit
 lazy val library =
   Project("library", file("gpg-library")).settings(
     name := "pgp-library",
-    libraryDependencies ++= Seq(bouncyCastlePgp, dispatchDependency, specs2 % "test", sbtIo % "test")
+    libraryDependencies ++= Seq(bouncyCastlePgp, gigahorseOkhttp,
+      specs2 % Test, sbtIo % Test),
+    libraryDependencies ++= {
+      scalaBinaryVersion.value match {
+        case "2.10" => Nil
+        case _      => Seq(parserCombinators)
+      }
+    }
   )
 
 // The sbt plugin.
@@ -21,8 +28,8 @@ lazy val plugin =
     settings(
       sbtPlugin := true,
       name := "sbt-pgp",
-      libraryDependencies ++= Seq(dispatchDependency, sbtCoreNext.value),
-      publishLocal <<= publishLocal.dependsOn(publishLocal in library)
+      libraryDependencies ++= Seq(gigahorseOkhttp, sbtCoreNext.value),
+      publishLocal := publishLocal.dependsOn(publishLocal in library).value
     ).
     //settings(websiteSettings:_*).
     settings(scriptedSettings:_*).

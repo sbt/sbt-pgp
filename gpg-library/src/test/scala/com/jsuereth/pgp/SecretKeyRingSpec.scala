@@ -2,7 +2,7 @@ package com.jsuereth.pgp
 
 
 import org.specs2.mutable._
-import sbt.IO
+import sbt.io.IO
 import java.io.File
 
 class KeyGenSpec extends Specification {
