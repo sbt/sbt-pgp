@@ -2,12 +2,12 @@ package com.typesafe.sbt
 package pgp
 
 import sbt._
-import Project.Initialize
+import Def.Initialize
 
 object SbtHelpers {
   /** Initializes a setting with a given value if it isn't already configured. */
   def initIf[T](key: SettingKey[T], value: => T): Setting[T] =
-    key <<= key ?? value
+    key := (key ?? value).value
   /** Helper method to switch between two initializers based on
    * the value of the switch setting.
    */

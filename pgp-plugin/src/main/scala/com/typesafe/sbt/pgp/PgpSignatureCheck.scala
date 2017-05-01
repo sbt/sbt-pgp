@@ -3,16 +3,14 @@ package pgp
 
 import sbt._
 import Keys._
-import com.typesafe.sbt.pgp
-import sbt.Project.Initialize
-import complete.Parser
-import complete.DefaultParsers._
+import sbt.sbtpgp.Compat._
 
 /** Configuration class for an Ivy module that will pull PGP signatures. */
 final case class GetSignaturesModule(id: ModuleID, modules: Seq[ModuleID], configurations: Seq[Configuration])
+
 /** Configuration class for using Ivy to get PGP signatures. */
-final case class GetSignaturesConfiguration(module: GetSignaturesModule, 
-                                            configuration: UpdateConfiguration, 
+final case class GetSignaturesConfiguration(module: GetSignaturesModule,
+                                            configuration: UpdateConfiguration,
                                             ivyScala: Option[IvyScala])
 
 /** An enumeration for PGP signature verification results. */
@@ -44,24 +42,26 @@ object PgpSignatureCheck {
   def resolveSignatures(ivySbt: IvySbt, config: GetSignaturesConfiguration, log: Logger): UpdateReport = {
     /** lets us ignore configuration for the purposes of resolving signatures. */
     def restrictedCopy(m: ModuleID, confs: Boolean) =
-      ModuleID(m.organization, m.name, m.revision, crossVersion = m.crossVersion, extraAttributes = m.extraAttributes, configurations = if(confs) m.configurations else None)
+      subConfiguration(m, confs)
     /** Converts a module to a module that includes signature artifacts explicitly. */
     def signatureArtifacts(m: ModuleID): Option[ModuleID] = {
       // TODO - Some kind of filtering
       // TODO - We *can't* assume everything is a jar
-      def signatureFor(artifact: Artifact) = Seq(artifact, artifact.copy(extension = artifact.extension + gpgExtension))
+      def signatureFor(artifact: Artifact) = Seq(artifact, subExtension(artifact, artifact.extension + gpgExtension))
       // Assume no explicit artifact = "jar" artifact.
-      if(m.explicitArtifacts.isEmpty) Some(m.copy(explicitArtifacts = Seq(Artifact(m.name, "jar","jar"), Artifact(m.name, "jar", "jar" + gpgExtension))))
-      else Some(m.copy(explicitArtifacts = m.explicitArtifacts flatMap signatureFor))
+      if(m.explicitArtifacts.isEmpty) Some(subExplicitArtifacts(m, Vector(Artifact(m.name, "jar","jar"), Artifact(m.name, "jar", "jar" + gpgExtension))))
+      else Some(subExplicitArtifacts(m, m.explicitArtifacts.toVector flatMap signatureFor))
     }
     import config.{configuration => c, module => mod, _}
     import mod.{configurations => confs, _}
 
     val baseModules = modules map { m => restrictedCopy(m, false) }
-    val deps = baseModules.distinct flatMap signatureArtifacts
+    val deps = (baseModules.distinct flatMap signatureArtifacts).toVector
     val base = restrictedCopy(id, true)
-    val module = new ivySbt.Module(InlineConfiguration(base, ModuleInfo(base.name), deps).copy(ivyScala = ivyScala, configurations = confs))
-    val upConf = new UpdateConfiguration(c.retrieve, true, c.logging)
+    val module = new ivySbt.Module(
+      mkInlineConfiguration(base, deps, ivyScala, confs.toVector)
+    )
+    val upConf = subMissingOk(c, true)
 		IvyActions.update(module, upConf, log)
   }
 
@@ -73,20 +73,19 @@ object PgpSignatureCheck {
     prettyPrintSingatureReport(report, s)
     if(report.results exists (x => x.result != SignatureCheckResult.OK && x.result != SignatureCheckResult.MISSING))
       sys.error("Some artifacts have bad signatures or are signed by untrusted sources!")
-    
     report
   }
-  
+
   /** Pretty-prints a report to the logs of all the PGP signature results. */
   def prettyPrintSingatureReport(report: SignatureCheckReport, s: TaskStreams): Unit = 
     if(report.results.isEmpty) s.log.info("----- No Dependencies for PGP check -----")
     else {
       import report._
       s.log.info("----- PGP Signature Results -----")
-      val maxOrgWidth = (results.view map { case SignatureCheck(m, _, _) => m.organization.size } max)
-      val maxNameWidth = (results.view map { case SignatureCheck(m, _, _) => m.name.size } max)
-      val maxVersionWidth = (results.view map { case SignatureCheck(m, _, _) => m.revision.size } max)
-      val maxTypeWidth = (results.view map { case SignatureCheck(_, a, _) => a.`type`.size } max)
+      val maxOrgWidth = (results.view map { case SignatureCheck(m, _, _) => m.organization.size }).max
+      val maxNameWidth = (results.view map { case SignatureCheck(m, _, _) => m.name.size }).max
+      val maxVersionWidth = (results.view map { case SignatureCheck(m, _, _) => m.revision.size }).max
+      val maxTypeWidth = (results.view map { case SignatureCheck(_, a, _) => a.`type`.size }).max
       val formatString = "  %"+maxOrgWidth+"s : %"+maxNameWidth+"s : %"+maxVersionWidth+"s : %"+maxTypeWidth+"s   [%s]"
       def prettify(s: SignatureCheck) = formatString format (s.module.organization, s.module.name, s.module.revision, s.artifact.`type`, s.result)
       results sortWith {

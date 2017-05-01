@@ -1,10 +1,8 @@
 package com.jsuereth.pgp
 package cli
 
-import sbt._
 import sbt.complete._
 import sbt.complete.DefaultParsers._
-import CommonParsers._
 
 /** Represents a PgpCommand */
 trait PgpCommand {

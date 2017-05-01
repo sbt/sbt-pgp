@@ -3,9 +3,9 @@ package pgp
 
 
 import sbt._
-import sbt.Keys._
 import com.jsuereth.pgp._
 import KeyRanks._
+import sbt.sbtpgp.Compat._
 
 /** SBT Keys for the PGP plugin. */
 object PgpKeys {
