@@ -1,10 +1,10 @@
 package com.typesafe.sbt
 package pgp
 
-import com.jsuereth.pgp._
 import sbt._
 import Keys._
 import com.jsuereth.pgp.cli.PgpCommandContext
+import sbt.sbtpgp.Compat._
 
 /** The interface used to sign plugins. */
 trait PgpSigner {
@@ -20,12 +20,12 @@ class CommandLineGpgSigner(command: String, agent: Boolean, optKey: Option[Long]
     if (signatureFile.exists) IO.delete(signatureFile)
     val keyargs: Seq[String] = optKey map (k => Seq("--default-key", "0x%x" format(k))) getOrElse Seq.empty
     val args = Seq("--detach-sign", "--armor") ++ (if(agent) Seq("--use-agent") else Seq.empty) ++ keyargs
-    Process(command, args ++ Seq("--output", signatureFile.getAbsolutePath, file.getAbsolutePath)) ! s.log match {
+    sys.process.Process(command, args ++ Seq("--output", signatureFile.getAbsolutePath, file.getAbsolutePath)) ! s.log match {
       case 0 => ()
       case n => sys.error("Failure running gpg --detach-sign.  Exit code: " + n)
     }
-    signatureFile 
-  }  
+    signatureFile
+  }
 
   override val toString = "GPG-Command(" + command + ")"
 }

@@ -2,10 +2,6 @@ package com.jsuereth.pgp
 package cli
 
 import sbt._
-import sbt.complete._
-import sbt.complete.DefaultParsers._
-import CommonParsers._
-import org.bouncycastle.openpgp.PGPPublicKeyRing
 
 
 /** A context for accepting user input. */

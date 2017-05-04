@@ -4,7 +4,6 @@ package cli
 import sbt._
 import sbt.complete._
 import sbt.complete.DefaultParsers._
-import CommonParsers._
 
 /** Lists Signatures on a file. */
 case class ListSigs() extends PgpCommand {

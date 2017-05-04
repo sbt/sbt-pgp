@@ -3,6 +3,7 @@ package pgp
 
 import scala.util.matching.Regex
 import scala.util.control.Exception._
+import scala.sys.process.{ Process, ProcessLogger }
 import sbt._
 import Keys._
 import com.jsuereth.pgp.cli.PgpCommandContext
@@ -30,11 +31,12 @@ object UntrustedKey {
 /** Helper class to grab all the output from a process into one string. */
 class ProcessGrabber extends ProcessLogger {
   private[this] val sb = new StringBuilder
-  
-  def buffer [T] (f: ⇒ T): T = f
-  def error (s: ⇒ String): Unit = sb append s
-  def info (s: ⇒ String): Unit = sb append s
-  
+  def buffer[T](f: => T): T = f
+  def error(s: => String): Unit = sb append s
+  def info(s: => String): Unit = sb append s
+  def err(s: => String): Unit = error(s)
+  def out(s: => String): Unit = info(s)
+
   def result = sb.toString
 }
 class CommandLineGpgVerifierFactory(command: String, ctx: PgpCommandContext)

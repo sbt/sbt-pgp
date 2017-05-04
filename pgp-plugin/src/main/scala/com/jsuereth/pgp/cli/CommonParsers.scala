@@ -11,9 +11,9 @@ object CommonParsers {
   
   private def hexPublicKeyIds(ctx: PgpStaticContext): Seq[String] =
     try {
-      ctx.publicKeyRing.publicKeys.view map (_.keyID) map ("%x" format (_)) toSeq
+      (ctx.publicKeyRing.publicKeys.view map (_.keyID) map ("%x" format (_))).toSeq
     } catch {
-      case _ => Seq.empty
+      case _: Throwable => Seq.empty
     }
   /** Parser for existing public key ids. */
   def existingPublicKeyId(ctx: PgpStaticContext) = 
@@ -23,9 +23,9 @@ object CommonParsers {
   
   private def userIds(ctx: PgpStaticContext): Seq[String] =
     try {
-      ctx.publicKeyRing.publicKeys.view flatMap (_.userIDs) toSeq
+      (ctx.publicKeyRing.publicKeys.view flatMap (_.userIDs)).toSeq
     } catch {
-      case _ => Seq.empty
+      case _: Throwable => Seq.empty
     }
   
   def existingKeyIdOrUser(ctx: PgpStaticContext): Parser[String] =
@@ -42,7 +42,7 @@ object CommonParsers {
     val value = token(NotSpace, "<attribute value>")
     (name ~ ((Space.? ~ "->" ~ Space.?) ~> value)) map { case k ~ v => k -> v }
   }
-  lazy val message = token(("message" ~  "=" ~ "\"") map { case _ => () }) ~> (any & not('"')).+.string <~ '"'
+  lazy val message = token(("message" ~  "=" ~ "\"") map { case _ => () }) ~> (any & not('"', "Expected \".")).+.string <~ '"'
   // TODO - better base directory
   lazy val filename = fileParser(new java.io.File("."))
 }

@@ -2,12 +2,7 @@ package com.typesafe.sbt
 
 import com.typesafe.sbt.pgp._
 import sbt._
-import Keys._
-import sbt.Project.Initialize
-import complete.Parser
-import complete.DefaultParsers._
-import SbtHelpers._
-import PgpKeys._
+import sbt.sbtpgp.Compat._
 
 /**
  * This class is used to control what we expose to 
@@ -18,13 +13,13 @@ import PgpKeys._
 object SbtPgp extends AutoPlugin {
 
   override def trigger = allRequirements
-  override def requires = sbt.plugins.InteractionServicePlugin && sbt.plugins.IvyPlugin
-  
+  override def requires = pgpRequires
+
   // Note - workaround for issues in sbt 0.13.5 autoImport
   object autoImportImpl {
 
     val PgpKeys = pgp.PgpKeys
-  
+
     // TODO - Are these ok for style guide?  We think so.
     def useGpg = PgpKeys.useGpg in Global
     def useGpgAgent = PgpKeys.useGpgAgent in Global
@@ -44,6 +39,5 @@ object SbtPgp extends AutoPlugin {
   // TODO - Maybe signing settigns should be a different plugin...
   override val projectSettings = PgpSettings.projectSettings
   override val buildSettings = PgpSettings.globalSettings
-  
-  
+  override val globalSettings = compatSettings
 }

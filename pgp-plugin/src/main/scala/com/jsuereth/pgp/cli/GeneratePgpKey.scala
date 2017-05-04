@@ -4,7 +4,6 @@ package cli
 import sbt._
 import sbt.complete._
 import sbt.complete.DefaultParsers._
-import CommonParsers._
 
 /** Constructs a new PGP key from user input. */
 case class GeneratePgpKey() extends PgpCommand {

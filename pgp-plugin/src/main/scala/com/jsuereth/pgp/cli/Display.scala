@@ -17,7 +17,7 @@ object Display {
     val date = new java.text.SimpleDateFormat("yyyy-MM-dd").format(k.getCreationTime)
     val userStrings =
       if(k.userIDs.isEmpty) ""
-      else k.userIDs.map("uid\t                \t" +).mkString("","\n","\n")
+      else k.userIDs.map("uid\t                \t" + _).mkString("","\n","\n")
     head +"\t"+ strength +"/" + hexkey +"\t"+ date + "\n" + userStrings
   }
   

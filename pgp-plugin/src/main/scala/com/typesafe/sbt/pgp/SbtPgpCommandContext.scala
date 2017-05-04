@@ -4,6 +4,7 @@ package pgp
 import sbt._
 import sbt.Keys.TaskStreams
 import com.jsuereth.pgp._
+import sbt.sbtpgp.Compat._
 
 case class SbtPgpStaticContext(
     publicKeyRingFile: File,
@@ -12,7 +13,7 @@ case class SbtPgpStaticContext(
 /** Context used by PGP commands as they execute. */
 case class SbtPgpCommandContext(
     ctx: cli.PgpStaticContext,
-    interaction: sbt.InteractionService,
+    interaction: InteractionService,
     optPassphrase: Option[Array[Char]],
     s: TaskStreams
   ) extends cli.PgpCommandContext with cli.DelegatingPgpStaticContext {
@@ -20,7 +21,7 @@ case class SbtPgpCommandContext(
   // For binary compatibility
   def this(ctx: cli.PgpStaticContext,
            optPassphrase: Option[Array[Char]],
-           s: TaskStreams) = this(ctx, HackInteractionAccess.defaultInteraction, optPassphrase, s)
+           s: TaskStreams) = this(ctx, defaultInteraction, optPassphrase, s)
   
   def readInput(msg: String): String = System.out.synchronized {
     interaction.readLine(msg, mask=false) getOrElse sys.error("Failed to grab input")

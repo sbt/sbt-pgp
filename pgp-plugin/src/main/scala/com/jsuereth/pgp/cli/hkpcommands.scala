@@ -5,6 +5,8 @@ import sbt._
 import sbt.complete._
 import sbt.complete.DefaultParsers._
 import CommonParsers._
+import scala.concurrent._
+import scala.concurrent.duration._
 
 /** Helper for running HKP protocol commands. */
 trait HkpCommand extends PgpCommand {
@@ -32,9 +34,14 @@ object SendKey {
 }
 
 case class ReceiveKey(pubKeyId: Long, hkpUrl: String) extends HkpCommand {
+  import scala.concurrent.ExecutionContext.Implicits._
+
   def run(ctx: PgpCommandContext): Unit = {
-    val key = (hkpClient.getKey(pubKeyId) 
-        getOrElse sys.error("Could not find key: " + pubKeyId + " on server " + hkpUrl))
+    val f = hkpClient.getKey(pubKeyId).transform(identity, {
+      case e: Throwable =>
+        new RuntimeException("Could not find key: " + pubKeyId + " on server " + hkpUrl, e)
+    })
+    val key: PublicKeyRing = Await.result(f, Duration.Inf)
     ctx.log.info("Adding public key: " + key)
     // TODO - Remove if key already exists...
     ctx addPublicKeyRing key
