@@ -156,11 +156,11 @@ The value of `key id` is one of the following:
 
 ## Publishing Artifacts
 
-If you want to published signed artifacts, you must use the new `publishSigned` and `publishLocalSigned` tasks.
+To publish signed artifacts, use either `publishSigned` or `publishLocalSigned`.
 
 ## Skipping publishing
 
-If you want to opt out of publishing set `skip in publish` to `true`.
+To skip the publish step, set `skip in publish` to `true`.
 
 ```
 skip in publish := true

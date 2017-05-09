@@ -175,8 +175,9 @@ object PgpSettings {
   def publishSignedTask(config: TaskKey[PublishConfiguration], deliverKey: TaskKey[_]): Def.Initialize[Task[Unit]] =
     Def.taskDyn {
       val s = streams.value
+      val ref = thisProjectRef.value
       val skp = ((skip in publish) ?? false).value
-      if (skp) Def.task { s.log.debug("Skipping publishSigned") }
+      if (skp) Def.task { s.log.debug(s"Skipping publishSigned for ${ref.project}") }
       else Classpaths.publishTask(config, deliver)
     }
 
