@@ -1,0 +1,7 @@
+https://github.com/sbt/sbt-pgp/compare/v1.0.1...v1.1.0-M1
+
+### Fixes and minor enhancements
+
+- sbt-pgp 1.1.0-M1 is cross built for sbt 0.13 and 1.0.0-M5. sbt 0.13 version now requires JDK7. #100 by @eed3si9n
+- Use Gigahorse for HTTP client available for both 2.10 and 2.12.
+- Supports `skip in publish := false`. This allows skipping publishing _without_ depending on sbt-pgp. #101 by @eed3si9n
