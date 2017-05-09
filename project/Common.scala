@@ -5,8 +5,10 @@ import com.typesafe.sbt.SbtGit.versionWithGit
 /** Common settings for PGP plugin. */
 object PgpCommonSettings extends AutoPlugin {
 
-  override def requires = plugins.IvyPlugin
+  override def requires = bintray.BintrayPlugin
   override def trigger = allRequirements
+
+  import bintray.BintrayPlugin.autoImport._
 
   object autoImport {
     // Dependencies
@@ -25,11 +27,7 @@ object PgpCommonSettings extends AutoPlugin {
       organization := "com.jsuereth",
       scalacOptions in Compile := Seq("-feature", "-deprecation", "-Xlint"),
       publishMavenStyle := false,
-      publishTo := {
-        val scalasbt = "http://repo.scala-sbt.org/scalasbt/"
-        val (name, u) = if (version.value.contains("-SNAPSHOT")) ("sbt-plugin-snapshots", scalasbt+"sbt-plugin-snapshots")
-        else ("sbt-plugin-releases", scalasbt+"sbt-plugin-releases")
-        Some(Resolver.url(name, url(u))(Resolver.ivyStylePatterns))
-      }
-    ) ++ Bintray.settings
+      bintrayOrganization := Some("sbt"),
+      bintrayRepository := "sbt-plugin-releases"
+    )
 }

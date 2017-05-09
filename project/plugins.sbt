@@ -4,4 +4,4 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "0.6.2")
 
 libraryDependencies += "org.scala-sbt" % "scripted-plugin" % sbtVersion.value
 
-libraryDependencies += "net.databinder" %% "dispatch-http" % "0.8.10"
+addSbtPlugin("org.foundweekends" % "sbt-bintray" % "0.4.0")

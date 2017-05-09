@@ -9,24 +9,25 @@ versionWithGit
 // The library of PGP functions.
 // Note:  We're going to just publish this to the sbt repo now.
 lazy val library =
-  Project("library", file("gpg-library")).settings(
-    name := "pgp-library",
-    // scalaVersion := "2.12.2",
-    libraryDependencies ++= Seq(bouncyCastlePgp, gigahorseOkhttp,
-      specs2 % Test, sbtIo % Test),
-    libraryDependencies ++= {
-      scalaBinaryVersion.value match {
-        case "2.10" => Nil
-        case _      => Seq(parserCombinators)
+  Project("library", file("gpg-library"))
+    .settings(
+      name := "pgp-library",
+      // scalaVersion := "2.12.2",
+      libraryDependencies ++= Seq(bouncyCastlePgp, gigahorseOkhttp,
+        specs2 % Test, sbtIo % Test),
+      libraryDependencies ++= {
+        scalaBinaryVersion.value match {
+          case "2.10" => Nil
+          case _      => Seq(parserCombinators)
+        }
       }
-    }
-  )
+    )
 
 // The sbt plugin.
 lazy val plugin =
-  Project("plugin", file("pgp-plugin")).
-    dependsOn(library).
-    settings(
+  Project("plugin", file("pgp-plugin"))
+    .dependsOn(library)
+    .settings(
       sbtPlugin := true,
       name := "sbt-pgp",
       // scalaVersion := "2.12.2",
@@ -38,10 +39,10 @@ lazy val plugin =
         }
       },
       publishLocal := publishLocal.dependsOn(publishLocal in library).value
-    ).
-    //settings(websiteSettings:_*).
-    settings(scriptedSettings:_*).
-    settings(
+    )
+    // .settings(websiteSettings:_*)
+    .settings(scriptedSettings:_*)
+    .settings(
       scriptedLaunchOpts += s"-Dproject.version=${version.value}"
     )
 
