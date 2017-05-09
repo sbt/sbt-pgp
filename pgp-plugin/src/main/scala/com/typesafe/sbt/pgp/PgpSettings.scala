@@ -161,7 +161,7 @@ object PgpSettings {
         checksums = (checksums in publish).value,
         logging = ivyLoggingLevel.value)
     },
-    publishSigned := Classpaths.publishTask(publishSignedConfiguration, deliver).value,
+    publishSigned := publishSignedTask(publishSignedConfiguration, deliver).value,
     publishLocalSignedConfiguration := {
       Classpaths.publishConfig(
         signedArtifacts.value,
@@ -169,8 +169,18 @@ object PgpSettings {
         (checksums in publishLocal).value,
         logging = ivyLoggingLevel.value)
     },
-    publishLocalSigned := Classpaths.publishTask(publishLocalSignedConfiguration, deliver).value
+    publishLocalSigned := publishSignedTask(publishLocalSignedConfiguration, deliver).value
   )
+
+  def publishSignedTask(config: TaskKey[PublishConfiguration], deliverKey: TaskKey[_]): Def.Initialize[Task[Unit]] =
+    Def.taskDyn {
+      val s = streams.value
+      val ref = thisProjectRef.value
+      val skp = ((skip in publish) ?? false).value
+      if (skp) Def.task { s.log.debug(s"Skipping publishSigned for ${ref.project}") }
+      else Classpaths.publishTask(config, deliver)
+    }
+
   /** Settings used to verify signatures on dependent artifacts. */
   lazy val verifySettings: Seq[Setting[_]] = Seq(
     // TODO - This is checking SBT and its plugins signatures..., maybe we can have this be a separate config or something.

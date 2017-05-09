@@ -1,0 +1,2 @@
+> publishSigned
+-$ exists target/scala-2.10/test_2.10-1.0.jar.asc

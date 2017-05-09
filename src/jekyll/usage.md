@@ -154,6 +154,14 @@ The value of `key id` is one of the following:
 * "Name" of the key (e.g. "LAMP/EPFL" in the above example)
 * "Email" of the key (e.g. "lamp@gmail.com" in the above example)
 
-## Publishing Artifacts ##
+## Publishing Artifacts
 
-If you want to published signed artifacts, you must use the new `publish-signed` and `publish-local-signed` tasks.  `sbt-pgp` no longer wires in to the default `publish` and `publish-local` tasks of SBT.  
+To publish signed artifacts, use either `publishSigned` or `publishLocalSigned`.
+
+## Skipping publishing
+
+To skip the publish step, set `skip in publish` to `true`.
+
+```
+skip in publish := true
+```
