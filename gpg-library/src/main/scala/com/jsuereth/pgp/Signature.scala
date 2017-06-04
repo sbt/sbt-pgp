@@ -2,7 +2,6 @@ package com.jsuereth.pgp
 
 import org.bouncycastle.bcpg._
 import org.bouncycastle.openpgp._
-import java.security.SignatureException
 
 /** Wrapper around a PGP signature for convenience. */
 class Signature(val nested: PGPSignature) extends StreamingSaveable {

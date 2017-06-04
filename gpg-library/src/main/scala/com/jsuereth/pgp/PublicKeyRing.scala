@@ -2,7 +2,6 @@ package com.jsuereth.pgp
 
 
 import java.io._
-import java.util.Date
 
 import org.bouncycastle.bcpg._
 import org.bouncycastle.openpgp._

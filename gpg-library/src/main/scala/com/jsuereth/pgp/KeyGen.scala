@@ -1,12 +1,9 @@
 package com.jsuereth.pgp
 
-import org.bouncycastle._
-import java.math.BigInteger
-import java.security.{SecureRandom,Security,KeyPairGenerator,KeyPair}
+import java.security.{SecureRandom,Security,KeyPairGenerator}
 import java.util.Date
 
 import org.bouncycastle.bcpg._
-import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.jce.spec.ElGamalParameterSpec
 import org.bouncycastle.openpgp._
 import org.bouncycastle.openpgp.operator.jcajce.{JcaPGPDigestCalculatorProviderBuilder, JcaPGPContentSignerBuilder, JcePBESecretKeyEncryptorBuilder, JcaPGPKeyPair}

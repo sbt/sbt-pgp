@@ -1,15 +1,8 @@
 package com.jsuereth.pgp
 
-import org.bouncycastle._
 import java.io._
-import java.math.BigInteger
-import java.security.{SecureRandom,Security,KeyPairGenerator,KeyPair}
-import java.util.Date
 
-import org.bouncycastle.bcpg._
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.bouncycastle.jce.spec.ElGamalParameterSpec
-import org.bouncycastle.openpgp._
 
 // TODO - make this a real package object?
 object PGP {
