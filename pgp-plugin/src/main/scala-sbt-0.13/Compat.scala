@@ -1,18 +1,13 @@
 package sbt
 package sbtpgp
 
-import sbt.plugins.CommandLineUIServices
-
 object Compat {
   type PublishConfiguration = sbt.PublishConfiguration
   val defaultProgress = EvaluateTask.defaultProgress
-  type InteractionService = sbt.InteractionService
-  def defaultInteraction: InteractionService = CommandLineUIServices
   val interactionService = InteractionServiceKeys.interactionService
+  val CommandLineUIServices = sbt.plugins.CommandLineUIServices
 
   def pgpRequires: Plugins = sbt.plugins.IvyPlugin && sbt.plugins.InteractionServicePlugin
-
-  def compatSettings: Vector[Def.Setting[_]] = Vector()
 
   def subConfiguration(m: ModuleID, confs: Boolean): ModuleID =
     m.copy(configurations = if (confs) m.configurations else None)
@@ -35,4 +30,13 @@ object Compat {
       def err(s: => String): Unit = error(s)
       def out(s: => String): Unit = info(s)
     }
+
+  def updateEither(
+    module: IvySbt#Module,
+    configuration: UpdateConfiguration,
+    uwconfig: UnresolvedWarningConfiguration,
+    logicalClock: LogicalClock,
+    depDir: Option[File],
+    log: Logger): Either[UnresolvedWarning, UpdateReport] =
+    IvyActions.updateEither(module, configuration, uwconfig, logicalClock, depDir, log)
 }

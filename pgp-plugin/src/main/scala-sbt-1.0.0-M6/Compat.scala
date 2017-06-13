@@ -13,16 +13,14 @@ object Compat {
   type InlineConfiguration = ilm.InlineConfiguration
   val InlineConfiguration = ilm.InlineConfiguration
   val defaultProgress = EvaluateTask.defaultProgress
-  type InteractionService = sbt.sbtpgp.InteractionService
+  type UnresolvedWarning = ilm.UnresolvedWarning
+  type UnresolvedWarningConfiguration = ilm.UnresolvedWarningConfiguration
+  val UnresolvedWarningConfiguration = ilm.UnresolvedWarningConfiguration
+  type LogicalClock = ilm.LogicalClock
+  val LogicalClock = ilm.LogicalClock
+  val CommandLineUIServices = sbt.CommandLineUIService
 
   def pgpRequires: Plugins = sbt.plugins.IvyPlugin
-
-  val interactionService = taskKey[InteractionService]("Service used to ask for user input through the current user interface(s).")
-
-  def compatSettings: Vector[Def.Setting[_]] =
-    Vector(
-      interactionService := defaultInteraction
-    )
 
   def subConfiguration(m: ModuleID, confs: Boolean): ModuleID =
     m.withConfigurations(
@@ -45,6 +43,12 @@ object Compat {
     .withIvyScala(ivyScala)
     .withConfigurations(confs)
 
-  private lazy val commandLineUIServices: InteractionService = new CommandLineUIServices
-  def defaultInteraction: InteractionService = commandLineUIServices
+  def updateEither(
+    module: IvySbt#Module,
+    configuration: UpdateConfiguration,
+    uwconfig: UnresolvedWarningConfiguration,
+    logicalClock: LogicalClock,
+    depDir: Option[File],
+    log: Logger): Either[UnresolvedWarning, UpdateReport] =
+    IvyActions.updateEither(module, configuration, uwconfig, logicalClock, depDir, log)
 }

@@ -152,11 +152,15 @@ object PgpSettings {
       }
       else artifacts
     },
+    pgpMakeIvy := (Def.taskDyn {
+      val style = publishMavenStyle.value
+      if (style) Def.task { (None: Option[File]) }
+      else Def.task { Option(deliver.value) }
+    }).value,
     publishSignedConfiguration := {
       Classpaths.publishConfig(
         signedArtifacts.value,
-        if (publishMavenStyle.value) None
-        else Some(deliver.value),
+        pgpMakeIvy.value,
         resolverName = Classpaths.getPublishTo(publishTo.value).name,
         checksums = (checksums in publish).value,
         logging = ivyLoggingLevel.value)

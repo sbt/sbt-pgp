@@ -21,8 +21,8 @@ case class SbtPgpCommandContext(
   // For binary compatibility
   def this(ctx: cli.PgpStaticContext,
            optPassphrase: Option[Array[Char]],
-           s: TaskStreams) = this(ctx, defaultInteraction, optPassphrase, s)
-  
+           s: TaskStreams) = this(ctx, CommandLineUIServices, optPassphrase, s)
+
   def readInput(msg: String): String = System.out.synchronized {
     interaction.readLine(msg, mask=false) getOrElse sys.error("Failed to grab input")
   }
