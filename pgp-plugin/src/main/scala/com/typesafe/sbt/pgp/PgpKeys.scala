@@ -40,4 +40,5 @@ object PgpKeys {
   val signedArtifacts = TaskKey[Map[Artifact,File]]("signed-artifacts", "Packages all artifacts for publishing and maps the Artifact definition to the generated file.", CTask)
   val publishSigned = TaskKey[Unit]("publish-signed", "Publishing all artifacts, but SIGNED using PGP.", APlusTask)
   val publishLocalSigned = TaskKey[Unit]("publish-local-signed", "Publishing all artifacts to a local repository, but SIGNED using PGP.", APlusTask)
+  val pgpMakeIvy = TaskKey[Option[File]]("pgpMakeIvy", "Generates the Ivy file.", CTask)
 }

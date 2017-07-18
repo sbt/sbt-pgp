@@ -62,7 +62,17 @@ object PgpSignatureCheck {
       mkInlineConfiguration(base, deps, ivyScala, confs.toVector)
     )
     val upConf = subMissingOk(c, true)
-		IvyActions.update(module, upConf, log)
+
+    updateEither(
+      module,
+      upConf,
+      UnresolvedWarningConfiguration(),
+      LogicalClock.unknown,
+      None,
+      log) match {
+        case Right(r) => r
+        case Left(w) => throw w.resolveException
+      }
   }
 
   def checkSignaturesTask(update: UpdateReport, pgp: PgpVerifierFactory, s: TaskStreams): SignatureCheckReport = {

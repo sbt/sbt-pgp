@@ -39,5 +39,4 @@ object SbtPgp extends AutoPlugin {
   // TODO - Maybe signing settigns should be a different plugin...
   override val projectSettings = PgpSettings.projectSettings
   override val buildSettings = PgpSettings.globalSettings
-  override val globalSettings = compatSettings
 }
