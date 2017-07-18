@@ -2,7 +2,6 @@ package com.jsuereth.pgp
 
 import java.security.Security
 
-import org.bouncycastle._
 import java.io._
 import java.util.Date
 

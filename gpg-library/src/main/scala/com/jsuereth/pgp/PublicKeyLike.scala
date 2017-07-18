@@ -2,8 +2,6 @@ package com.jsuereth.pgp
 
 import java.io._
 import java.security.Security
-import org.bouncycastle._
-import org.bouncycastle.bcpg._
 import org.bouncycastle.openpgp._
 import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentVerifierBuilderProvider

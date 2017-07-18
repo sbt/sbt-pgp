@@ -21,7 +21,6 @@ trait Client {
 
 private[hkp] class GigahorseClient(serverUrl: String) extends Client {
   import gigahorse._, support.okhttp.Gigahorse
-  import util.control.Exception.catching
   import scala.concurrent.ExecutionContext.Implicits._
   val http = Gigahorse.http(Gigahorse.config)
   def asInputStream: FullResponse => InputStream = (r: FullResponse) =>
