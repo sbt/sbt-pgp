@@ -1,6 +1,8 @@
 package sbt
 package sbtpgp
 
+import Keys._
+
 object Compat {
   type PublishConfiguration = sbt.PublishConfiguration
   val defaultProgress = EvaluateTask.defaultProgress
@@ -39,4 +41,24 @@ object Compat {
     depDir: Option[File],
     log: Logger): Either[UnresolvedWarning, UpdateReport] =
     IvyActions.updateEither(module, configuration, uwconfig, logicalClock, depDir, log)
+
+  private[this] val signedArtifacts = TaskKey[Map[Artifact,File]]("signed-artifacts", "Packages all artifacts for publishing and maps the Artifact definition to the generated file.")
+  private[this] val pgpMakeIvy = TaskKey[Option[File]]("pgpMakeIvy", "Generates the Ivy file.")
+
+  def publishSignedConfigurationTask = Def.task {
+    Classpaths.publishConfig(
+      signedArtifacts.value,
+      pgpMakeIvy.value,
+      resolverName = Classpaths.getPublishTo(publishTo.value).name,
+      checksums = (checksums in publish).value,
+      logging = ivyLoggingLevel.value)
+  }
+
+  def publishLocalSignedConfigurationTask = Def.task {
+    Classpaths.publishConfig(
+      signedArtifacts.value,
+      Some(deliverLocal.value),
+      (checksums in publishLocal).value,
+      logging = ivyLoggingLevel.value)
+  }
 }

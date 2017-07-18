@@ -107,17 +107,24 @@ object PgpSettings {
   }
 
   /** Helper to initialize the BC PgpSigner */
-  private[this] def bcPgpSigner: Def.Initialize[Task[PgpSigner]] =
-    (pgpCmdContext, pgpSigningKey) map (new BouncyCastlePgpSigner(_,_))
+  private[this] def bcPgpSigner: Def.Initialize[Task[PgpSigner]] = Def.task {
+    new BouncyCastlePgpSigner(pgpCmdContext.value, pgpSigningKey.value)
+  }
+
   /** Helper to initialize the GPG PgpSigner */
-  private[this] def gpgSigner: Def.Initialize[Task[PgpSigner]] =
-    (gpgCommand, useGpgAgent, pgpSigningKey) map (new CommandLineGpgSigner(_, _, _))
+  private[this] def gpgSigner: Def.Initialize[Task[PgpSigner]] = Def.task {
+    new CommandLineGpgSigner(gpgCommand.value, useGpgAgent.value, pgpSigningKey.value)
+  }
+
   /** Helper to initialize the BC PgpVerifier */
-  private[this] def bcPgpVerifierFactory: Def.Initialize[Task[PgpVerifierFactory]] =
-    pgpCmdContext  map (new BouncyCastlePgpVerifierFactory(_))
+  private[this] def bcPgpVerifierFactory: Def.Initialize[Task[PgpVerifierFactory]] = Def.task {
+    new BouncyCastlePgpVerifierFactory(pgpCmdContext.value)
+  }
+
   /** Helper to initialize the GPG PgpVerifier */
-  private[this] def gpgVerifierFactory: Def.Initialize[Task[PgpVerifierFactory]] =
-    (gpgCommand, pgpCmdContext) map (new CommandLineGpgVerifierFactory(_, _))
+  private[this] def gpgVerifierFactory: Def.Initialize[Task[PgpVerifierFactory]] = Def.task {
+    new CommandLineGpgVerifierFactory(gpgCommand.value, pgpCmdContext.value)
+  }
 
   /** These are all the configuration related settings that are common
    * for a multi-project build, and can be re-used on
@@ -157,22 +164,13 @@ object PgpSettings {
       if (style) Def.task { (None: Option[File]) }
       else Def.task { Option(deliver.value) }
     }).value,
-    publishSignedConfiguration := {
-      Classpaths.publishConfig(
-        signedArtifacts.value,
-        pgpMakeIvy.value,
-        resolverName = Classpaths.getPublishTo(publishTo.value).name,
-        checksums = (checksums in publish).value,
-        logging = ivyLoggingLevel.value)
-    },
+
+    publishSignedConfiguration := publishSignedConfigurationTask.value,
+
     publishSigned := publishSignedTask(publishSignedConfiguration, deliver).value,
-    publishLocalSignedConfiguration := {
-      Classpaths.publishConfig(
-        signedArtifacts.value,
-        Some(deliverLocal.value),
-        (checksums in publishLocal).value,
-        logging = ivyLoggingLevel.value)
-    },
+
+    publishLocalSignedConfiguration := publishLocalSignedConfigurationTask.value,
+
     publishLocalSigned := publishSignedTask(publishLocalSignedConfiguration, deliver).value
   )
 
