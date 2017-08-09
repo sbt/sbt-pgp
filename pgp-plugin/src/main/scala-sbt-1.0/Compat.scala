@@ -66,7 +66,7 @@ object Compat {
       if (isSnapshot.value) "integration" else "release",
       ivyConfigurations.value.map(c => ConfigRef(c.name)).toVector,
       signedArtifacts.value.toVector,
-      checksums = (checksums in publish).value,
+      checksums = (checksums in publish).value.toVector,
       resolverName = Classpaths.getPublishTo(publishTo.value).name,
       logging = ivyLoggingLevel.value,
       overwrite = false)
@@ -80,7 +80,7 @@ object Compat {
       if (isSnapshot.value) "integration" else "release",
       ivyConfigurations.value.map(c => ConfigRef(c.name)).toVector,
       signedArtifacts.value.toVector,
-      (checksums in publishLocal).value,
+      (checksums in publishLocal).value.toVector,
       resolverName = "local",
       logging = ivyLoggingLevel.value,
       overwrite = true)
