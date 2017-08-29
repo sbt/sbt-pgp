@@ -38,12 +38,11 @@ object Release {
     // TODO - Ensure we're releasing on JDK 6, so we're binary compatible.
     // First check to ensure we have a sane publishing environment...
     "checkBintrayCredentials" ::
-    "test" :: "scripted" ::
-    //"publishLocal" :: "scripted" ::
+    "+test" :: "+scripted" ::
     // TODO - Signed tags, possibly using pgp keys?
     ("git tag " + tag) ::
     "reload" ::
-    "all library/publishSigned plugin/publishSigned" ::
+    "+ all library/publishSigned plugin/publishSigned" ::
     "bintrayPublishAllStaged" ::
     ("git push origin " + tag) ::
   	state
