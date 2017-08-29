@@ -28,6 +28,15 @@ object PgpCommonSettings extends AutoPlugin {
       scalacOptions in Compile := Seq("-feature", "-deprecation", "-Xlint"),
       publishMavenStyle := false,
       bintrayOrganization := Some("sbt"),
-      bintrayRepository := "sbt-plugin-releases"
+      bintrayRepository := "sbt-plugin-releases",
+      // Because we're both a library and an sbt plugin, we use crossScalaVersions rather than crossSbtVersions for
+      // cross building. So you can use commands like +scripted.
+      crossScalaVersions := Seq("2.10.6", "2.12.3"),
+      sbtVersion in pluginCrossBuild := {
+        scalaBinaryVersion.value match {
+          case "2.10" => "0.13.16"
+          case "2.12" => "1.0.0"
+        }
+      }
     )
 }

@@ -7,6 +7,13 @@ The `sbt-pgp` plugin provides PGP signing for SBT 0.12+.  Some OSS repositories 
 
 ## Installation ##
 
+###For sbt 1.0.0+:
+
+Add the following to your `~/.sbt/1.0/plugins/gpg.sbt` file:
+   
+```
+   addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.0")
+```
 
 ###For sbt 0.13.5+:
 
@@ -14,7 +21,7 @@ The `sbt-pgp` plugin provides PGP signing for SBT 0.12+.  Some OSS repositories 
 Add the following to your `~/.sbt/0.13/plugins/gpg.sbt` file:
    
 ```
-   addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.0.0")
+   addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.0")
 ```
 
 
