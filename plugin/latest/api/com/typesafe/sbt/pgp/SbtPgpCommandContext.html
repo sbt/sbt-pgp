@@ -35,7 +35,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">SbtPgpCommandContext</span><span class="params">(<span name="ctx">ctx: <a href="../../../jsuereth/pgp/cli/PgpStaticContext.html" class="extype" name="com.jsuereth.pgp.cli.PgpStaticContext">PgpStaticContext</a></span>, <span name="optPassphrase">optPassphrase: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Char">Char</span>]]</span>, <span name="s">s: <span class="extype" name="sbt.Keys.TaskStreams">TaskStreams</span></span>)</span><span class="result"> extends <a href="../../../jsuereth/pgp/cli/PgpCommandContext.html" class="extype" name="com.jsuereth.pgp.cli.PgpCommandContext">PgpCommandContext</a> with <a href="../../../jsuereth/pgp/cli/DelegatingPgpStaticContext.html" class="extype" name="com.jsuereth.pgp.cli.DelegatingPgpStaticContext">DelegatingPgpStaticContext</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">SbtPgpCommandContext</span><span class="params">(<span name="ctx">ctx: <a href="../../../jsuereth/pgp/cli/PgpStaticContext.html" class="extype" name="com.jsuereth.pgp.cli.PgpStaticContext">PgpStaticContext</a></span>, <span name="interaction">interaction: <span class="extype" name="sbt.InteractionService">InteractionService</span></span>, <span name="optPassphrase">optPassphrase: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Char">Char</span>]]</span>, <span name="s">s: <span class="extype" name="sbt.Keys.TaskStreams">TaskStreams</span></span>)</span><span class="result"> extends <a href="../../../jsuereth/pgp/cli/PgpCommandContext.html" class="extype" name="com.jsuereth.pgp.cli.PgpCommandContext">PgpCommandContext</a> with <a href="../../../jsuereth/pgp/cli/DelegatingPgpStaticContext.html" class="extype" name="com.jsuereth.pgp.cli.DelegatingPgpStaticContext">DelegatingPgpStaticContext</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
@@ -89,6 +89,19 @@
       </span>
       <span class="symbol">
         <span class="name">SbtPgpCommandContext</span><span class="params">(<span name="ctx">ctx: <a href="../../../jsuereth/pgp/cli/PgpStaticContext.html" class="extype" name="com.jsuereth.pgp.cli.PgpStaticContext">PgpStaticContext</a></span>, <span name="optPassphrase">optPassphrase: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Char">Char</span>]]</span>, <span name="s">s: <span class="extype" name="sbt.Keys.TaskStreams">TaskStreams</span></span>)</span>
+      </span>
+      </h4>
+      
+    </li><li name="com.typesafe.sbt.pgp.SbtPgpCommandContext#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(ctx:com.jsuereth.pgp.cli.PgpStaticContext,interaction:sbt.InteractionService,optPassphrase:Option[Array[Char]],s:sbt.Keys.TaskStreams):com.typesafe.sbt.pgp.SbtPgpCommandContext"></a>
+      <a id="&lt;init&gt;:SbtPgpCommandContext"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">SbtPgpCommandContext</span><span class="params">(<span name="ctx">ctx: <a href="../../../jsuereth/pgp/cli/PgpStaticContext.html" class="extype" name="com.jsuereth.pgp.cli.PgpStaticContext">PgpStaticContext</a></span>, <span name="interaction">interaction: <span class="extype" name="sbt.InteractionService">InteractionService</span></span>, <span name="optPassphrase">optPassphrase: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Char">Char</span>]]</span>, <span name="s">s: <span class="extype" name="sbt.Keys.TaskStreams">TaskStreams</span></span>)</span>
       </span>
       </h4>
       
@@ -295,6 +308,19 @@
       </span>
       </h4>
       <p class="shortcomment cmt">Prompts user to input a passphrase.</p><div class="fullcomment"><div class="comment cmt"><p>Prompts user to input a passphrase.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="com.typesafe.sbt.pgp.SbtPgpCommandContext">SbtPgpCommandContext</a> → <a href="../../../jsuereth/pgp/cli/PgpCommandContext.html" class="extype" name="com.jsuereth.pgp.cli.PgpCommandContext">PgpCommandContext</a></dd></dl></div>
+    </li><li name="com.typesafe.sbt.pgp.SbtPgpCommandContext#interaction" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="interaction:sbt.InteractionService"></a>
+      <a id="interaction:InteractionService"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">interaction</span><span class="result">: <span class="extype" name="sbt.InteractionService">InteractionService</span></span>
+      </span>
+      </h4>
+      
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <a id="isInstanceOf[T0]:Boolean"></a>

@@ -357,6 +357,19 @@
       </span>
       </h4>
       
+    </li><li name="com.typesafe.sbt.pgp.PgpKeys#pgpMakeIvy" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="pgpMakeIvy:sbt.TaskKey[Option[sbt.File]]"></a>
+      <a id="pgpMakeIvy:TaskKey[Option[File]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">pgpMakeIvy</span><span class="result">: <span class="extype" name="sbt.TaskKey">TaskKey</span>[<span class="extype" name="scala.Option">Option</span>[<a href="../../../../sbt/package.html#File=java.io.File" class="extmbr" name="sbt.File">File</a>]]</span>
+      </span>
+      </h4>
+      
     </li><li name="com.typesafe.sbt.pgp.PgpKeys#pgpPassphrase" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="pgpPassphrase:sbt.SettingKey[Option[Array[Char]]]"></a>
       <a id="pgpPassphrase:SettingKey[Option[Array[Char]]]"></a>
@@ -409,6 +422,19 @@
       </span>
       </h4>
       
+    </li><li name="com.typesafe.sbt.pgp.PgpKeys#pgpSelectPassphrase" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="pgpSelectPassphrase:sbt.TaskKey[Option[Array[Char]]]"></a>
+      <a id="pgpSelectPassphrase:TaskKey[Option[Array[Char]]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">pgpSelectPassphrase</span><span class="result">: <span class="extype" name="sbt.TaskKey">TaskKey</span>[<span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Char">Char</span>]]]</span>
+      </span>
+      </h4>
+      
     </li><li name="com.typesafe.sbt.pgp.PgpKeys#pgpSigner" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="pgpSigner:sbt.TaskKey[com.typesafe.sbt.pgp.PgpSigner]"></a>
       <a id="pgpSigner:TaskKey[PgpSigner]"></a>
@@ -448,16 +474,16 @@
       </span>
       </h4>
       
-    </li><li name="com.typesafe.sbt.pgp.PgpKeys#pgpVerifier" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="pgpVerifier:sbt.TaskKey[com.typesafe.sbt.pgp.PgpVerifier]"></a>
-      <a id="pgpVerifier:TaskKey[PgpVerifier]"></a>
+    </li><li name="com.typesafe.sbt.pgp.PgpKeys#pgpVerifierFactory" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="pgpVerifierFactory:sbt.TaskKey[com.typesafe.sbt.pgp.PgpVerifierFactory]"></a>
+      <a id="pgpVerifierFactory:TaskKey[PgpVerifierFactory]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">pgpVerifier</span><span class="result">: <span class="extype" name="sbt.TaskKey">TaskKey</span>[<a href="PgpVerifier.html" class="extype" name="com.typesafe.sbt.pgp.PgpVerifier">PgpVerifier</a>]</span>
+        <span class="name">pgpVerifierFactory</span><span class="result">: <span class="extype" name="sbt.TaskKey">TaskKey</span>[<a href="PgpVerifierFactory.html" class="extype" name="com.typesafe.sbt.pgp.PgpVerifierFactory">PgpVerifierFactory</a>]</span>
       </span>
       </h4>
       
@@ -475,7 +501,7 @@
       </h4>
       
     </li><li name="com.typesafe.sbt.pgp.PgpKeys#publishLocalSignedConfiguration" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="publishLocalSignedConfiguration:sbt.TaskKey[sbt.PublishConfiguration]"></a>
+      <a id="publishLocalSignedConfiguration:sbt.TaskKey[sbt.sbtpgp.Compat.PublishConfiguration]"></a>
       <a id="publishLocalSignedConfiguration:TaskKey[PublishConfiguration]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -483,7 +509,7 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">publishLocalSignedConfiguration</span><span class="result">: <span class="extype" name="sbt.TaskKey">TaskKey</span>[<span class="extype" name="sbt.PublishConfiguration">PublishConfiguration</span>]</span>
+        <span class="name">publishLocalSignedConfiguration</span><span class="result">: <span class="extype" name="sbt.TaskKey">TaskKey</span>[<a href="../../../../sbt/sbtpgp/Compat$.html#PublishConfiguration=sbt.PublishConfiguration" class="extmbr" name="sbt.sbtpgp.Compat.PublishConfiguration">PublishConfiguration</a>]</span>
       </span>
       </h4>
       
@@ -501,7 +527,7 @@
       </h4>
       
     </li><li name="com.typesafe.sbt.pgp.PgpKeys#publishSignedConfiguration" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="publishSignedConfiguration:sbt.TaskKey[sbt.PublishConfiguration]"></a>
+      <a id="publishSignedConfiguration:sbt.TaskKey[sbt.sbtpgp.Compat.PublishConfiguration]"></a>
       <a id="publishSignedConfiguration:TaskKey[PublishConfiguration]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -509,7 +535,7 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">publishSignedConfiguration</span><span class="result">: <span class="extype" name="sbt.TaskKey">TaskKey</span>[<span class="extype" name="sbt.PublishConfiguration">PublishConfiguration</span>]</span>
+        <span class="name">publishSignedConfiguration</span><span class="result">: <span class="extype" name="sbt.TaskKey">TaskKey</span>[<a href="../../../../sbt/sbtpgp/Compat$.html#PublishConfiguration=sbt.PublishConfiguration" class="extmbr" name="sbt.sbtpgp.Compat.PublishConfiguration">PublishConfiguration</a>]</span>
       </span>
       </h4>
       

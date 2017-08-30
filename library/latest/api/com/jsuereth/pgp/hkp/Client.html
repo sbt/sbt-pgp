@@ -84,15 +84,15 @@
         <div id="values" class="values members">
               <h3>Abstract Value Members</h3>
               <ol><li name="com.jsuereth.pgp.hkp.Client#getKey" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="getKey(id:Long):Option[com.jsuereth.pgp.PublicKeyRing]"></a>
-      <a id="getKey(Long):Option[PublicKeyRing]"></a>
+      <a id="getKey(id:Long):scala.concurrent.Future[com.jsuereth.pgp.PublicKeyRing]"></a>
+      <a id="getKey(Long):Future[PublicKeyRing]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">getKey</span><span class="params">(<span name="id">id: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="../PublicKeyRing.html" class="extype" name="com.jsuereth.pgp.PublicKeyRing">PublicKeyRing</a>]</span>
+        <span class="name">getKey</span><span class="params">(<span name="id">id: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<a href="../PublicKeyRing.html" class="extype" name="com.jsuereth.pgp.PublicKeyRing">PublicKeyRing</a>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Retreives a PGP Public Key from the server.</p>
@@ -123,15 +123,15 @@
       </h4>
       <p class="shortcomment cmt">Pushes a public key to a key server.</p>
     </li><li name="com.jsuereth.pgp.hkp.Client#search" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="search(term:String):Seq[com.jsuereth.pgp.hkp.LookupKeyResult]"></a>
-      <a id="search(String):Seq[LookupKeyResult]"></a>
+      <a id="search(term:String):scala.concurrent.Future[Vector[com.jsuereth.pgp.hkp.LookupKeyResult]]"></a>
+      <a id="search(String):Future[Vector[LookupKeyResult]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">search</span><span class="params">(<span name="term">term: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="LookupKeyResult.html" class="extype" name="com.jsuereth.pgp.hkp.LookupKeyResult">LookupKeyResult</a>]</span>
+        <span class="name">search</span><span class="params">(<span name="term">term: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Vector">Vector</span>[<a href="LookupKeyResult.html" class="extype" name="com.jsuereth.pgp.hkp.LookupKeyResult">LookupKeyResult</a>]]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Searches for a term on the keyserver and returns all the results.</p>

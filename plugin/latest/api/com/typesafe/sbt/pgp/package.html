@@ -94,16 +94,16 @@
       </span>
       </h4>
       <p class="comment cmt">A GpgSigner that uses bouncy castle.</p>
-    </li><li name="com.typesafe.sbt.pgp.BouncyCastlePgpVerifier" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="BouncyCastlePgpVerifierextendsPgpVerifier"></a>
-      <a id="BouncyCastlePgpVerifier:BouncyCastlePgpVerifier"></a>
+    </li><li name="com.typesafe.sbt.pgp.BouncyCastlePgpVerifierFactory" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BouncyCastlePgpVerifierFactoryextendsPgpVerifierFactory"></a>
+      <a id="BouncyCastlePgpVerifierFactory:BouncyCastlePgpVerifierFactory"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="BouncyCastlePgpVerifier.html"><span class="name">BouncyCastlePgpVerifier</span></a><span class="result"> extends <a href="PgpVerifier.html" class="extype" name="com.typesafe.sbt.pgp.PgpVerifier">PgpVerifier</a></span>
+        <a href="BouncyCastlePgpVerifierFactory.html"><span class="name">BouncyCastlePgpVerifierFactory</span></a><span class="result"> extends <a href="PgpVerifierFactory.html" class="extype" name="com.typesafe.sbt.pgp.PgpVerifierFactory">PgpVerifierFactory</a></span>
       </span>
       </h4>
       
@@ -133,16 +133,16 @@
       </span>
       </h4>
       <p class="comment cmt">A GpgSigner that uses the command-line to run gpg.</p>
-    </li><li name="com.typesafe.sbt.pgp.CommandLineGpgVerifier" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="CommandLineGpgVerifierextendsPgpVerifier"></a>
-      <a id="CommandLineGpgVerifier:CommandLineGpgVerifier"></a>
+    </li><li name="com.typesafe.sbt.pgp.CommandLineGpgVerifierFactory" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="CommandLineGpgVerifierFactoryextendsPgpVerifierFactory"></a>
+      <a id="CommandLineGpgVerifierFactory:CommandLineGpgVerifierFactory"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="CommandLineGpgVerifier.html"><span class="name">CommandLineGpgVerifier</span></a><span class="result"> extends <a href="PgpVerifier.html" class="extype" name="com.typesafe.sbt.pgp.PgpVerifier">PgpVerifier</a></span>
+        <a href="CommandLineGpgVerifierFactory.html"><span class="name">CommandLineGpgVerifierFactory</span></a><span class="result"> extends <a href="PgpVerifierFactory.html" class="extype" name="com.typesafe.sbt.pgp.PgpVerifierFactory">PgpVerifierFactory</a></span>
       </span>
       </h4>
       
@@ -198,6 +198,19 @@
       </span>
       </h4>
       
+    </li><li name="com.typesafe.sbt.pgp.PgpVerifierFactory" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="PgpVerifierFactoryextendsAnyRef"></a>
+      <a id="PgpVerifierFactory:PgpVerifierFactory"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="PgpVerifierFactory.html"><span class="name">PgpVerifierFactory</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      
     </li><li name="com.typesafe.sbt.pgp.ProcessGrabber" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ProcessGrabberextendsProcessLogger"></a>
       <a id="ProcessGrabber:ProcessGrabber"></a>
@@ -207,7 +220,7 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="ProcessGrabber.html"><span class="name">ProcessGrabber</span></a><span class="result"> extends <span class="extype" name="sbt.ProcessLogger">ProcessLogger</span></span>
+        <a href="ProcessGrabber.html"><span class="name">ProcessGrabber</span></a><span class="result"> extends <span class="extype" name="scala.sys.process.ProcessLogger">ProcessLogger</span></span>
       </span>
       </h4>
       <p class="comment cmt">Helper class to grab all the output from a process into one string.</p>
@@ -220,7 +233,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="SbtPgpCommandContext.html"><span class="name">SbtPgpCommandContext</span></a><span class="params">(<span name="ctx">ctx: <a href="../../../jsuereth/pgp/cli/PgpStaticContext.html" class="extype" name="com.jsuereth.pgp.cli.PgpStaticContext">PgpStaticContext</a></span>, <span name="optPassphrase">optPassphrase: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Char">Char</span>]]</span>, <span name="s">s: <span class="extype" name="sbt.Keys.TaskStreams">TaskStreams</span></span>)</span><span class="result"> extends <a href="../../../jsuereth/pgp/cli/PgpCommandContext.html" class="extype" name="com.jsuereth.pgp.cli.PgpCommandContext">PgpCommandContext</a> with <a href="../../../jsuereth/pgp/cli/DelegatingPgpStaticContext.html" class="extype" name="com.jsuereth.pgp.cli.DelegatingPgpStaticContext">DelegatingPgpStaticContext</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="SbtPgpCommandContext.html"><span class="name">SbtPgpCommandContext</span></a><span class="params">(<span name="ctx">ctx: <a href="../../../jsuereth/pgp/cli/PgpStaticContext.html" class="extype" name="com.jsuereth.pgp.cli.PgpStaticContext">PgpStaticContext</a></span>, <span name="interaction">interaction: <span class="extype" name="sbt.InteractionService">InteractionService</span></span>, <span name="optPassphrase">optPassphrase: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Char">Char</span>]]</span>, <span name="s">s: <span class="extype" name="sbt.Keys.TaskStreams">TaskStreams</span></span>)</span><span class="result"> extends <a href="../../../jsuereth/pgp/cli/PgpCommandContext.html" class="extype" name="com.jsuereth.pgp.cli.PgpCommandContext">PgpCommandContext</a> with <a href="../../../jsuereth/pgp/cli/DelegatingPgpStaticContext.html" class="extype" name="com.jsuereth.pgp.cli.DelegatingPgpStaticContext">DelegatingPgpStaticContext</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       <p class="comment cmt">Context used by PGP commands as they execute.</p>
@@ -387,19 +400,6 @@
       </span>
       </h4>
       
-    </li><li name="com.typesafe.sbt.pgp.package#readPassphrase" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="readPassphrase():Array[Char]"></a>
-      <a id="readPassphrase():Array[Char]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">readPassphrase</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Char">Char</span>]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Reads the passphrase from the console.</p>
     </li></ol>
             </div>
 

@@ -2,9 +2,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
-          <title>BouncyCastlePgpVerifier - com.typesafe.sbt.pgp.BouncyCastlePgpVerifier</title>
-          <meta name="description" content="BouncyCastlePgpVerifier - com.typesafe.sbt.pgp.BouncyCastlePgpVerifier" />
-          <meta name="keywords" content="BouncyCastlePgpVerifier com.typesafe.sbt.pgp.BouncyCastlePgpVerifier" />
+          <title>PgpVerifierFactory - com.typesafe.sbt.pgp.PgpVerifierFactory</title>
+          <meta name="description" content="PgpVerifierFactory - com.typesafe.sbt.pgp.PgpVerifierFactory" />
+          <meta name="keywords" content="PgpVerifierFactory com.typesafe.sbt.pgp.PgpVerifierFactory" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -12,7 +12,7 @@
       <script type="text/javascript">
          if(top === self) {
             var url = '../../../../index.html';
-            var hash = 'com.typesafe.sbt.pgp.BouncyCastlePgpVerifier';
+            var hash = 'com.typesafe.sbt.pgp.PgpVerifierFactory';
             var anchor = window.location.hash;
             var anchor_opt = '';
             if (anchor.length >= 1)
@@ -24,24 +24,27 @@
         </head>
         <body class="type">
       <div id="definition">
-        <img src="../../../../lib/class_big.png" />
+        <img src="../../../../lib/trait_big.png" />
         <p id="owner"><a href="../../../package.html" class="extype" name="com">com</a>.<a href="../../package.html" class="extype" name="com.typesafe">typesafe</a>.<a href="../package.html" class="extype" name="com.typesafe.sbt">sbt</a>.<a href="package.html" class="extype" name="com.typesafe.sbt.pgp">pgp</a></p>
-        <h1>BouncyCastlePgpVerifier</h1>
+        <h1>PgpVerifierFactory</h1>
       </div>
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">class</span>
+        <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <span class="name">BouncyCastlePgpVerifier</span><span class="result"> extends <a href="PgpVerifier.html" class="extype" name="com.typesafe.sbt.pgp.PgpVerifier">PgpVerifier</a></span>
+        <span class="name">PgpVerifierFactory</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="PgpVerifier.html" class="extype" name="com.typesafe.sbt.pgp.PgpVerifier">PgpVerifier</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div><div class="toggleContainer block">
+          <span class="toggle">Known Subclasses</span>
+          <div class="subClasses hiddenContent"><a href="BouncyCastlePgpVerifierFactory.html" class="extype" name="com.typesafe.sbt.pgp.BouncyCastlePgpVerifierFactory">BouncyCastlePgpVerifierFactory</a>, <a href="CommandLineGpgVerifierFactory.html" class="extype" name="com.typesafe.sbt.pgp.CommandLineGpgVerifierFactory">CommandLineGpgVerifierFactory</a></div>
         </div></div>
         
 
@@ -59,7 +62,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="com.typesafe.sbt.pgp.BouncyCastlePgpVerifier"><span>BouncyCastlePgpVerifier</span></li><li class="in" name="com.typesafe.sbt.pgp.PgpVerifier"><span>PgpVerifier</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="com.typesafe.sbt.pgp.PgpVerifierFactory"><span>PgpVerifierFactory</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -77,30 +80,30 @@
 
       <div id="template">
         <div id="allMembers">
-        <div id="constructors" class="members">
-              <h3>Instance Constructors</h3>
-              <ol><li name="com.typesafe.sbt.pgp.BouncyCastlePgpVerifier#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(ctx:com.jsuereth.pgp.cli.PgpCommandContext):com.typesafe.sbt.pgp.BouncyCastlePgpVerifier"></a>
-      <a id="&lt;init&gt;:BouncyCastlePgpVerifier"></a>
+        
+
+        
+
+        <div id="values" class="values members">
+              <h3>Abstract Value Members</h3>
+              <ol><li name="com.typesafe.sbt.pgp.PgpVerifierFactory#withVerifier" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="withVerifier[T](f:com.typesafe.sbt.pgp.PgpVerifier=&gt;T):T"></a>
+      <a id="withVerifier[T]((PgpVerifier)⇒T):T"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">new</span>
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">BouncyCastlePgpVerifier</span><span class="params">(<span name="ctx">ctx: <a href="../../../jsuereth/pgp/cli/PgpCommandContext.html" class="extype" name="com.jsuereth.pgp.cli.PgpCommandContext">PgpCommandContext</a></span>)</span>
+        <span class="name">withVerifier</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="f">f: (<a href="PgpVerifier.html" class="extype" name="com.typesafe.sbt.pgp.PgpVerifier">PgpVerifier</a>) ⇒ <span class="extype" name="com.typesafe.sbt.pgp.PgpVerifierFactory.withVerifier.T">T</span></span>)</span><span class="result">: <span class="extype" name="com.typesafe.sbt.pgp.PgpVerifierFactory.withVerifier.T">T</span></span>
       </span>
       </h4>
       
     </li></ol>
             </div>
 
-        
-
-        
-
         <div id="values" class="values members">
-              <h3>Value Members</h3>
+              <h3>Concrete Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:AnyRef):Boolean"></a>
       <a id="!=(AnyRef):Boolean"></a>
@@ -334,7 +337,7 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="com.typesafe.sbt.pgp.BouncyCastlePgpVerifier#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>
       <h4 class="signature">
@@ -346,20 +349,7 @@
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="com.typesafe.sbt.pgp.BouncyCastlePgpVerifier">BouncyCastlePgpVerifier</a> → AnyRef → Any</dd></dl></div>
-    </li><li name="com.typesafe.sbt.pgp.BouncyCastlePgpVerifier#verifySignature" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="verifySignature(signature:sbt.File,s:sbt.Keys.TaskStreams):com.typesafe.sbt.pgp.SignatureCheckResult"></a>
-      <a id="verifySignature(File,TaskStreams):SignatureCheckResult"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">verifySignature</span><span class="params">(<span name="signature">signature: <a href="../../../../sbt/package.html#File=java.io.File" class="extmbr" name="sbt.File">File</a></span>, <span name="s">s: <span class="extype" name="sbt.Keys.TaskStreams">TaskStreams</span></span>)</span><span class="result">: <a href="SignatureCheckResult.html" class="extype" name="com.typesafe.sbt.pgp.SignatureCheckResult">SignatureCheckResult</a></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="com.typesafe.sbt.pgp.BouncyCastlePgpVerifier">BouncyCastlePgpVerifier</a> → <a href="PgpVerifier.html" class="extype" name="com.typesafe.sbt.pgp.PgpVerifier">PgpVerifier</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>
@@ -426,9 +416,7 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="com.typesafe.sbt.pgp.PgpVerifier">
-              <h3>Inherited from <a href="PgpVerifier.html" class="extype" name="com.typesafe.sbt.pgp.PgpVerifier">PgpVerifier</a></h3>
-            </div><div class="parent" name="scala.AnyRef">
+        <div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>

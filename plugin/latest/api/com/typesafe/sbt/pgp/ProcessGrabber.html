@@ -35,13 +35,13 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">ProcessGrabber</span><span class="result"> extends <span class="extype" name="sbt.ProcessLogger">ProcessLogger</span></span>
+        <span class="name">ProcessGrabber</span><span class="result"> extends <span class="extype" name="scala.sys.process.ProcessLogger">ProcessLogger</span></span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Helper class to grab all the output from a process into one string.</p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="sbt.ProcessLogger">ProcessLogger</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.sys.process.ProcessLogger">ProcessLogger</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -59,7 +59,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="com.typesafe.sbt.pgp.ProcessGrabber"><span>ProcessGrabber</span></li><li class="in" name="sbt.ProcessLogger"><span>ProcessLogger</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="com.typesafe.sbt.pgp.ProcessGrabber"><span>ProcessGrabber</span></li><li class="in" name="scala.sys.process.ProcessLogger"><span>ProcessLogger</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -237,7 +237,20 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="com.typesafe.sbt.pgp.ProcessGrabber#error" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="com.typesafe.sbt.pgp.ProcessGrabber#err" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="err(s:=&gt;String):Unit"></a>
+      <a id="err(⇒String):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">err</span><span class="params">(<span name="s">s: ⇒ <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="com.typesafe.sbt.pgp.ProcessGrabber">ProcessGrabber</a> → ProcessLogger</dd></dl></div>
+    </li><li name="com.typesafe.sbt.pgp.ProcessGrabber#error" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="error(s:=&gt;String):Unit"></a>
       <a id="error(⇒String):Unit"></a>
       <h4 class="signature">
@@ -249,7 +262,7 @@
         <span class="name">error</span><span class="params">(<span name="s">s: ⇒ <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="com.typesafe.sbt.pgp.ProcessGrabber">ProcessGrabber</a> → ProcessLogger</dd></dl></div>
+      
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -295,7 +308,7 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="com.typesafe.sbt.pgp.ProcessGrabber#info" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="com.typesafe.sbt.pgp.ProcessGrabber#info" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="info(s:=&gt;String):Unit"></a>
       <a id="info(⇒String):Unit"></a>
       <h4 class="signature">
@@ -307,7 +320,7 @@
         <span class="name">info</span><span class="params">(<span name="s">s: ⇒ <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="com.typesafe.sbt.pgp.ProcessGrabber">ProcessGrabber</a> → ProcessLogger</dd></dl></div>
+      
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -360,6 +373,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="com.typesafe.sbt.pgp.ProcessGrabber#out" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="out(s:=&gt;String):Unit"></a>
+      <a id="out(⇒String):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">out</span><span class="params">(<span name="s">s: ⇒ <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="com.typesafe.sbt.pgp.ProcessGrabber">ProcessGrabber</a> → ProcessLogger</dd></dl></div>
     </li><li name="com.typesafe.sbt.pgp.ProcessGrabber#result" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="result:String"></a>
       <a id="result:String"></a>
@@ -465,8 +491,8 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="sbt.ProcessLogger">
-              <h3>Inherited from <span class="extype" name="sbt.ProcessLogger">ProcessLogger</span></h3>
+        <div class="parent" name="scala.sys.process.ProcessLogger">
+              <h3>Inherited from <span class="extype" name="scala.sys.process.ProcessLogger">ProcessLogger</span></h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">

@@ -113,9 +113,24 @@ Please re-enter the passphrase for the key: *****************
 <pre><code>pgpPassphrase := Some(Array('M', 'y', 'P', 'a', 's', 's', 'p', 'h', 'r', 'a', 's', 'e'))
 </code></pre>
 
-<p>Note: The passphrase <em>must</em> be an array of characters.   It’s midly more secure.  We hope to provide even more secure ways of storing passphrases in the future.</p>
+<p>Note: The passphrase <em>must</em> be an array of characters.   It’s mildy more secure.  We hope to provide even more secure ways of storing passphrases in the future.</p>
 
 <p>Also make sure that the above setting is in a user-specific directory and that you don’t advertise your password in the source code repository!</p>
+
+<p>Another alternative for configuring the passphrase is to add it to your credentials, using a host name of <code>pgp</code>.  This allows you to globally configure a passphrase without having the pgp plugin installed globally.</p>
+
+<p>For example, create the following file <code>~/.sbt/pgp.credentials</code>:</p>
+
+<pre><code>realm=PGP Secret Key
+host=pgp
+user=sbt
+password=MyPassphrase
+</code></pre>
+
+<p>The <code>realm</code> and <code>user</code> values can be anything, the <code>host</code> must be <code>pgp</code>, and <code>password</code> must be your passphrase. Now add the this file to your sbt credentials in <code>~/.sbt/0.13/global.sbt</code>:</p>
+
+<pre><code>credentials += Credentials(Path.userHome / ".sbt" / "pgp.credentials")    
+</code></pre>
 
 <h2 id="configuration-key-pair-locations">Configuration: Key Pair Locations</h2>
 
@@ -128,7 +143,7 @@ pgpPublicRing := file("/tmp/pubring.asc")
 
 <h2 id="configuration-signing-key">Configuration: Signing Key</h2>
 
-<p>If you’d like to use a different private key besides the default, then you can configure it with the <code>pgpSigningKey</code> settings. </p>
+<p>If you’d like to use a different private key besides the default, then you can configure it with the <code>pgpSigningKey</code> settings.</p>
 
 <p>You can either configure the key using raw long integer values:</p>
 
@@ -196,7 +211,14 @@ pgpPublicRing := file("/tmp/pubring.asc")
 
 <h2 id="publishing-artifacts">Publishing Artifacts</h2>
 
-<p>If you want to published signed artifacts, you must use the new <code>publish-signed</code> and <code>publish-local-signed</code> tasks.  <code>sbt-pgp</code> no longer wires in to the default <code>publish</code> and <code>publish-local</code> tasks of SBT.  </p>
+<p>To publish signed artifacts, use either <code>publishSigned</code> or <code>publishLocalSigned</code>.</p>
+
+<h2 id="skipping-publishing">Skipping publishing</h2>
+
+<p>To skip the publish step, set <code>skip in publish</code> to <code>true</code>.</p>
+
+<pre><code>skip in publish := true
+</code></pre>
    
   </div>
   <div class="span6 columns blogroll">
