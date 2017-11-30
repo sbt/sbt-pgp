@@ -113,7 +113,7 @@ object PgpSettings {
 
   /** Helper to initialize the GPG PgpSigner */
   private[this] def gpgSigner: Def.Initialize[Task[PgpSigner]] = Def.task {
-    new CommandLineGpgSigner(gpgCommand.value, useGpgAgent.value, pgpSigningKey.value)
+    new CommandLineGpgSigner(gpgCommand.value, useGpgAgent.value, pgpSecretRing.value.getPath, pgpSigningKey.value, pgpPassphrase.value)
   }
 
   /** Helper to initialize the BC PgpVerifier */
@@ -205,5 +205,5 @@ object PgpSettings {
   )
   lazy val globalSettings: Seq[Setting[_]] = inScope(Global)(gpgConfigurationSettings ++ nativeConfigurationSettings ++ signVerifyConfigurationSettings)
   /** Settings this plugin defines. TODO - require manual setting of these... */
-  lazy val projectSettings = signingSettings ++ verifySettings ++ Seq(commands += pgpCommand)
+  lazy val projectSettings: Seq[Setting[_]] = signingSettings ++ verifySettings ++ Seq(commands += pgpCommand)
 }

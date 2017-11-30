@@ -15,11 +15,13 @@ trait PgpSigner {
 }
 
 /** A GpgSigner that uses the command-line to run gpg. */
-class CommandLineGpgSigner(command: String, agent: Boolean, optKey: Option[Long]) extends PgpSigner {
+class CommandLineGpgSigner(command: String, agent: Boolean, secRing: String, optKey: Option[Long], optPassphrase: Option[Array[Char]]) extends PgpSigner {
   def sign(file: File, signatureFile: File, s: TaskStreams): File = {
     if (signatureFile.exists) IO.delete(signatureFile)
+    val passargs: Seq[String] = (optPassphrase map { passArray => passArray mkString "" } map { pass => Seq("--passphrase", pass) }) getOrElse Seq.empty
+    val ringargs: Seq[String] = Seq("--no-default-keyring", "--keyring", secRing)
     val keyargs: Seq[String] = optKey map (k => Seq("--default-key", "0x%x" format(k))) getOrElse Seq.empty
-    val args = Seq("--detach-sign", "--armor") ++ (if(agent) Seq("--use-agent") else Seq.empty) ++ keyargs
+    val args = passargs ++ ringargs ++ Seq("--detach-sign", "--armor") ++ (if(agent) Seq("--use-agent") else Seq.empty) ++ keyargs
     sys.process.Process(command, args ++ Seq("--output", signatureFile.getAbsolutePath, file.getAbsolutePath)) ! s.log match {
       case 0 => ()
       case n => sys.error("Failure running gpg --detach-sign.  Exit code: " + n)
@@ -27,7 +29,7 @@ class CommandLineGpgSigner(command: String, agent: Boolean, optKey: Option[Long]
     signatureFile
   }
 
-  override val toString = "GPG-Command(" + command + ")"
+  override val toString: String = "GPG-Command(" + command + ")"
 }
 /** A GpgSigner that uses bouncy castle. */
 class BouncyCastlePgpSigner(ctx: PgpCommandContext, optKey: Option[Long]) extends PgpSigner {
@@ -42,5 +44,5 @@ class BouncyCastlePgpSigner(ctx: PgpCommandContext, optKey: Option[Long]) extend
         case _        => secring.secretKey.sign(file, signatureFile, pw) 
       }
     }
-  override lazy val toString = "BC-PGP(" + secring + ")"
+  override lazy val toString: String = "BC-PGP(" + secring + ")"
 }
