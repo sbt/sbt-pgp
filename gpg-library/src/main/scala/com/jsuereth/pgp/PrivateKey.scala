@@ -10,7 +10,7 @@ import org.bouncycastle.openpgp._
 import org.bouncycastle.openpgp.jcajce.JcaPGPObjectFactory
 import org.bouncycastle.openpgp.operator.jcajce.{JcaPGPContentSignerBuilder, JcaPGPDigestCalculatorProviderBuilder, JcePBESecretKeyDecryptorBuilder, JcePublicKeyDataDecryptorFactoryBuilder}
 
-class IncorrectPassphraseException(msg: String) extends RuntimeException(msg)
+class IncorrectPassphraseException(msg: String, cause: Throwable) extends RuntimeException(msg, cause)
 
 
 /** A SecretKey that can be used to sign things and decrypt messages. */
@@ -233,7 +233,7 @@ class SecretKey(val nested: PGPSecretKey) {
       nested.extractPrivateKey(decryptorFactory)
     }
     catch {
-      case e: PGPException if e.getMessage.contains("checksum mismatch") => throw new IncorrectPassphraseException("Incorrect passhprase")
+      case e: PGPException if e.getMessage.contains("checksum mismatch") => throw new IncorrectPassphraseException("Incorrect passhprase", e)
     }
 
   def userIDs = new Traversable[String] {

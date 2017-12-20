@@ -16,10 +16,11 @@ case class SignKey(pubKey: String, notation: (String,String)) extends PgpCommand
     } yield ring -> key
     val newpubringcol = matches match {
       case Seq((ring, key), _*) =>
-        val newkey = ctx withPassphrase { pw => 
+        val signingKey = ctx.secretKeyRing.secretKey
+        val newkey = ctx.withPassphrase(signingKey.keyID) { pw =>
         ctx.log.info("Signing key: " + key)
           try {
-            ctx.secretKeyRing.secretKey.signPublicKey(key, notation, pw)
+            signingKey.signPublicKey(key, notation, pw)
           } catch {
             case t: Throwable =>
               ctx.log.trace(t)
