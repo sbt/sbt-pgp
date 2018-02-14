@@ -69,7 +69,7 @@ object Compat {
       checksums = (checksums in publish).value.toVector,
       resolverName = Classpaths.getPublishTo(publishTo.value).name,
       logging = ivyLoggingLevel.value,
-      overwrite = false)
+      overwrite = publishConfiguration.value.overwrite)
   }
 
   def publishLocalSignedConfigurationTask = Def.task {
@@ -83,7 +83,7 @@ object Compat {
       (checksums in publishLocal).value.toVector,
       resolverName = "local",
       logging = ivyLoggingLevel.value,
-      overwrite = true)
+      overwrite = publishConfiguration.value.overwrite)
   }
 
   def deliverPattern(outputPath: File): String =
