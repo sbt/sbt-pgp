@@ -44,14 +44,14 @@
 
 <p>Add the following to your <code>~/.sbt/1.0/plugins/gpg.sbt</code> file:</p>
 
-<pre><code>   addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.0")
+<pre><code>   addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.1")
 </code></pre>
 
 <h3 id="for-sbt-0135">For sbt 0.13.5+:</h3>
 
 <p>Add the following to your <code>~/.sbt/0.13/plugins/gpg.sbt</code> file:</p>
 
-<pre><code>   addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.0")
+<pre><code>   addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.1")
 </code></pre>
 
 <h2 id="usage">Usage</h2>
@@ -69,7 +69,8 @@
 
 <p><a href="usage.html">Detailed usage and configuration instructions</a>.</p>
 
-<p>To publish signed artifacts, you must use the new <code>publish-signed</code> and <code>publish-local-signed</code> tasks.  <code>sbt-pgp</code> no longer wires in to the default <code>publish</code> and <code>publish-local</code> tasks of SBT.</p>
+<p>To publish signed artifacts, you must use the new <code>publishSigned</code> and <code>publishLocalSigned</code> tasks.</p>
+
    
   </div>
   <div class="span6 columns blogroll">
