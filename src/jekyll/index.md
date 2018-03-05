@@ -10,18 +10,18 @@ The `sbt-pgp` plugin provides PGP signing for SBT 0.12+.  Some OSS repositories 
 ### For sbt 1.0.0+:
 
 Add the following to your `~/.sbt/1.0/plugins/gpg.sbt` file:
-   
+
 ```
-   addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.0")
+   addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.1")
 ```
 
 ### For sbt 0.13.5+:
 
 
 Add the following to your `~/.sbt/0.13/plugins/gpg.sbt` file:
-   
+
 ```
-   addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.0")
+   addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.1")
 ```
 
 ## Usage
@@ -34,4 +34,5 @@ There are two modes of use:
 
 [Detailed usage and configuration instructions](usage.html).
 
-To publish signed artifacts, you must use the new `publish-signed` and `publish-local-signed` tasks.  `sbt-pgp` no longer wires in to the default `publish` and `publish-local` tasks of SBT.
+To publish signed artifacts, you must use the new `publishSigned` and `publishLocalSigned` tasks.
+

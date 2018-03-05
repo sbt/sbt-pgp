@@ -29,6 +29,11 @@ lazy val plugin =
     .settings(
       sbtPlugin := true,
       name := "sbt-pgp",
+      crossSbtVersions := Seq("0.13.17", "1.1.1"),
+
+      // sbtVersion in pluginCrossBuild := "1.1.1",
+      // scalaVersion := "2.12.4",
+
       libraryDependencies += gigahorseOkhttp,
       libraryDependencies ++= {
         (sbtBinaryVersion in pluginCrossBuild).value match {
