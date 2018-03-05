@@ -40,7 +40,7 @@ trait PgpCommandContext extends PgpStaticContext with UICommandContext {
   /** Prompts user to input a passphrase. */
   def inputPassphrase: Array[Char]
   /** Perform an action with a passphrase.  This will ensure caching or other magikz */
-  def withPassphrase[U](f: Array[Char] => U): U
+  def withPassphrase[U](keyId: Long)(f: Array[Char] => U): U
   def addPublicKeyRing(key: PublicKeyRing): Unit = {
     key.masterKey match {
       case Some(mk) if publicKeyRing.publicKeys.map(_.keyID).toSet.apply(mk.keyID) =>

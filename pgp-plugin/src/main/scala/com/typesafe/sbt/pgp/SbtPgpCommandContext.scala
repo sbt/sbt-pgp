@@ -34,14 +34,14 @@ case class SbtPgpCommandContext(
     case _ => sys.error("Empty passphrase. aborting...")
   }
 
-  def withPassphrase[U](f: Array[Char] => U): U = {
+  def withPassphrase[U](key: Long)(f: Array[Char] => U): U = {
     retry[U, IncorrectPassphraseException](3){
       PasswordCache.withValue(
         key = ctx.secretKeyRingFile.getAbsolutePath,
         default = optPassphrase getOrElse inputPassphrase)(f)
     } match {
       case Right(u) => u
-      case Left(e) => sys.error("Wrong passphrase. aborting...")
+      case Left(e) => throw new IllegalArgumentException(s"Wrong passphrase for key ${key.toHexString.toUpperCase} in ${ctx.secretKeyRingFile.getAbsolutePath}: ${e.getMessage}. aborting...", e)
     }
   }
 
