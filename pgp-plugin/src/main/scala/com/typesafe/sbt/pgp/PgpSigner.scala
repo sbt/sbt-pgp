@@ -22,9 +22,10 @@ class CommandLineGpgSigner(command: String, agent: Boolean, secRing: String, opt
     val ringargs: Seq[String] = Seq("--no-default-keyring", "--keyring", secRing)
     val keyargs: Seq[String] = optKey map (k => Seq("--default-key", "0x%x" format(k))) getOrElse Seq.empty
     val args = passargs ++ ringargs ++ Seq("--detach-sign", "--armor") ++ (if(agent) Seq("--use-agent") else Seq.empty) ++ keyargs
-    sys.process.Process(command, args ++ Seq("--output", signatureFile.getAbsolutePath, file.getAbsolutePath)) ! s.log match {
+    val allArguments: Seq[String] = args ++ Seq("--output", signatureFile.getAbsolutePath, file.getAbsolutePath)
+    sys.process.Process(command, allArguments) ! s.log match {
       case 0 => ()
-      case n => sys.error("Failure running gpg --detach-sign.  Exit code: " + n)
+      case n => sys.error(s"Failure running '${command + " " + allArguments.mkString(" ")}'.  Exit code: " + n)
     }
     signatureFile
   }
