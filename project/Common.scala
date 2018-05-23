@@ -35,7 +35,7 @@ object PgpCommonSettings extends AutoPlugin {
       sbtVersion in pluginCrossBuild := {
         scalaBinaryVersion.value match {
           case "2.10" => "0.13.16"
-          case "2.12" => "1.0.0"
+          case "2.12" => "1.1.5"
         }
       }
     )
