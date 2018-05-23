@@ -75,8 +75,8 @@ object PgpSettings {
       PgpKeys.pgpPassphrase := None,
       PgpKeys.pgpSelectPassphrase := PgpKeys.pgpPassphrase.value orElse
         (Credentials.forHost(credentials.value, "pgp") map (_.passwd.toCharArray)),
-      PgpKeys.pgpPublicRing := gnuPGHome / "pubring.gpg",
-      PgpKeys.pgpSecretRing := {if (gpgAncient.value) gnuPGHome / "secring.gpg" else gnuPGHome / "pubring.gpg"},
+      PgpKeys.pgpPublicRing := {if (gpgAncient.value) gnuPGHome / "pubring.gpg" else gnuPGHome / "pubring.kbx"},
+      PgpKeys.pgpSecretRing := {if (gpgAncient.value) gnuPGHome / "secring.gpg" else gnuPGHome / "pubring.kbx"},
       PgpKeys.pgpSigningKey := None,
       PgpKeys.pgpReadOnly := true,
       // TODO - Are these all ok to place in global scope?
