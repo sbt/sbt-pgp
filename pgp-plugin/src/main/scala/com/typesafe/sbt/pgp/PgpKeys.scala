@@ -28,7 +28,8 @@ object PgpKeys {
   val gpgCommand = SettingKey[String]("gpg-command", "The path of the GPG command to run", BSetting)
   val useGpg = SettingKey[Boolean]("use-gpg", "If this is set to true, the GPG command line will be used.", ASetting)
   val useGpgAgent = SettingKey[Boolean]("use-gpg-agent", "If this is set to true, the GPG command line will expect a GPG agent for the password.", BSetting)
-  
+  val gpgAncient = SettingKey[Boolean]("gpg-ancient","Set this to true if you use a gpg version older than 2.1.")
+
   // Checking PGP Signatures options
   val signaturesModule = TaskKey[GetSignaturesModule]("signatures-module", "", CTask)
   val updatePgpSignatures = TaskKey[UpdateReport]("update-pgp-signatures", "Resolves and optionally retrieves signatures for artifacts, transitively.", CTask)
