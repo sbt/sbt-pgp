@@ -19,6 +19,7 @@ object PgpSettings {
   // TODO - DO these belong lower?
   def useGpg = PgpKeys.useGpg in Global
   def useGpgAgent = PgpKeys.useGpgAgent in Global
+  def useGpgPinentry = PgpKeys.useGpgPinentry in Global
   def pgpSigningKey = PgpKeys.pgpSigningKey in Global
   def pgpPassphrase = PgpKeys.pgpPassphrase in Global
   def pgpReadOnly = PgpKeys.pgpReadOnly in Global
@@ -29,6 +30,7 @@ object PgpSettings {
   lazy val gpgConfigurationSettings: Seq[Setting[_]] = Seq( 
     PgpKeys.useGpg := false,
     PgpKeys.useGpgAgent := false,
+    PgpKeys.useGpgPinentry := false,
     PgpKeys.gpgCommand := (if(isWindows) "gpg.exe" else "gpg")
   )
 
@@ -117,6 +119,11 @@ object PgpSettings {
     new CommandLineGpgSigner(gpgCommand.value, useGpgAgent.value, pgpSecretRing.value.getPath, pgpSigningKey.value, pgpPassphrase.value)
   }
 
+  /** Helper to initialize the GPG PgpSigner with Pinentry */
+  private[this] def gpgPinEntrySigner: Def.Initialize[Task[PgpSigner]] = Def.task {
+    new CommandLineGpgPinEntrySigner(gpgCommand.value, useGpgAgent.value, pgpSigningKey.value, pgpPassphrase.value)
+  }
+
   /** Helper to initialize the BC PgpVerifier */
   private[this] def bcPgpVerifierFactory: Def.Initialize[Task[PgpVerifierFactory]] = Def.task {
     new BouncyCastlePgpVerifierFactory(pgpCmdContext.value)
@@ -134,7 +141,7 @@ object PgpSettings {
   lazy val signVerifyConfigurationSettings: Seq[Setting[_]] = Seq(
     // TODO - move these to the signArtifactSettings?
     skip in pgpSigner := ((skip in pgpSigner) ?? false).value,
-    pgpSigner := switch(useGpg, gpgSigner, bcPgpSigner).value,
+    pgpSigner := switch(useGpg, switch(useGpgPinentry, gpgPinEntrySigner, gpgSigner), bcPgpSigner).value,
     pgpVerifierFactory := switch(useGpg, gpgVerifierFactory, bcPgpVerifierFactory).value
   )
 
