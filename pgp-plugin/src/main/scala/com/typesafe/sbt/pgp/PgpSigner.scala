@@ -40,7 +40,7 @@ class CommandLineGpgSigner(command: String, agent: Boolean, secRing: String, opt
  * it directly, and the secret key resides on the card.  This means we need pinentry
  * to be used, and there is no secret key ring.
  */
-class CommandLineGpgPinEntrySigner(command: String, agent: Boolean, optKey: Option[Long], optPassphrase: Option[Array[Char]]) extends PgpSigner {
+class CommandLineGpgPinentrySigner(command: String, agent: Boolean, optKey: Option[Long], optPassphrase: Option[Array[Char]]) extends PgpSigner {
   def sign(file: File, signatureFile: File, s: TaskStreams): File = {
     if (signatureFile.exists) IO.delete(signatureFile)
     // (the PIN code is the passphrase)

@@ -121,7 +121,7 @@ object PgpSettings {
 
   /** Helper to initialize the GPG PgpSigner with Pinentry */
   private[this] def gpgPinEntrySigner: Def.Initialize[Task[PgpSigner]] = Def.task {
-    new CommandLineGpgPinEntrySigner(gpgCommand.value, useGpgAgent.value, pgpSigningKey.value, pgpPassphrase.value)
+    new CommandLineGpgPinentrySigner(gpgCommand.value, useGpgAgent.value, pgpSigningKey.value, pgpPassphrase.value)
   }
 
   /** Helper to initialize the BC PgpVerifier */
