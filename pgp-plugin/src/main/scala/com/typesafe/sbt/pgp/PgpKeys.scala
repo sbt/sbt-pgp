@@ -28,6 +28,7 @@ object PgpKeys {
   val gpgCommand = SettingKey[String]("gpg-command", "The path of the GPG command to run", BSetting)
   val useGpg = SettingKey[Boolean]("use-gpg", "If this is set to true, the GPG command line will be used.", ASetting)
   val useGpgAgent = SettingKey[Boolean]("use-gpg-agent", "If this is set to true, the GPG command line will expect a GPG agent for the password.", BSetting)
+  val useGpgPinentry = SettingKey[Boolean]("use-gpg-pinentry", "If this is set to true, the GPG command line will expect pinentry will be used with gpg-agent.", ASetting)
   val gpgAncient = SettingKey[Boolean]("gpg-ancient","Set this to true if you use a gpg version older than 2.1.")
 
   // Checking PGP Signatures options

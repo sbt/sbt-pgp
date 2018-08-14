@@ -32,6 +32,34 @@ class CommandLineGpgSigner(command: String, agent: Boolean, secRing: String, opt
 
   override val toString: String = "GPG-Command(" + command + ")"
 }
+
+/**
+ * A GpgSigner that uses the command-line to run gpg with a GPG smartcard.
+ *
+ * Yubikey 4 has OpenPGP support: https://developers.yubico.com/PGP/ so we can call
+ * it directly, and the secret key resides on the card.  This means we need pinentry
+ * to be used, and there is no secret key ring.
+ */
+class CommandLineGpgPinentrySigner(command: String, agent: Boolean, optKey: Option[Long], optPassphrase: Option[Array[Char]]) extends PgpSigner {
+  def sign(file: File, signatureFile: File, s: TaskStreams): File = {
+    if (signatureFile.exists) IO.delete(signatureFile)
+    // (the PIN code is the passphrase)
+    // https://wiki.archlinux.org/index.php/GnuPG#Unattended_passphrase
+    val pinentryargs: Seq[String] = Seq("--pinentry-mode", "loopback")
+    val passargs: Seq[String] = (optPassphrase map { passArray => passArray mkString "" } map { pass => Seq("--passphrase", pass) }) getOrElse Seq.empty
+    val keyargs: Seq[String] = optKey map (k => Seq("--default-key", "0x%x" format(k))) getOrElse Seq.empty
+    val args = passargs ++ pinentryargs ++ Seq("--detach-sign", "--armor") ++ (if(agent) Seq("--use-agent") else Seq.empty) ++ keyargs
+    val allArguments: Seq[String] = args ++ Seq("--output", signatureFile.getAbsolutePath, file.getAbsolutePath)
+    sys.process.Process(command, allArguments) ! s.log match {
+      case 0 => ()
+      case n => sys.error(s"Failure running '${command + " " + allArguments.mkString(" ")}'.  Exit code: " + n)
+    }
+    signatureFile
+  }
+
+  override val toString: String = "GPG-Agent-Command(" + command + ")"
+}
+
 /** A GpgSigner that uses bouncy castle. */
 class BouncyCastlePgpSigner(ctx: PgpCommandContext, optKey: Option[Long]) extends PgpSigner {
   import ctx.{secretKeyRing => secring, withPassphrase}

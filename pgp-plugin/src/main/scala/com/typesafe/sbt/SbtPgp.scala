@@ -23,6 +23,7 @@ object SbtPgp extends AutoPlugin {
     // TODO - Are these ok for style guide?  We think so.
     def useGpg = PgpKeys.useGpg in Global
     def useGpgAgent = PgpKeys.useGpgAgent in Global
+    def useGpgPinentry = PgpKeys.useGpgPinentry in Global
     def pgpSigningKey = PgpKeys.pgpSigningKey in Global
     def pgpPassphrase = PgpKeys.pgpPassphrase in Global
     def pgpReadOnly = PgpKeys.pgpReadOnly in Global
