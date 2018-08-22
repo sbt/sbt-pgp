@@ -10,37 +10,36 @@ import sbt.sbtpgp.Compat._
 /** SBT Keys for the PGP plugin. */
 object PgpKeys {
    // PGP related setup
-  val pgpSigner     = TaskKey[PgpSigner]("pgp-signer", "The helper class to run GPG commands.", CTask)
-  val pgpVerifierFactory   = TaskKey[PgpVerifierFactory]("pgp-verifier", "The helper class to verify public keys from a public key ring.", CTask)
-  val pgpSecretRing = SettingKey[File]("pgp-secret-ring", "The location of the secret key ring.  Only needed if using bouncy castle.", ASetting)
-  val pgpPublicRing = SettingKey[File]("pgp-public-ring", "The location of the secret key ring.  Only needed if using bouncy castle.", ASetting)
-  val pgpPassphrase = SettingKey[Option[Array[Char]]]("pgp-passphrase", "The passphrase associated with the secret used to sign artifacts.", BSetting)
-  val pgpSelectPassphrase = TaskKey[Option[Array[Char]]]("pgp-select-passphrase", "The passphrase associated with the secret used to sign artifacts.", CTask)
-  val pgpSigningKey = SettingKey[Option[Long]]("pgp-signing-key", "The key used to sign artifacts in this project.  Must be the full key id (not just lower 32 bits).", BSetting)
-  
+  val pgpSigner     = taskKey[PgpSigner]("The helper class to run GPG commands.")
+  val pgpVerifierFactory   = taskKey[PgpVerifierFactory]("The helper class to verify public keys from a public key ring.")
+  val pgpSecretRing = settingKey[File]("The location of the secret key ring.  Only needed if using bouncy castle.")
+  val pgpPublicRing = settingKey[File]("The location of the secret key ring.  Only needed if using bouncy castle.")
+  val pgpPassphrase = settingKey[Option[Array[Char]]]("The passphrase associated with the secret used to sign artifacts.")
+  val pgpSelectPassphrase = taskKey[Option[Array[Char]]]("The passphrase associated with the secret used to sign artifacts.")
+  val pgpSigningKey = settingKey[Option[Long]]("The key used to sign artifacts in this project.  Must be the full key id (not just lower 32 bits).")
+
   // PGP Related tasks  (TODO - make these commands?)
-  val pgpReadOnly = SettingKey[Boolean]("pgp-read-only", "If set to true, the PGP usage will not modify any public/private keyrings.", CSetting)
-  val pgpCmd = InputKey[Unit]("pgp-cmd", "Runs one of the various PGP commands.", ATask)
-  val pgpStaticContext = SettingKey[cli.PgpStaticContext]("pgp-static-context", "Context used for auto-completing PGP commands.", CSetting)
-  val pgpCmdContext = TaskKey[cli.PgpCommandContext]("pgp-context", "Context used to run PGP commands.", CTask)
-  
+  val pgpReadOnly = settingKey[Boolean]("If set to true, the PGP usage will not modify any public/private keyrings.")
+  val pgpStaticContext = settingKey[cli.PgpStaticContext]("Context used for auto-completing PGP commands.")
+  val pgpCmdContext = taskKey[cli.PgpCommandContext]("Context used to run PGP commands.")
+
   // GPG Related Options
-  val gpgCommand = SettingKey[String]("gpg-command", "The path of the GPG command to run", BSetting)
-  val useGpg = SettingKey[Boolean]("use-gpg", "If this is set to true, the GPG command line will be used.", ASetting)
-  val useGpgAgent = SettingKey[Boolean]("use-gpg-agent", "If this is set to true, the GPG command line will expect a GPG agent for the password.", BSetting)
-  val useGpgPinentry = SettingKey[Boolean]("use-gpg-pinentry", "If this is set to true, the GPG command line will expect pinentry will be used with gpg-agent.", ASetting)
-  val gpgAncient = SettingKey[Boolean]("gpg-ancient","Set this to true if you use a gpg version older than 2.1.")
+  val gpgCommand = settingKey[String]("The path of the GPG command to run")
+  val useGpg = settingKey[Boolean]("If this is set to true, the GPG command line will be used.")
+  val useGpgAgent = settingKey[Boolean]("If this is set to true, the GPG command line will expect a GPG agent for the password.")
+  val useGpgPinentry = settingKey[Boolean]("If this is set to true, the GPG command line will expect pinentry will be used with gpg-agent.")
+  val gpgAncient = settingKey[Boolean]("Set this to true if you use a gpg version older than 2.1.")
 
   // Checking PGP Signatures options
-  val signaturesModule = TaskKey[GetSignaturesModule]("signatures-module", "", CTask)
-  val updatePgpSignatures = TaskKey[UpdateReport]("update-pgp-signatures", "Resolves and optionally retrieves signatures for artifacts, transitively.", CTask)
-  val checkPgpSignatures = TaskKey[SignatureCheckReport]("check-pgp-signatures", "Checks the signatures of artifacts to see if they are trusted.", APlusTask)
-  
+  val signaturesModule = taskKey[GetSignaturesModule]("")
+  val updatePgpSignatures = taskKey[UpdateReport]("Resolves and optionally retrieves signatures for artifacts, transitively.")
+  val checkPgpSignatures = taskKey[SignatureCheckReport]("Checks the signatures of artifacts to see if they are trusted.")
+
   // Publishing settings
-  val publishSignedConfiguration = TaskKey[PublishConfiguration]("publish-signed-configuration", "Configuration for publishing to a repository.", DTask)
-  val publishLocalSignedConfiguration = TaskKey[PublishConfiguration]("publish-local-signed-configuration", "Configuration for publishing to the local repository.", DTask)
-  val signedArtifacts = TaskKey[Map[Artifact,File]]("signed-artifacts", "Packages all artifacts for publishing and maps the Artifact definition to the generated file.", CTask)
-  val publishSigned = TaskKey[Unit]("publish-signed", "Publishing all artifacts, but SIGNED using PGP.", APlusTask)
-  val publishLocalSigned = TaskKey[Unit]("publish-local-signed", "Publishing all artifacts to a local repository, but SIGNED using PGP.", APlusTask)
-  val pgpMakeIvy = TaskKey[Option[File]]("pgpMakeIvy", "Generates the Ivy file.", CTask)
+  val publishSignedConfiguration = taskKey[PublishConfiguration]("Configuration for publishing to a repository.")
+  val publishLocalSignedConfiguration = taskKey[PublishConfiguration]("Configuration for publishing to the local repository.")
+  val signedArtifacts = taskKey[Map[Artifact,File]]("Packages all artifacts for publishing and maps the Artifact definition to the generated file.")
+  val publishSigned = taskKey[Unit]("Publishing all artifacts, but SIGNED using PGP.")
+  val publishLocalSigned = taskKey[Unit]("Publishing all artifacts to a local repository, but SIGNED using PGP.")
+  val pgpMakeIvy = taskKey[Option[File]]("Generates the Ivy file.")
 }
