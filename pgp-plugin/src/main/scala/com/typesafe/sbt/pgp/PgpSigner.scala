@@ -18,7 +18,7 @@ trait PgpSigner {
 class CommandLineGpgSigner(command: String, agent: Boolean, secRing: String, optKey: Option[Long], optPassphrase: Option[Array[Char]]) extends PgpSigner {
   def sign(file: File, signatureFile: File, s: TaskStreams): File = {
     if (signatureFile.exists) IO.delete(signatureFile)
-    val passargs: Seq[String] = (optPassphrase map { passArray => passArray mkString "" } map { pass => Seq("--passphrase", pass) }) getOrElse Seq.empty
+    val passargs: Seq[String] = (optPassphrase map { passArray => passArray mkString "" } map { pass => Seq("--batch", "--passphrase", pass) }) getOrElse Seq.empty
     val ringargs: Seq[String] = Seq("--no-default-keyring", "--keyring", secRing)
     val keyargs: Seq[String] = optKey map (k => Seq("--default-key", "0x%x" format(k))) getOrElse Seq.empty
     val args = passargs ++ ringargs ++ Seq("--detach-sign", "--armor") ++ (if(agent) Seq("--use-agent") else Seq.empty) ++ keyargs
@@ -46,7 +46,7 @@ class CommandLineGpgPinentrySigner(command: String, agent: Boolean, optKey: Opti
     // (the PIN code is the passphrase)
     // https://wiki.archlinux.org/index.php/GnuPG#Unattended_passphrase
     val pinentryargs: Seq[String] = Seq("--pinentry-mode", "loopback")
-    val passargs: Seq[String] = (optPassphrase map { passArray => passArray mkString "" } map { pass => Seq("--passphrase", pass) }) getOrElse Seq.empty
+    val passargs: Seq[String] = (optPassphrase map { passArray => passArray mkString "" } map { pass => Seq("--batch", "--passphrase", pass) }) getOrElse Seq.empty
     val keyargs: Seq[String] = optKey map (k => Seq("--default-key", "0x%x" format(k))) getOrElse Seq.empty
     val args = passargs ++ pinentryargs ++ Seq("--detach-sign", "--armor") ++ (if(agent) Seq("--use-agent") else Seq.empty) ++ keyargs
     val allArguments: Seq[String] = args ++ Seq("--output", signatureFile.getAbsolutePath, file.getAbsolutePath)
