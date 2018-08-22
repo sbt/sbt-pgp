@@ -35,7 +35,7 @@ object PgpSettings {
       }
     },
     PgpKeys.useGpgAgent := true,
-    PgpKeys.useGpgPinentry := true,
+    PgpKeys.useGpgPinentry := false,
     PgpKeys.gpgCommand := (if(isWindows) "gpg.exe" else "gpg")
   )
 
