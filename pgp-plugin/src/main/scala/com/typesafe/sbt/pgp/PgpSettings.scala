@@ -77,30 +77,39 @@ object PgpSettings {
       case Some(dir) => file(dir)
       case None => file(System.getProperty("user.home")) / ".gnupg"
     }
+
+    def fallbackFiles(fs: File*): File = {
+      require(!fs.isEmpty)
+      val (h, t) = (fs.head, fs.tail)
+      if (t.isEmpty) h
+      else if (h.exists) h
+      else fallbackFiles(t: _*)
+    }
+
     Seq(
       PgpKeys.gpgAncient := !useGpg.value, //I believe the java pgp library does depend on the old implementation.
       PgpKeys.pgpPassphrase := None,
       PgpKeys.pgpSelectPassphrase := PgpKeys.pgpPassphrase.value orElse
         (Credentials.forHost(credentials.value, "pgp") map (_.passwd.toCharArray)),
-      PgpKeys.pgpPublicRing := {if (gpgAncient.value) gnuPGHome / "pubring.gpg" else gnuPGHome / "pubring.kbx"},
-      PgpKeys.pgpSecretRing := {if (gpgAncient.value) gnuPGHome / "secring.gpg" else gnuPGHome / "pubring.kbx"},
       PgpKeys.pgpSigningKey := None,
       PgpKeys.pgpReadOnly := true,
-      // TODO - Are these all ok to place in global scope?
+
       PgpKeys.pgpPublicRing := {
-        val old = PgpKeys.pgpPublicRing.value
-        old match {
-          case f if f.exists => f
-          case _ => file(System.getProperty("user.home")) / ".sbt" / "gpg" / "pubring.asc"
-        }
+        if (gpgAncient.value) fallbackFiles(
+          gnuPGHome / "pubring.gpg",
+          file(System.getProperty("user.home")) / ".sbt" / "gpg" / "pubring.asc")
+        else fallbackFiles(
+          gnuPGHome / "pubring.kbx",
+          gnuPGHome / "pubring.gpg")
       },
+
       PgpKeys.pgpSecretRing := {
-        val old = PgpKeys.pgpSecretRing.value
-        old match {
-          case f if f.exists => f
-          case _ => file(System.getProperty("user.home")) / ".sbt" / "gpg" / "secring.asc"
-        }
+        if (gpgAncient.value) fallbackFiles(
+          gnuPGHome / "secring.gpg",
+          file(System.getProperty("user.home")) / ".sbt" / "gpg" / "secring.asc")
+        else PgpKeys.pgpPublicRing.value
       },
+
       PgpKeys.pgpStaticContext := {
         SbtPgpStaticContext(PgpKeys.pgpPublicRing.value, PgpKeys.pgpSecretRing.value)
       },
