@@ -27,9 +27,14 @@ object PgpSettings {
   def pgpSecretRing = PgpKeys.pgpSecretRing in Global
 
   /** Configuration for GPG command line */
-  lazy val gpgConfigurationSettings: Seq[Setting[_]] = Seq( 
-    PgpKeys.useGpg := false,
-    PgpKeys.useGpgAgent := false,
+  lazy val gpgConfigurationSettings: Seq[Setting[_]] = Seq(
+    PgpKeys.useGpg := {
+      sys.props.get("SBT_PGP_USE_GPG") match {
+      case Some(_) => java.lang.Boolean.getBoolean("SBT_PGP_USE_GPG")
+      case None    => true
+      }
+    },
+    PgpKeys.useGpgAgent := true,
     PgpKeys.useGpgPinentry := false,
     PgpKeys.gpgCommand := (if(isWindows) "gpg.exe" else "gpg")
   )
@@ -116,12 +121,12 @@ object PgpSettings {
 
   /** Helper to initialize the GPG PgpSigner */
   private[this] def gpgSigner: Def.Initialize[Task[PgpSigner]] = Def.task {
-    new CommandLineGpgSigner(gpgCommand.value, useGpgAgent.value, pgpSecretRing.value.getPath, pgpSigningKey.value, pgpPassphrase.value)
+    new CommandLineGpgSigner(gpgCommand.value, useGpgAgent.value, pgpSecretRing.value.getPath, pgpSigningKey.value, pgpSelectPassphrase.value)
   }
 
   /** Helper to initialize the GPG PgpSigner with Pinentry */
   private[this] def gpgPinEntrySigner: Def.Initialize[Task[PgpSigner]] = Def.task {
-    new CommandLineGpgPinentrySigner(gpgCommand.value, useGpgAgent.value, pgpSigningKey.value, pgpPassphrase.value)
+    new CommandLineGpgPinentrySigner(gpgCommand.value, useGpgAgent.value, pgpSigningKey.value, pgpSelectPassphrase.value)
   }
 
   /** Helper to initialize the BC PgpVerifier */

@@ -1,5 +1,9 @@
 sudo: false
 language: scala
+
+before_script:
+  - gpg --import test-key.gpg
+
 script:
   - sbt "++${TRAVIS_SCALA_VERSION}" test scripted
 matrix:
