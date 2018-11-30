@@ -13,7 +13,7 @@ object PgpCommonSettings extends AutoPlugin {
   object autoImport {
     // Dependencies
     val gigahorseOkhttp = "com.eed3si9n" %% "gigahorse-okhttp" % "0.3.0"
-    val bouncyCastlePgp = "org.bouncycastle" % "bcpg-jdk15on" % "1.51"
+    val bouncyCastlePgp = "org.bouncycastle" % "bcpg-jdk15on" % "1.60"
     val specs2 = "org.specs2" %% "specs2-core" % "3.8.9"
     val sbtIo  = "org.scala-sbt" %% "io" % "1.0.0-M11"
     val parserCombinators = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.5"
