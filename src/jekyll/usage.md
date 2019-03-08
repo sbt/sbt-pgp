@@ -9,11 +9,11 @@ This page contains detailed usage and configuration information for the `sbt-pgp
 
 ## Configuration: GPG Command-Line Utility ##
 
-**If you're using the built-in Bouncy Castle PGP implementation, skip this step.**
+`sbt-pgp` uses `gpg` by default. If you cant to use the built-in Bouncy Castle PGP implementation, this can be overriden with:
 
-The first step towards using the GPG command line tool is to make `sbt-pgp` `gpg`-aware.
+    useGpg := false
 
-    useGpg := true
+Or by setting `SBT_PGP_USE_GPG` environment variable to `0`.
 
 `sbt-pgp` needs to know where the `gpg` executable is to run.  It will look for a either a `gpg` or `gpg.exe` executable on your `PATH` depdending on your platform.  To configure a different location, place the following in your `~/.sbt/gpg.sbt` file:
 
@@ -128,9 +128,9 @@ By default the `~/.gnupg/pubring.gpg` file is used, if it exists.
 
 ## Validating PGP Keys ##
 
-The plugin can be used to validate the PGP signatures of the dependencies of the project you're using.   To validate these signatures, simply use the `check-pgp-signatures` task:
+The plugin can be used to validate the PGP signatures of the dependencies of the project you're using.   To validate these signatures, simply use the `checkPgpSignatures` task:
 
-    > check-pgp-signatures
+    > checkPgpSignatures
     [info] Resolving org.scala-lang#scala-library;2.9.1 ...
     ...
     [info] ----- PGP Signature Results -----
