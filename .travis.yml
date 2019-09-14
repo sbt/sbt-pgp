@@ -1,6 +1,8 @@
 sudo: false
 language: scala
 
+jdk: openjdk8
+
 before_script:
   - gpg --import test-key.gpg
 
@@ -8,9 +10,5 @@ script:
   - sbt "++${TRAVIS_SCALA_VERSION}" test scripted
 matrix:
   include:
-  - jdk: openjdk7
-    scala: 2.10.6
-  - jdk: oraclejdk8
-    scala: 2.12.3
-  - jdk: oraclejdk10
-    scala: 2.12.6
+  - scala: 2.10.7
+  - scala: 2.12.10
