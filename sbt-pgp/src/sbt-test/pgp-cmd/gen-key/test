@@ -1,6 +1,0 @@
-> pgp-cmd gen-key
-$ exists secring.pgp
-$ exists pubring.pgp
-
-> signedArtifacts
-$ exists target/scala-2.10/test_2.10-1.0.jar.asc

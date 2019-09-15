@@ -231,32 +231,6 @@ The plugin can be used to validate the PGP signatures of the dependencies of the
 
 In the above output, the signature for derby is from an untrusted key (id: `0x98e21827`).  You can import this key into your public key ring, and then the plugin will trust artifacts from that key.   The public, by default, accepts any keys included in your public key ring file.
 
-### Importing and Exporting Keys from Public Key Servers
-
-Note: To import a key, you have to turn off read only mode:
-
-```scala
-Global / pgpReadOnly := false
-```
-
-Use the `receive-key` command to import keys.
-
-```
-pgp-cmd receive-key <key id> hkp://keyserver.ubuntu.com
-```
-
-Use the `send-key` command to export keys.
-
-``scala
-pgp-cmd send-key <key id> hkp://keyserver.ubuntu.com
-```
-
-The value of `key id` is one of the following:
-
-* Hex Key ID
-* "Name" of the key (e.g. "LAMP/EPFL" in the above example)
-* "Email" of the key (e.g. "lamp@gmail.com" in the above example)
-
 ### Using Bouncy Castle
 
 Prior to sbt-pgp 2.0.0, `sbt-pgp` used the [Bouncy Castle](http://www.bouncycastle.org/) library by default. If you cant to use the built-in Bouncy Castle PGP implementation, this can be overriden with:
