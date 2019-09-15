@@ -13,7 +13,7 @@ Setup
 Add the following to your `~/.sbt/1.0/plugins/gpg.sbt` file:
 
 ```scala
-addSbtPlugin("com.jsuereth" % "sbt-pgp" % "2.0.0-M2")
+addSbtPlugin("com.jsuereth" % "sbt-pgp" % "2.0.0")
 ```
 
 ### For sbt 0.13.x:
@@ -21,7 +21,7 @@ addSbtPlugin("com.jsuereth" % "sbt-pgp" % "2.0.0-M2")
 Add the following to your `~/.sbt/0.13/plugins/gpg.sbt` file:
 
 ```scala
-addSbtPlugin("com.jsuereth" % "sbt-pgp" % "2.0.0-M2")
+addSbtPlugin("com.jsuereth" % "sbt-pgp" % "2.0.0")
 ```
 
 Usage
