@@ -248,16 +248,13 @@ Global / gpgCommand := "/path/to/gpg"
 ```
 
 By default `sbt-pgp` will use the default private keys from the standard gpg keyrings.
-
-### Configuration: Public Key Ring
-
-You can configure the public key ring you use with the `gpgPublicRing` setting.
+You can configure the key ring you use with the `pgpKeyRing` setting.
 
 ```scala
-Global / pgpPublicRing := file("/home/me/pgp/pubring.asc")
+Global / pgpKeyRing := Some(file("/home/me/pgp/pubring.gpg"))
 ```
 
-By default the `~/.gnupg/pubring.gpg` file is used, if it exists.
+If specificied, this is passed to `gpg` command as `--no-default-keyring --keyring <value>`.
 
 ### Validating PGP Keys
 

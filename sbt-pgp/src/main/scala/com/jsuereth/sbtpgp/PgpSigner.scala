@@ -17,7 +17,7 @@ trait PgpSigner {
 class CommandLineGpgSigner(
     command: String,
     agent: Boolean,
-    secRing: String,
+    optRing: Option[File],
     optKey: Option[String],
     optPassphrase: Option[Array[Char]]
 ) extends PgpSigner {
@@ -28,7 +28,11 @@ class CommandLineGpgSigner(
     } map { pass =>
       Seq("--batch", "--passphrase", pass)
     }) getOrElse Seq.empty
-    val ringargs: Seq[String] = Seq("--no-default-keyring", "--keyring", secRing)
+    val ringargs: Seq[String] =
+      optRing match {
+        case Some(ring) => Seq("--no-default-keyring", "--keyring", ring.getPath)
+        case _          => Vector.empty
+      }
     val keyargs: Seq[String] = optKey map (k => Seq("--default-key", k)) getOrElse Seq.empty
     val args = passargs ++ ringargs ++ Seq("--detach-sign", "--armor") ++ (if (agent) Seq("--use-agent") else Seq.empty) ++ keyargs
     val allArguments: Seq[String] = args ++ Seq("--output", signatureFile.getAbsolutePath, file.getAbsolutePath)
@@ -53,6 +57,7 @@ class CommandLineGpgSigner(
 class CommandLineGpgPinentrySigner(
     command: String,
     agent: Boolean,
+    optRing: Option[File],
     optKey: Option[String],
     optPassphrase: Option[Array[Char]]
 ) extends PgpSigner {
@@ -66,9 +71,14 @@ class CommandLineGpgPinentrySigner(
     } map { pass =>
       Seq("--batch", "--passphrase", pass)
     }) getOrElse Seq.empty
+    val ringargs: Seq[String] =
+      optRing match {
+        case Some(ring) => Seq("--no-default-keyring", "--keyring", ring.getPath)
+        case _          => Vector.empty
+      }
     val keyargs: Seq[String] = optKey map (k => Seq("--default-key", k)) getOrElse Seq.empty
-    val args = passargs ++ pinentryargs ++ Seq("--detach-sign", "--armor") ++ (if (agent) Seq("--use-agent")
-                                                                               else Seq.empty) ++ keyargs
+    val args = passargs ++ ringargs ++ pinentryargs ++ Seq("--detach-sign", "--armor") ++ (if (agent) Seq("--use-agent")
+                                                                                           else Seq.empty) ++ keyargs
     val allArguments: Seq[String] = args ++ Seq("--output", signatureFile.getAbsolutePath, file.getAbsolutePath)
     import sbt.sbtpgp.Compat._ // needed for sbt 0.13
     sys.process.Process(command, allArguments) ! s.log match {

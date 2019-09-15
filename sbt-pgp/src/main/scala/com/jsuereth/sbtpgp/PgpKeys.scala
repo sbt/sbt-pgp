@@ -7,16 +7,19 @@ import sbt.sbtpgp.Compat._
 /** SBT Keys for the PGP plugin. */
 object PgpKeys {
   // PGP related setup
-  val pgpSigner = taskKey[PgpSigner]("The helper class to run GPG commands.")
+  val pgpSigner = taskKey[PgpSigner]("The helper class to run gpg commands.")
   val pgpVerifierFactory = taskKey[PgpVerifierFactory]("The helper class to verify public keys from a public key ring.")
-  val pgpSecretRing = settingKey[File]("The location of the secret key ring.  Only needed if using bouncy castle.")
-  val pgpPublicRing = settingKey[File]("The location of the secret key ring.  Only needed if using bouncy castle.")
+  val pgpKeyRing = settingKey[Option[File]](
+    "The location of the key ring, passed to gpg command as --no-default-keyring --keyring <value>."
+  )
+  val pgpSecretRing = settingKey[File]("The location of the secret key ring. Only needed if using Bouncy Castle.")
+  val pgpPublicRing = settingKey[File]("The location of the secret key ring. Only needed if using Bouncy Castle.")
   val pgpPassphrase =
     settingKey[Option[Array[Char]]]("The passphrase associated with the secret used to sign artifacts.")
   val pgpSelectPassphrase =
     taskKey[Option[Array[Char]]]("The passphrase associated with the secret used to sign artifacts.")
   val pgpSigningKey = taskKey[Option[String]](
-    "The key used to sign artifacts in this project. Must be the full key id (not just lower 32 bits)."
+    "The key used to sign artifacts in this project, passed to gpg command as --default-key <value>."
   )
 
   // PGP Related tasks  (TODO - make these commands?)
@@ -31,7 +34,6 @@ object PgpKeys {
   val useGpgPinentry = settingKey[Boolean](
     "If this is set to true, the GPG command line will expect pinentry will be used with gpg-agent."
   )
-  val gpgAncient = settingKey[Boolean]("Set this to true if you use a gpg version older than 2.1.")
 
   // Checking PGP Signatures options
   val signaturesModule = taskKey[GetSignaturesModule]("")

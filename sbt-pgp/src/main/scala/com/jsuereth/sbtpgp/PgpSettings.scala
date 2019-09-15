@@ -10,31 +10,27 @@ import sbt.sbtpgp.Compat, Compat._
  * SBT Settings for doing PGP security tasks.  Signing, verifying, etc.
  */
 object PgpSettings {
-  // Delegates for better build.sbt configuration.
-  // TODO - DO these belong lower?
-  def useGpg = PgpKeys.useGpg in Global
-  def useGpgAgent = PgpKeys.useGpgAgent in Global
-  def useGpgPinentry = PgpKeys.useGpgPinentry in Global
-  def pgpSigningKey = PgpKeys.pgpSigningKey in Global
-  def pgpPassphrase = PgpKeys.pgpPassphrase in Global
-  def pgpPublicRing = PgpKeys.pgpPublicRing in Global
-  def pgpSecretRing = PgpKeys.pgpSecretRing in Global
+  lazy val globalSettings: Seq[Setting[_]] =
+    inScope(Global)(gpgConfigurationSettings ++ bouncyCastleConfigurationSettings ++ signVerifyConfigurationSettings)
+
+  /** Settings this plugin defines. TODO - require manual setting of these... */
+  lazy val projectSettings: Seq[Setting[_]] = signingSettings ++ verifySettings
 
   /** Configuration for GPG command line */
   lazy val gpgConfigurationSettings: Seq[Setting[_]] = Seq(
-    PgpKeys.useGpg := {
+    useGpg := {
       sys.props.get("SBT_PGP_USE_GPG") match {
         case Some(_) => java.lang.Boolean.getBoolean("SBT_PGP_USE_GPG")
         case None    => true
       }
     },
-    PgpKeys.useGpgAgent := true,
-    PgpKeys.useGpgPinentry := false,
-    PgpKeys.gpgCommand := (if (isWindows) "gpg.exe" else "gpg")
+    useGpgAgent := true,
+    useGpgPinentry := false,
+    gpgCommand := (if (isWindows) "gpg.exe" else "gpg")
   )
 
   /** Configuration for BC JVM-local PGP */
-  lazy val nativeConfigurationSettings: Seq[Setting[_]] = {
+  lazy val bouncyCastleConfigurationSettings: Seq[Setting[_]] = {
     val gnuPGHome = scala.util.Properties.envOrNone("GNUPGHOME") match {
       case Some(dir) => file(dir)
       case None      => file(System.getProperty("user.home")) / ".gnupg"
@@ -49,38 +45,36 @@ object PgpSettings {
     }
 
     Seq(
-      PgpKeys.gpgAncient := !useGpg.value, //I believe the java pgp library does depend on the old implementation.
-      PgpKeys.pgpPassphrase := None,
-      PgpKeys.pgpSelectPassphrase := {
-        PgpKeys.pgpPassphrase.value
+      pgpPassphrase := None,
+      pgpSelectPassphrase := {
+        pgpPassphrase.value
           .orElse(Credentials.forHost(credentials.value, "pgp").map(_.passwd.toCharArray))
           .orElse(scala.util.Properties.envOrNone("PGP_PASSPHRASE").map(_.toCharArray))
       },
-      PgpKeys.pgpSigningKey := Credentials.forHost(credentials.value, "pgp").map(_.userName),
-      PgpKeys.pgpPublicRing := {
-        if (gpgAncient.value)
-          fallbackFiles(
-            gnuPGHome / "pubring.gpg",
-            file(System.getProperty("user.home")) / ".sbt" / "gpg" / "pubring.asc"
-          )
-        else fallbackFiles(gnuPGHome / "pubring.kbx", gnuPGHome / "pubring.gpg")
+      pgpSigningKey := Credentials.forHost(credentials.value, "pgp").map(_.userName),
+      pgpKeyRing := None,
+      // Bouncy Castle only
+      pgpPublicRing := {
+        fallbackFiles(
+          gnuPGHome / "pubring.gpg",
+          file(System.getProperty("user.home")) / ".sbt" / "gpg" / "pubring.asc"
+        )
       },
-      PgpKeys.pgpSecretRing := {
-        if (gpgAncient.value)
-          fallbackFiles(
-            gnuPGHome / "secring.gpg",
-            file(System.getProperty("user.home")) / ".sbt" / "gpg" / "secring.asc"
-          )
-        else PgpKeys.pgpPublicRing.value
+      // Bouncy Castle only
+      pgpSecretRing := {
+        fallbackFiles(
+          gnuPGHome / "secring.gpg",
+          file(System.getProperty("user.home")) / ".sbt" / "gpg" / "secring.asc"
+        )
       },
-      PgpKeys.pgpStaticContext := {
-        SbtPgpStaticContext(PgpKeys.pgpPublicRing.value, PgpKeys.pgpSecretRing.value)
+      pgpStaticContext := {
+        SbtPgpStaticContext(pgpPublicRing.value, pgpSecretRing.value)
       },
-      PgpKeys.pgpCmdContext := {
+      pgpCmdContext := {
         SbtPgpCommandContext(
-          PgpKeys.pgpStaticContext.value,
+          pgpStaticContext.value,
           interactionService.value,
-          PgpKeys.pgpSelectPassphrase.value,
+          pgpSelectPassphrase.value,
           streams.value
         )
       }
@@ -97,7 +91,7 @@ object PgpSettings {
     new CommandLineGpgSigner(
       gpgCommand.value,
       useGpgAgent.value,
-      pgpSecretRing.value.getPath,
+      pgpKeyRing.value,
       pgpSigningKey.value,
       pgpSelectPassphrase.value
     )
@@ -108,6 +102,7 @@ object PgpSettings {
     new CommandLineGpgPinentrySigner(
       gpgCommand.value,
       useGpgAgent.value,
+      pgpKeyRing.value,
       pgpSigningKey.value,
       pgpSelectPassphrase.value
     )
@@ -202,10 +197,4 @@ object PgpSettings {
       PgpSignatureCheck.checkSignaturesTask(updatePgpSignatures.value, pgpVerifierFactory.value, streams.value)
     }
   )
-
-  lazy val globalSettings: Seq[Setting[_]] =
-    inScope(Global)(gpgConfigurationSettings ++ nativeConfigurationSettings ++ signVerifyConfigurationSettings)
-
-  /** Settings this plugin defines. TODO - require manual setting of these... */
-  lazy val projectSettings: Seq[Setting[_]] = signingSettings ++ verifySettings
 }

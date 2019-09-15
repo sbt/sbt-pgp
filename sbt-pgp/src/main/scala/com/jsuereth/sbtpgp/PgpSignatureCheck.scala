@@ -49,11 +49,11 @@ object PgpSignatureCheck {
   /** Downloads PGP signatures so we can test them. */
   def resolveSignatures(ivySbt: IvySbt, config: GetSignaturesConfiguration, log: Logger): UpdateReport = {
 
-    /** lets us ignore configuration for the purposes of resolving signatures. */
+    // lets us ignore configuration for the purposes of resolving signatures.
     def restrictedCopy(m: ModuleID, confs: Boolean) =
       subConfiguration(m, confs)
 
-    /** Converts a module to a module that includes signature artifacts explicitly. */
+    // Converts a module to a module that includes signature artifacts explicitly.
     def signatureArtifacts(m: ModuleID): Option[ModuleID] = {
       // TODO - Some kind of filtering
       // TODO - We *can't* assume everything is a jar

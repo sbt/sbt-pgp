@@ -24,6 +24,7 @@ object SbtPgp extends AutoPlugin {
     def useGpgPinentry = PgpKeys.useGpgPinentry in Global
     def pgpSigningKey = PgpKeys.pgpSigningKey in Global
     def pgpPassphrase = PgpKeys.pgpPassphrase in Global
+    def pgpKeyRing = PgpKeys.pgpKeyRing in Global
     def pgpPublicRing = PgpKeys.pgpPublicRing in Global
     def pgpSecretRing = PgpKeys.pgpSecretRing in Global
 
