@@ -2,9 +2,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
-          <title>PgpSigner - com.typesafe.sbt.pgp.PgpSigner</title>
-          <meta name="description" content="PgpSigner - com.typesafe.sbt.pgp.PgpSigner" />
-          <meta name="keywords" content="PgpSigner com.typesafe.sbt.pgp.PgpSigner" />
+          <title>CommandLineGpgPinentrySigner - com.typesafe.sbt.pgp.CommandLineGpgPinentrySigner</title>
+          <meta name="description" content="CommandLineGpgPinentrySigner - com.typesafe.sbt.pgp.CommandLineGpgPinentrySigner" />
+          <meta name="keywords" content="CommandLineGpgPinentrySigner com.typesafe.sbt.pgp.CommandLineGpgPinentrySigner" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -12,7 +12,7 @@
       <script type="text/javascript">
          if(top === self) {
             var url = '../../../../index.html';
-            var hash = 'com.typesafe.sbt.pgp.PgpSigner';
+            var hash = 'com.typesafe.sbt.pgp.CommandLineGpgPinentrySigner';
             var anchor = window.location.hash;
             var anchor_opt = '';
             if (anchor.length >= 1)
@@ -24,27 +24,27 @@
         </head>
         <body class="type">
       <div id="definition">
-        <img src="../../../../lib/trait_big.png" />
+        <img src="../../../../lib/class_big.png" />
         <p id="owner"><a href="../../../package.html" class="extype" name="com">com</a>.<a href="../../package.html" class="extype" name="com.typesafe">typesafe</a>.<a href="../package.html" class="extype" name="com.typesafe.sbt">sbt</a>.<a href="package.html" class="extype" name="com.typesafe.sbt.pgp">pgp</a></p>
-        <h1>PgpSigner</h1>
+        <h1>CommandLineGpgPinentrySigner</h1>
       </div>
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">trait</span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">PgpSigner</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <span class="name">CommandLineGpgPinentrySigner</span><span class="result"> extends <a href="PgpSigner.html" class="extype" name="com.typesafe.sbt.pgp.PgpSigner">PgpSigner</a></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>The interface used to sign plugins.</p></div><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A GpgSigner that uses the command-line to run gpg with a GPG smartcard.</p><p>Yubikey 4 has OpenPGP support: https://developers.yubico.com/PGP/ so we can call
+it directly, and the secret key resides on the card.  This means we need pinentry
+to be used, and there is no secret key ring.
+</p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
-        </div><div class="toggleContainer block">
-          <span class="toggle">Known Subclasses</span>
-          <div class="subClasses hiddenContent"><a href="BouncyCastlePgpSigner.html" class="extype" name="com.typesafe.sbt.pgp.BouncyCastlePgpSigner">BouncyCastlePgpSigner</a>, <a href="CommandLineGpgPinentrySigner.html" class="extype" name="com.typesafe.sbt.pgp.CommandLineGpgPinentrySigner">CommandLineGpgPinentrySigner</a>, <a href="CommandLineGpgSigner.html" class="extype" name="com.typesafe.sbt.pgp.CommandLineGpgSigner">CommandLineGpgSigner</a></div>
+          <div class="superTypes hiddenContent"><a href="PgpSigner.html" class="extype" name="com.typesafe.sbt.pgp.PgpSigner">PgpSigner</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -62,7 +62,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="com.typesafe.sbt.pgp.PgpSigner"><span>PgpSigner</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="com.typesafe.sbt.pgp.CommandLineGpgPinentrySigner"><span>CommandLineGpgPinentrySigner</span></li><li class="in" name="com.typesafe.sbt.pgp.PgpSigner"><span>PgpSigner</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -80,32 +80,30 @@
 
       <div id="template">
         <div id="allMembers">
-        
-
-        
-
-        <div id="values" class="values members">
-              <h3>Abstract Value Members</h3>
-              <ol><li name="com.typesafe.sbt.pgp.PgpSigner#sign" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="sign(file:sbt.File,signatureFile:sbt.File,s:sbt.Keys.TaskStreams):sbt.File"></a>
-      <a id="sign(File,File,TaskStreams):File"></a>
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="com.typesafe.sbt.pgp.CommandLineGpgPinentrySigner#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(command:String,agent:Boolean,optKey:Option[Long],optPassphrase:Option[Array[Char]]):com.typesafe.sbt.pgp.CommandLineGpgPinentrySigner"></a>
+      <a id="&lt;init&gt;:CommandLineGpgPinentrySigner"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
+        <span class="modifier"></span>
+        <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">sign</span><span class="params">(<span name="file">file: <a href="../../../../sbt/package.html#File=java.io.File" class="extmbr" name="sbt.File">File</a></span>, <span name="signatureFile">signatureFile: <a href="../../../../sbt/package.html#File=java.io.File" class="extmbr" name="sbt.File">File</a></span>, <span name="s">s: <span class="extype" name="sbt.Keys.TaskStreams">TaskStreams</span></span>)</span><span class="result">: <a href="../../../../sbt/package.html#File=java.io.File" class="extmbr" name="sbt.File">File</a></span>
+        <span class="name">CommandLineGpgPinentrySigner</span><span class="params">(<span name="command">command: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="agent">agent: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="optKey">optKey: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Long">Long</span>]</span>, <span name="optPassphrase">optPassphrase: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Char">Char</span>]]</span>)</span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Signs a given file and writes the output to the signature file specified.</p><div class="fullcomment"><div class="comment cmt"><p>Signs a given file and writes the output to the signature file specified.
-Returns the signature file, throws on errors.
-</p></div></div>
+      
     </li></ol>
             </div>
 
+        
+
+        
+
         <div id="values" class="values members">
-              <h3>Concrete Value Members</h3>
+              <h3>Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:AnyRef):Boolean"></a>
       <a id="!=(AnyRef):Boolean"></a>
@@ -326,6 +324,21 @@ Returns the signature file, throws on errors.
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="com.typesafe.sbt.pgp.CommandLineGpgPinentrySigner#sign" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="sign(file:sbt.File,signatureFile:sbt.File,s:sbt.Keys.TaskStreams):sbt.File"></a>
+      <a id="sign(File,File,TaskStreams):File"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sign</span><span class="params">(<span name="file">file: <a href="../../../../sbt/package.html#File=java.io.File" class="extmbr" name="sbt.File">File</a></span>, <span name="signatureFile">signatureFile: <a href="../../../../sbt/package.html#File=java.io.File" class="extmbr" name="sbt.File">File</a></span>, <span name="s">s: <span class="extype" name="sbt.Keys.TaskStreams">TaskStreams</span></span>)</span><span class="result">: <a href="../../../../sbt/package.html#File=java.io.File" class="extmbr" name="sbt.File">File</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Signs a given file and writes the output to the signature file specified.</p><div class="fullcomment"><div class="comment cmt"><p>Signs a given file and writes the output to the signature file specified.
+Returns the signature file, throws on errors.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="com.typesafe.sbt.pgp.CommandLineGpgPinentrySigner">CommandLineGpgPinentrySigner</a> → <a href="PgpSigner.html" class="extype" name="com.typesafe.sbt.pgp.PgpSigner">PgpSigner</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -339,19 +352,19 @@ Returns the signature file, throws on errors.
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toString():String"></a>
-      <a id="toString():String"></a>
+    </li><li name="com.typesafe.sbt.pgp.CommandLineGpgPinentrySigner#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString:String"></a>
+      <a id="toString:String"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">def</span>
+        <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+        <span class="name">toString</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="com.typesafe.sbt.pgp.CommandLineGpgPinentrySigner">CommandLineGpgPinentrySigner</a> → AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>
@@ -418,7 +431,9 @@ Returns the signature file, throws on errors.
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.AnyRef">
+        <div class="parent" name="com.typesafe.sbt.pgp.PgpSigner">
+              <h3>Inherited from <a href="PgpSigner.html" class="extype" name="com.typesafe.sbt.pgp.PgpSigner">PgpSigner</a></h3>
+            </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
