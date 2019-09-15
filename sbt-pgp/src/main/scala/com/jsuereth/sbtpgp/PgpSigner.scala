@@ -32,6 +32,7 @@ class CommandLineGpgSigner(
     val keyargs: Seq[String] = optKey map (k => Seq("--default-key", "0x%x" format (k))) getOrElse Seq.empty
     val args = passargs ++ ringargs ++ Seq("--detach-sign", "--armor") ++ (if (agent) Seq("--use-agent") else Seq.empty) ++ keyargs
     val allArguments: Seq[String] = args ++ Seq("--output", signatureFile.getAbsolutePath, file.getAbsolutePath)
+    import sbt.sbtpgp.Compat._ // needed for sbt 0.13
     sys.process.Process(command, allArguments) ! s.log match {
       case 0 => ()
       case n => sys.error(s"Failure running '${command + " " + allArguments.mkString(" ")}'.  Exit code: " + n)
@@ -69,6 +70,7 @@ class CommandLineGpgPinentrySigner(
     val args = passargs ++ pinentryargs ++ Seq("--detach-sign", "--armor") ++ (if (agent) Seq("--use-agent")
                                                                                else Seq.empty) ++ keyargs
     val allArguments: Seq[String] = args ++ Seq("--output", signatureFile.getAbsolutePath, file.getAbsolutePath)
+    import sbt.sbtpgp.Compat._ // needed for sbt 0.13
     sys.process.Process(command, allArguments) ! s.log match {
       case 0 => ()
       case n => sys.error(s"Failure running '${command + " " + allArguments.mkString(" ")}'.  Exit code: " + n)

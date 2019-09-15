@@ -32,7 +32,7 @@ lazy val plugin = (project in file("sbt-pgp"))
     libraryDependencies += gigahorseOkhttp,
     libraryDependencies ++= {
       (sbtBinaryVersion in pluginCrossBuild).value match {
-        case "0.13" => Seq(sbtCoreNext.value)
+        case "0.13" => Defaults.sbtPluginExtra("org.scala-sbt" % "sbt-core-next" % "0.1.1", "0.13", scalaBinaryVersion.value) :: Nil
         case _      => Nil
       }
     },
@@ -65,7 +65,7 @@ lazy val commonSettings = Seq(
   bintrayRepository := "sbt-plugin-releases",
   // Because we're both a library and an sbt plugin, we use crossScalaVersions rather than crossSbtVersions for
   // cross building. So you can use commands like +scripted.
-  crossScalaVersions := Seq("2.10.6", "2.12.3"),
+  crossScalaVersions := Seq("2.10.7", "2.12.8"),
   sbtVersion in pluginCrossBuild := {
     scalaBinaryVersion.value match {
       case "2.10" => "0.13.16"
