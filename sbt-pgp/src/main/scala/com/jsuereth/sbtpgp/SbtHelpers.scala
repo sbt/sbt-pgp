@@ -1,7 +1,6 @@
 package com.jsuereth.sbtpgp
 
 import sbt._
-import Def.Initialize
 
 object SbtHelpers {
   /** Initializes a setting with a given value if it isn't already configured. */

@@ -3,7 +3,6 @@ package com.jsuereth.sbtpgp
 import sbt._
 import Keys._
 import com.jsuereth.pgp.cli.PgpCommandContext
-import sbt.sbtpgp.Compat._
 
 /** The interface used to sign plugins. */
 trait PgpSigner {

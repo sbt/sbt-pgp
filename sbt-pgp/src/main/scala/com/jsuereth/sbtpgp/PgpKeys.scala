@@ -2,7 +2,6 @@ package com.jsuereth.sbtpgp
 
 
 import sbt._
-import KeyRanks._
 import com.jsuereth.pgp._
 import sbt.sbtpgp.Compat._
 
