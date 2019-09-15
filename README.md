@@ -277,7 +277,7 @@ In the above output, the signature for derby is from an untrusted key (id: `0x98
 
 ### Using Bouncy Castle (deprecated)
 
-Prior to sbt-pgp 2.0.0, `sbt-pgp` used the [Bouncy Castle](http://www.bouncycastle.org/) library by default. If you cant to use the built-in Bouncy Castle PGP implementation, this can be overriden with:
+Prior to sbt-pgp 2.0.0, `sbt-pgp` used the [Bouncy Castle](http://www.bouncycastle.org/) library by default. If you cant to use `gpg` command setting `useGpg` to `false` will use the Bouncy Castle mode:
 
 ```scala
 Global / useGpg := false
