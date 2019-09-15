@@ -18,10 +18,13 @@ object SbtPgp extends AutoPlugin {
     val PgpKeys = com.jsuereth.sbtpgp.PgpKeys
 
     // TODO - Are these ok for style guide?  We think so.
+    @deprecated("useGpg is true by default; Bouncy Castle mode is deprecated", "2.0.0")
     def useGpg = PgpKeys.useGpg in Global
     def useGpgAgent = PgpKeys.useGpgAgent in Global
     def useGpgPinentry = PgpKeys.useGpgPinentry in Global
     def pgpSigningKey = PgpKeys.pgpSigningKey in Global
+
+    @deprecated("Bouncy Castle mode is deprecated", "2.0.0")
     def pgpPassphrase = PgpKeys.pgpPassphrase in Global
     def pgpPublicRing = PgpKeys.pgpPublicRing in Global
     def pgpSecretRing = PgpKeys.pgpSecretRing in Global

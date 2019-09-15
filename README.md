@@ -153,7 +153,6 @@ You might need to restart the gpg-agent for the setting to take effect.
 If you are using a [Yubikey 4](https://www.yubico.com/product/yubikey-4-series/) or another smartcard that [supports OpenPGP](https://incenp.org/notes/2016/openpgp-card-implementations.html), then you may have private keys implemented directly on the smartcard rather than using the gpg keyring.  In this situation, you will use `gpg-agent` and a pinentry (`pinentry-mac`, `pinentry-qt`, `pinentry-curses` etc) rather than a passphrase.  Set `useGpgPinentry := true` in your `build.sbt` settings to configure `sbt-pgp` appropriately.
 
 ```scala
-Global / useGpgAgent := true
 Global / useGpgPinentry := true
 ```
 
@@ -231,7 +230,7 @@ The plugin can be used to validate the PGP signatures of the dependencies of the
 
 In the above output, the signature for derby is from an untrusted key (id: `0x98e21827`).  You can import this key into your public key ring, and then the plugin will trust artifacts from that key.   The public, by default, accepts any keys included in your public key ring file.
 
-### Using Bouncy Castle
+### Using Bouncy Castle (deprecated)
 
 Prior to sbt-pgp 2.0.0, `sbt-pgp` used the [Bouncy Castle](http://www.bouncycastle.org/) library by default. If you cant to use the built-in Bouncy Castle PGP implementation, this can be overriden with:
 
@@ -247,29 +246,6 @@ When using Bouncy Castle modue, `sbt-pgp` will ask for your password once, and c
 Please enter PGP passphrase (or ENTER to abort): ******
 ```
 
-#### PIN entry (passphrase Entry) for Bouncy Castle
+#### PIN entry (passphrase Entry) for Bouncy Castle (deprecated)
 
-`sbt-pgp` has provided a means to store passphrase using `pgpPassphrase`, but we no longer recommend using this method.
-
-```
-Global / pgpPassphrase := Some(Array('M', 'y', 'P', 'a', 's', 's', 'p', 'h', 'r', 'a', 's', 'e'))
-```
-
-Also make sure that the above setting is in a user-specific directory and that you don't advertise your password in the source code repository!
-
-Another alternative for configuring the passphrase is to add it to your credentials, using a host name of `pgp`.  This allows you to globally configure a passphrase without having the pgp plugin installed globally.
-
-For example, create the following file `~/.sbt/pgp.credentials`:
-
-```
-realm=PGP Secret Key
-host=pgp
-user=sbt
-password=MyPassphrase
-```
-
-The `realm` and `user` values can be anything, the `host` must be `pgp`, and `password` must be your passphrase. Now add the this file to your sbt credentials in `~/.sbt/1.0/global.sbt`:
-
-```
-credentials += Credentials(Path.userHome / ".sbt" / "pgp.credentials")
-```
+sbt-pgp 1.x has provided ways of storing passphrase using `pgpPassphrase` or in the credentials, but we no longer recommend using these methods.
