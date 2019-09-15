@@ -29,10 +29,7 @@ object SbtPgp extends AutoPlugin {
     def pgpPublicRing = PgpKeys.pgpPublicRing in Global
     def pgpSecretRing = PgpKeys.pgpSecretRing in Global
 
-    // TODO - Fix this function!
-    def usePgpKeyHex(id: String) =
-      pgpSigningKey := Some(new java.math.BigInteger(id, 16).longValue)
-
+    def usePgpKeyHex(id: String) = pgpSigningKey := Some(id)
     def signingSettings = PgpSettings.signingSettings
   }
   // TODO - Maybe signing settigns should be a different plugin...

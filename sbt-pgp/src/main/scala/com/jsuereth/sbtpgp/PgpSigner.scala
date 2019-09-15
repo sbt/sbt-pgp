@@ -18,7 +18,7 @@ class CommandLineGpgSigner(
     command: String,
     agent: Boolean,
     secRing: String,
-    optKey: Option[Long],
+    optKey: Option[String],
     optPassphrase: Option[Array[Char]]
 ) extends PgpSigner {
   def sign(file: File, signatureFile: File, s: TaskStreams): File = {
@@ -29,7 +29,7 @@ class CommandLineGpgSigner(
       Seq("--batch", "--passphrase", pass)
     }) getOrElse Seq.empty
     val ringargs: Seq[String] = Seq("--no-default-keyring", "--keyring", secRing)
-    val keyargs: Seq[String] = optKey map (k => Seq("--default-key", "0x%x" format (k))) getOrElse Seq.empty
+    val keyargs: Seq[String] = optKey map (k => Seq("--default-key", k)) getOrElse Seq.empty
     val args = passargs ++ ringargs ++ Seq("--detach-sign", "--armor") ++ (if (agent) Seq("--use-agent") else Seq.empty) ++ keyargs
     val allArguments: Seq[String] = args ++ Seq("--output", signatureFile.getAbsolutePath, file.getAbsolutePath)
     import sbt.sbtpgp.Compat._ // needed for sbt 0.13
@@ -53,7 +53,7 @@ class CommandLineGpgSigner(
 class CommandLineGpgPinentrySigner(
     command: String,
     agent: Boolean,
-    optKey: Option[Long],
+    optKey: Option[String],
     optPassphrase: Option[Array[Char]]
 ) extends PgpSigner {
   def sign(file: File, signatureFile: File, s: TaskStreams): File = {
@@ -66,7 +66,7 @@ class CommandLineGpgPinentrySigner(
     } map { pass =>
       Seq("--batch", "--passphrase", pass)
     }) getOrElse Seq.empty
-    val keyargs: Seq[String] = optKey map (k => Seq("--default-key", "0x%x" format (k))) getOrElse Seq.empty
+    val keyargs: Seq[String] = optKey map (k => Seq("--default-key", k)) getOrElse Seq.empty
     val args = passargs ++ pinentryargs ++ Seq("--detach-sign", "--armor") ++ (if (agent) Seq("--use-agent")
                                                                                else Seq.empty) ++ keyargs
     val allArguments: Seq[String] = args ++ Seq("--output", signatureFile.getAbsolutePath, file.getAbsolutePath)
@@ -82,9 +82,13 @@ class CommandLineGpgPinentrySigner(
 }
 
 /** A GpgSigner that uses bouncy castle. */
-class BouncyCastlePgpSigner(ctx: PgpCommandContext, optKey: Option[Long]) extends PgpSigner {
+class BouncyCastlePgpSigner(ctx: PgpCommandContext, optKey: Option[String]) extends PgpSigner {
   import ctx.{ secretKeyRing => secring, withPassphrase }
-  val keyId = optKey.getOrElse(secring.secretKey.keyID)
+
+  val keyId = optKey match {
+    case Some(x) => new java.math.BigInteger(x, 16).longValue
+    case _       => secring.secretKey.keyID
+  }
 
   def sign(file: File, signatureFile: File, s: TaskStreams): File =
     withPassphrase(keyId) { pw =>

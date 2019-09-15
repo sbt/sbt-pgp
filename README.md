@@ -148,7 +148,26 @@ max-cache-ttl 7200
 
 You might need to restart the gpg-agent for the setting to take effect.
 
-#### OpenPGP Support
+### Configuration: Signing Key
+
+By default, all signing operations will use `gpg`'s default key. A specific key can be used by setting sbt `Credentials` for the host "gpg".
+
+```scala
+credentials += Credentials(
+  "GnuPG Key ID",
+  "gpg",
+  "2BE67AC00D699E04E840B7FE29967E804D85663F", // key identifier
+  "ignored" // this field is ignored; passwords are supplied by pinentry
+)
+```
+
+or you can use the `usePgpKeyHex` method.
+
+```scala
+usePgpKeyHex("2BE67AC00D699E04E840B7FE29967E804D85663F")
+```
+
+### OpenPGP Support
 
 If you are using a [Yubikey 4](https://www.yubico.com/product/yubikey-4-series/) or another smartcard that [supports OpenPGP](https://incenp.org/notes/2016/openpgp-card-implementations.html), then you may have private keys implemented directly on the smartcard rather than using the gpg keyring.  In this situation, you will use `gpg-agent` and a pinentry (`pinentry-mac`, `pinentry-qt`, `pinentry-curses` etc) rather than a passphrase.  Set `useGpgPinentry := true` in your `build.sbt` settings to configure `sbt-pgp` appropriately.
 
@@ -166,40 +185,7 @@ Note that `sbt-pgp` only supports OpenPGP through the GPG command line tool -- i
 Global / gpgCommand := "/path/to/gpg"
 ```
 
-By default `sbt-pgp` will use the default private keys from the standard gpg keyrings.   If you'd like to use a different private key for signing artifacts, add the following to your `~/.sbt/gpg.sbt` file:
-
-```scala
-Global / pgpSecretRing := file("/path/to/my/secring.gpg")
-```
-
-There is currently no way to choose a non-default key from the keyring.
-
-### Configuration: Key Pair Locations
-
-If you'd like to use a key that isn't in the standard location, you can configure it in your `~/.sbt/gpg.sbt` file:
-
-```scala
-Global / pgpSecretRing := file("/tmp/secring.asc")
-Global / pgpPublicRing := file("/tmp/pubring.asc")
-```
-
-### Configuration: Signing Key
-
-If you'd like to use a different private key besides the default, then you can configure it with the `pgpSigningKey` settings. 
-
-You can either configure the key using raw long integer values:
-
-```scala
-Global / pgpSigningKey := Some(9005184038412874530)
-```
-
-or you can use the `usePgpKeyHex` method.
-
-```scala
-Global / usePgpKeyHex("7cf8d72be29df322")
-```
-
-Note:  While it is general practice to drop the higher-order bits of 64-bit integer keys when passing ids around, the PGP plugin requires the full key id currently.
+By default `sbt-pgp` will use the default private keys from the standard gpg keyrings.
 
 ### Configuration: Public Key Ring
 
