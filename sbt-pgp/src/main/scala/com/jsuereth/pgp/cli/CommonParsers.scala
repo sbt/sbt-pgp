@@ -11,7 +11,7 @@ object CommonParsers {
   
   private def hexPublicKeyIds(ctx: PgpStaticContext): Seq[String] =
     try {
-      (ctx.publicKeyRing.publicKeys.view map (_.keyID) map ("%x" format (_))).toSeq
+      ctx.publicKeyRing.publicKeys.view.map(_.keyID).map("%x" format (_)).toSeq
     } catch {
       case _: Throwable => Seq.empty
     }
@@ -23,7 +23,7 @@ object CommonParsers {
   
   private def userIds(ctx: PgpStaticContext): Seq[String] =
     try {
-      (ctx.publicKeyRing.publicKeys.view flatMap (_.userIDs)).toSeq
+      ctx.publicKeyRing.publicKeys.view.flatMap(_.userIDs).toSeq
     } catch {
       case _: Throwable => Seq.empty
     }

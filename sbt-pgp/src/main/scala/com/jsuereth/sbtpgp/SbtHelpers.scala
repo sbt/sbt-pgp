@@ -1,5 +1,4 @@
-package com.typesafe.sbt
-package pgp
+package com.jsuereth.sbtpgp
 
 import sbt._
 import Def.Initialize
@@ -12,8 +11,8 @@ object SbtHelpers {
    * the value of the switch setting.
    */
   def switch[T](switch: SettingKey[Boolean],
-                           iftrue: Initialize[T],
-                           iffalse: Initialize[T]): Initialize[T] =
+                           iftrue: Def.Initialize[T],
+                           iffalse: Def.Initialize[T]): Def.Initialize[T] =
     switch.zipWith(iftrue) { (use, first) =>
       if(use) Some(first) else None
     }.zipWith(iffalse) { (opt, second) => opt getOrElse second }
@@ -27,9 +26,9 @@ trait Cache[K,V] {
   /** This method attempts to use a cached value, if one is found.  If
    * there is no cached value, the default is used and placed
    * back into the cache.
-   * 
+   *
    * Upon any exception, the cache is cleared.
-   * 
+   *
    * TODO - Allow subclasses to handle specific exceptions.
    */
   @inline
@@ -49,7 +48,7 @@ trait Cache[K,V] {
   }
 }
 
-// TODO - Less ugly/dangerous hack here... 
+// TODO - Less ugly/dangerous hack here...
 //  - Expire passwords after N minutes etc.
 //  - Kill password only on password exceptions.
-private[pgp] object PasswordCache extends Cache[String, Array[Char]]
+private[sbtpgp] object PasswordCache extends Cache[String, Array[Char]]

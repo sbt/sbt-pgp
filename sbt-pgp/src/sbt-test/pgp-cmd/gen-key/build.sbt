@@ -1,4 +1,4 @@
-import com.typesafe.sbt.pgp.{SbtPgpCommandContext, PgpKeys}
+import com.jsuereth.sbtpgp.{SbtPgpCommandContext, PgpKeys}
 
 pgpSecretRing := baseDirectory.value / "secring.pgp"
 
