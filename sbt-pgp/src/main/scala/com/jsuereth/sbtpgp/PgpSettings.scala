@@ -45,7 +45,6 @@ object PgpSettings {
     }
 
     Seq(
-      gpgAncient := !useGpg.value, //I believe the java pgp library does depend on the old implementation.
       pgpPassphrase := None,
       pgpSelectPassphrase := {
         pgpPassphrase.value
@@ -53,21 +52,20 @@ object PgpSettings {
           .orElse(scala.util.Properties.envOrNone("PGP_PASSPHRASE").map(_.toCharArray))
       },
       pgpSigningKey := Credentials.forHost(credentials.value, "pgp").map(_.userName),
+      pgpKeyRing := None,
+      // Bouncy Castle only
       pgpPublicRing := {
-        if (gpgAncient.value)
-          fallbackFiles(
-            gnuPGHome / "pubring.gpg",
-            file(System.getProperty("user.home")) / ".sbt" / "gpg" / "pubring.asc"
-          )
-        else fallbackFiles(gnuPGHome / "pubring.kbx", gnuPGHome / "pubring.gpg")
+        fallbackFiles(
+          gnuPGHome / "pubring.gpg",
+          file(System.getProperty("user.home")) / ".sbt" / "gpg" / "pubring.asc"
+        )
       },
+      // Bouncy Castle only
       pgpSecretRing := {
-        if (gpgAncient.value)
-          fallbackFiles(
-            gnuPGHome / "secring.gpg",
-            file(System.getProperty("user.home")) / ".sbt" / "gpg" / "secring.asc"
-          )
-        else pgpPublicRing.value
+        fallbackFiles(
+          gnuPGHome / "secring.gpg",
+          file(System.getProperty("user.home")) / ".sbt" / "gpg" / "secring.asc"
+        )
       },
       pgpStaticContext := {
         SbtPgpStaticContext(pgpPublicRing.value, pgpSecretRing.value)
@@ -93,7 +91,7 @@ object PgpSettings {
     new CommandLineGpgSigner(
       gpgCommand.value,
       useGpgAgent.value,
-      pgpSecretRing.value.getPath,
+      pgpKeyRing.value,
       pgpSigningKey.value,
       pgpSelectPassphrase.value
     )
@@ -104,6 +102,7 @@ object PgpSettings {
     new CommandLineGpgPinentrySigner(
       gpgCommand.value,
       useGpgAgent.value,
+      pgpKeyRing.value,
       pgpSigningKey.value,
       pgpSelectPassphrase.value
     )

@@ -1,5 +1,4 @@
-pgpSecretRing := baseDirectory.value / "pubring.pgp"
-pgpPublicRing := baseDirectory.value / "pubring.pgp"
+pgpKeyRing := Some(baseDirectory.value / "pubring.pgp")
 scalaVersion := "2.10.4"
 name := "test"
 organization := "test"
