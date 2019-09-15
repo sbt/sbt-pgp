@@ -118,6 +118,60 @@ Since other people need your **public** key to verify your files, you have to di
 $ gpg --keyserver hkp://pool.sks-keyservers.net --send-keys 2BE67AC00D699E04E840B7FE29967E804D85663F
 ```
 
+### Importing key pair
+
+If you have previously created a key pair using sbt-pgp 1.x's `pgp-cmd` for example, your secret key should be at `$HOME/.sbt/gpg/secring.asc`. You can import this to GnuPG as follows:
+
+```
+$ gpg --import $HOME/.sbt/gpg/secring.asc
+gpg: /root/.gnupg/trustdb.gpg: trustdb created
+gpg: key 77098E6A92692949: public key "foo <foo@example.com>" imported
+gpg: key 77098E6A92692949: secret key imported
+gpg: Total number processed: 1
+gpg:               imported: 1
+gpg:       secret keys read: 1
+gpg:   secret keys imported:
+
+gpg --list-key
+/root/.gnupg/pubring.kbx
+------------------------
+pub   rsa2048 2019-09-15 [SCEA]
+      965F25CC72DF4F2A4358AC9B77098E6A92692949
+uid           [ unknown] foo <foo@example.com>
+```
+
+Next, see [signing key](#configuration-signing-key) section below to set `965F25CC72DF4F2A4358AC9B77098E6A92692949` as the signing key.
+
+### Publishing from Travis CI
+
+Do **NOT** use your personal GPG key for CI signing. Create a fresh gpg key that you will share with Travis CI and ONLY use for this project.
+
+```
+$ gpg --gen-key
+```
+
+- For real name, use "$PROJECT_NAME bot". For sbt-something use "sbt-something bot"
+- For email, use your own email address
+- For passphrase, generate a random password with a password manager
+
+Next read through [Travis CI's Encryption keys](https://docs.travis-ci.com/user/encryption-keys/) and [Encrypting Files](https://docs.travis-ci.com/user/encrypting-files/).
+
+```
+$ mkdir .travis
+$ travis encrypt PGP_PASSPHRASE="random passphrase" --add --repo sbt/sbt-something
+$ gpg --export-secret-keys -a 965F25CC72DF4F2A4358AC9B77098E6A92692949 > .travis/secret-key.asc
+$ travis encrypt-file .travis/secret-key.asc --add --repo sbt/sbt-something
+$ rm .travis/secret-key.asc
+$ git add .travis/secret-key.asc.enc
+$ git commit
+```
+
+Next, add the following to your `.travis.yml`:
+
+```
+before_script: echo $PGP_PASSPHRASE | gpg --passphrase-fd 0 --batch --yes --import .travis/secret-key.asc.enc
+```
+
 ### Publishing Artifacts
 
 To publish signed artifacts, use `publishSigned` or `publishLocalSigned`.
@@ -148,6 +202,12 @@ max-cache-ttl 7200
 
 You might need to restart the gpg-agent for the setting to take effect.
 
+#### Automating PIN entry (passphrase Entry)
+
+sbt-pgp 1.x has provided ways of storing passphrase using `pgpPassphrase` or in the credentials, but we no longer recommend using these methods on your laptop.
+
+On CI environment like Travis CI, you might want to automate passphrase entry. For that purpose sbt-pgp supports `PGP_PASSPHRASE` environment variable following [olafurpg/sbt-ci-release](https://github.com/olafurpg/sbt-ci-release).
+
 ### Configuration: Signing Key
 
 By default, all signing operations will use `gpg`'s default key. A specific key can be used by setting sbt `Credentials` for the host "gpg".
@@ -161,7 +221,9 @@ credentials += Credentials(
 )
 ```
 
-or you can use the `usePgpKeyHex` method.
+**Note**: This follows the convention set by [jodersky/sbt-gpg](https://github.com/jodersky/sbt-gpg).
+
+You can also use the `usePgpKeyHex` method.
 
 ```scala
 usePgpKeyHex("2BE67AC00D699E04E840B7FE29967E804D85663F")
@@ -231,7 +293,3 @@ When using Bouncy Castle modue, `sbt-pgp` will ask for your password once, and c
 ```
 Please enter PGP passphrase (or ENTER to abort): ******
 ```
-
-#### PIN entry (passphrase Entry) for Bouncy Castle (deprecated)
-
-sbt-pgp 1.x has provided ways of storing passphrase using `pgpPassphrase` or in the credentials, but we no longer recommend using these methods.
