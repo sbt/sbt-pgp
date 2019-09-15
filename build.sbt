@@ -3,6 +3,8 @@ import Dependencies._
 val LibraryDoc = config("library-doc")
 val PluginDoc = config("plugin-doc")
 
+ThisBuild / scalafmtOnCompile := true
+
 lazy val root = (project in file("."))
   .enablePlugins(GhpagesPlugin)
   .enablePlugins(JekyllPlugin)

@@ -28,29 +28,33 @@ object PgpSettings {
   lazy val gpgConfigurationSettings: Seq[Setting[_]] = Seq(
     PgpKeys.useGpg := {
       sys.props.get("SBT_PGP_USE_GPG") match {
-      case Some(_) => java.lang.Boolean.getBoolean("SBT_PGP_USE_GPG")
-      case None    => true
+        case Some(_) => java.lang.Boolean.getBoolean("SBT_PGP_USE_GPG")
+        case None    => true
       }
     },
     PgpKeys.useGpgAgent := true,
     PgpKeys.useGpgPinentry := false,
-    PgpKeys.gpgCommand := (if(isWindows) "gpg.exe" else "gpg")
+    PgpKeys.gpgCommand := (if (isWindows) "gpg.exe" else "gpg")
   )
 
-  lazy val pgpCommand = Command("pgp-cmd") {
-    state =>
-      val extracted = Project.extract(state)
-      val ctx = extracted.get(pgpStaticContext)
-      Space ~> cli.PgpCommand.parser(ctx)
+  lazy val pgpCommand = Command("pgp-cmd") { state =>
+    val extracted = Project.extract(state)
+    val ctx = extracted.get(pgpStaticContext)
+    Space ~> cli.PgpCommand.parser(ctx)
   } { (state, cmd) =>
     val extracted = Project.extract(state)
     val readOnly = extracted get pgpReadOnly
-    if(readOnly && !cmd.isReadOnly) sys.error("Cannot modify keyrings when in read-only mode.  Run `set pgpReadOnly := false` before running this command.")
+    if (readOnly && !cmd.isReadOnly)
+      sys.error(
+        "Cannot modify keyrings when in read-only mode.  Run `set pgpReadOnly := false` before running this command."
+      )
     def runPgpCmd(ctx: cli.PgpCommandContext): Unit =
       try cmd run ctx
       catch {
         case e: Exception =>
-          System.err.println("Failed to run pgp-cmd: " + cmd + ".   Please report this issue at http://github.com/sbt/sbt-pgp/issues")
+          System.err.println(
+            "Failed to run pgp-cmd: " + cmd + ".   Please report this issue at http://github.com/sbt/sbt-pgp/issues"
+          )
           throw e
       }
     // Create a new task that executes the command.
@@ -63,8 +67,11 @@ object PgpSettings {
         progressReporter = Compat.defaultProgress,
         cancelStrategy = TaskCancellationStrategy.Null,
         forceGarbageCollection = false,
-        minForcegcInterval = 60.seconds)
-      EvaluateTask.runTask(task, state, streams, extracted.structure.index.triggers, config)(nodeView(state, streams, Nil))
+        minForcegcInterval = 60.seconds
+      )
+      EvaluateTask.runTask(task, state, streams, extracted.structure.index.triggers, config)(
+        nodeView(state, streams, Nil)
+      )
     }
     newstate
   }
@@ -73,7 +80,7 @@ object PgpSettings {
   lazy val nativeConfigurationSettings: Seq[Setting[_]] = {
     val gnuPGHome = scala.util.Properties.envOrNone("GNUPGHOME") match {
       case Some(dir) => file(dir)
-      case None => file(System.getProperty("user.home")) / ".gnupg"
+      case None      => file(System.getProperty("user.home")) / ".gnupg"
     }
 
     def fallbackFiles(fs: File*): File = {
@@ -91,23 +98,22 @@ object PgpSettings {
         (Credentials.forHost(credentials.value, "pgp") map (_.passwd.toCharArray)),
       PgpKeys.pgpSigningKey := None,
       PgpKeys.pgpReadOnly := true,
-
       PgpKeys.pgpPublicRing := {
-        if (gpgAncient.value) fallbackFiles(
-          gnuPGHome / "pubring.gpg",
-          file(System.getProperty("user.home")) / ".sbt" / "gpg" / "pubring.asc")
-        else fallbackFiles(
-          gnuPGHome / "pubring.kbx",
-          gnuPGHome / "pubring.gpg")
+        if (gpgAncient.value)
+          fallbackFiles(
+            gnuPGHome / "pubring.gpg",
+            file(System.getProperty("user.home")) / ".sbt" / "gpg" / "pubring.asc"
+          )
+        else fallbackFiles(gnuPGHome / "pubring.kbx", gnuPGHome / "pubring.gpg")
       },
-
       PgpKeys.pgpSecretRing := {
-        if (gpgAncient.value) fallbackFiles(
-          gnuPGHome / "secring.gpg",
-          file(System.getProperty("user.home")) / ".sbt" / "gpg" / "secring.asc")
+        if (gpgAncient.value)
+          fallbackFiles(
+            gnuPGHome / "secring.gpg",
+            file(System.getProperty("user.home")) / ".sbt" / "gpg" / "secring.asc"
+          )
         else PgpKeys.pgpPublicRing.value
       },
-
       PgpKeys.pgpStaticContext := {
         SbtPgpStaticContext(PgpKeys.pgpPublicRing.value, PgpKeys.pgpSecretRing.value)
       },
@@ -116,7 +122,8 @@ object PgpSettings {
           PgpKeys.pgpStaticContext.value,
           interactionService.value,
           PgpKeys.pgpSelectPassphrase.value,
-          streams.value)
+          streams.value
+        )
       }
     )
   }
@@ -128,12 +135,23 @@ object PgpSettings {
 
   /** Helper to initialize the GPG PgpSigner */
   private[this] def gpgSigner: Def.Initialize[Task[PgpSigner]] = Def.task {
-    new CommandLineGpgSigner(gpgCommand.value, useGpgAgent.value, pgpSecretRing.value.getPath, pgpSigningKey.value, pgpSelectPassphrase.value)
+    new CommandLineGpgSigner(
+      gpgCommand.value,
+      useGpgAgent.value,
+      pgpSecretRing.value.getPath,
+      pgpSigningKey.value,
+      pgpSelectPassphrase.value
+    )
   }
 
   /** Helper to initialize the GPG PgpSigner with Pinentry */
   private[this] def gpgPinEntrySigner: Def.Initialize[Task[PgpSigner]] = Def.task {
-    new CommandLineGpgPinentrySigner(gpgCommand.value, useGpgAgent.value, pgpSigningKey.value, pgpSelectPassphrase.value)
+    new CommandLineGpgPinentrySigner(
+      gpgCommand.value,
+      useGpgAgent.value,
+      pgpSigningKey.value,
+      pgpSelectPassphrase.value
+    )
   }
 
   /** Helper to initialize the BC PgpVerifier */
@@ -173,24 +191,21 @@ object PgpSettings {
       if (!skipZ) {
         artifacts flatMap {
           case (art, file) =>
-            Seq(art                                                -> file,
-                subExtension(art, art.extension + gpgExtension) -> r.sign(file, new File(file.getAbsolutePath + gpgExtension), s))
+            Seq(
+              art -> file,
+              subExtension(art, art.extension + gpgExtension) -> r
+                .sign(file, new File(file.getAbsolutePath + gpgExtension), s)
+            )
         }
-      }
-      else artifacts
+      } else artifacts
     },
     pgpMakeIvy := (Def.taskDyn {
       val style = publishMavenStyle.value
-      if (style) Def.task { (None: Option[File]) }
-      else Def.task { Option(deliver.value) }
+      if (style) Def.task { (None: Option[File]) } else Def.task { Option(deliver.value) }
     }).value,
-
     publishSignedConfiguration := publishSignedConfigurationTask.value,
-
     publishSigned := publishSignedTask(publishSignedConfiguration, deliver).value,
-
     publishLocalSignedConfiguration := publishLocalSignedConfigurationTask.value,
-
     publishLocalSigned := publishSignedTask(publishLocalSignedConfiguration, deliver).value
   )
 
@@ -199,8 +214,8 @@ object PgpSettings {
       val s = streams.value
       val ref = thisProjectRef.value
       val skp = ((skip in publish) ?? false).value
-      if (skp) Def.task { s.log.debug(s"Skipping publishSigned for ${ref.project}") }
-      else Classpaths.publishTask(config, deliver)
+      if (skp) Def.task { s.log.debug(s"Skipping publishSigned for ${ref.project}") } else
+        Classpaths.publishTask(config, deliver)
     }
 
   /** Settings used to verify signatures on dependent artifacts. */
@@ -216,15 +231,22 @@ object PgpSettings {
     updatePgpSignatures := {
       PgpSignatureCheck.resolveSignatures(
         ivySbt.value,
-        GetSignaturesConfiguration((signaturesModule in updatePgpSignatures).value, updateConfiguration.value, ivyScala.value),
-        streams.value.log)
+        GetSignaturesConfiguration(
+          (signaturesModule in updatePgpSignatures).value,
+          updateConfiguration.value,
+          ivyScala.value
+        ),
+        streams.value.log
+      )
     },
     checkPgpSignatures := {
       PgpSignatureCheck.checkSignaturesTask(updatePgpSignatures.value, pgpVerifierFactory.value, streams.value)
     }
   )
 
-  lazy val globalSettings: Seq[Setting[_]] = inScope(Global)(gpgConfigurationSettings ++ nativeConfigurationSettings ++ signVerifyConfigurationSettings)
+  lazy val globalSettings: Seq[Setting[_]] =
+    inScope(Global)(gpgConfigurationSettings ++ nativeConfigurationSettings ++ signVerifyConfigurationSettings)
+
   /** Settings this plugin defines. TODO - require manual setting of these... */
   lazy val projectSettings: Seq[Setting[_]] = signingSettings ++ verifySettings ++ Seq(commands += pgpCommand)
 }

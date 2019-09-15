@@ -3,25 +3,30 @@ package com.jsuereth.sbtpgp
 import sbt._
 
 object SbtHelpers {
+
   /** Initializes a setting with a given value if it isn't already configured. */
   def initIf[T](key: SettingKey[T], value: => T): Setting[T] =
     key := (key ?? value).value
+
   /** Helper method to switch between two initializers based on
    * the value of the switch setting.
    */
-  def switch[T](switch: SettingKey[Boolean],
-                           iftrue: Def.Initialize[T],
-                           iffalse: Def.Initialize[T]): Def.Initialize[T] =
-    switch.zipWith(iftrue) { (use, first) =>
-      if(use) Some(first) else None
-    }.zipWith(iffalse) { (opt, second) => opt getOrElse second }
+  def switch[T](switch: SettingKey[Boolean], iftrue: Def.Initialize[T], iffalse: Def.Initialize[T]): Def.Initialize[T] =
+    switch
+      .zipWith(iftrue) { (use, first) =>
+        if (use) Some(first) else None
+      }
+      .zipWith(iffalse) { (opt, second) =>
+        opt getOrElse second
+      }
 }
 
 /** Simple caching api.  So simple it's probably horribly bad in some way.
  * OH, right... synchronization could be bad here...
  */
-trait Cache[K,V] {
+trait Cache[K, V] {
   private val cache = new collection.mutable.HashMap[K, V]
+
   /** This method attempts to use a cached value, if one is found.  If
    * there is no cached value, the default is used and placed
    * back into the cache.
