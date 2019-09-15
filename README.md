@@ -148,6 +148,12 @@ max-cache-ttl 7200
 
 You might need to restart the gpg-agent for the setting to take effect.
 
+#### Automating PIN entry (passphrase Entry)
+
+sbt-pgp 1.x has provided ways of storing passphrase using `pgpPassphrase` or in the credentials, but we no longer recommend using these methods on your laptop.
+
+On CI environment like Travis CI, you might want to automate passphrase entry. For that purpose sbt-pgp supports `PGP_PASSPHRASE` environment variable following [olafurpg/sbt-ci-release](https://github.com/olafurpg/sbt-ci-release).
+
 ### Configuration: Signing Key
 
 By default, all signing operations will use `gpg`'s default key. A specific key can be used by setting sbt `Credentials` for the host "gpg".
@@ -231,7 +237,3 @@ When using Bouncy Castle modue, `sbt-pgp` will ask for your password once, and c
 ```
 Please enter PGP passphrase (or ENTER to abort): ******
 ```
-
-#### PIN entry (passphrase Entry) for Bouncy Castle (deprecated)
-
-sbt-pgp 1.x has provided ways of storing passphrase using `pgpPassphrase` or in the credentials, but we no longer recommend using these methods.

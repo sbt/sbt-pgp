@@ -23,8 +23,6 @@ object SbtPgp extends AutoPlugin {
     def useGpgAgent = PgpKeys.useGpgAgent in Global
     def useGpgPinentry = PgpKeys.useGpgPinentry in Global
     def pgpSigningKey = PgpKeys.pgpSigningKey in Global
-
-    @deprecated("Bouncy Castle mode is deprecated", "2.0.0")
     def pgpPassphrase = PgpKeys.pgpPassphrase in Global
     def pgpPublicRing = PgpKeys.pgpPublicRing in Global
     def pgpSecretRing = PgpKeys.pgpSecretRing in Global

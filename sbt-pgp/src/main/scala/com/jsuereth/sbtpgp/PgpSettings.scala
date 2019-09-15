@@ -51,8 +51,11 @@ object PgpSettings {
     Seq(
       PgpKeys.gpgAncient := !useGpg.value, //I believe the java pgp library does depend on the old implementation.
       PgpKeys.pgpPassphrase := None,
-      PgpKeys.pgpSelectPassphrase := PgpKeys.pgpPassphrase.value orElse
-        Credentials.forHost(credentials.value, "pgp").map(_.passwd.toCharArray),
+      PgpKeys.pgpSelectPassphrase := {
+        PgpKeys.pgpPassphrase.value
+          .orElse(Credentials.forHost(credentials.value, "pgp").map(_.passwd.toCharArray))
+          .orElse(scala.util.Properties.envOrNone("PGP_PASSPHRASE").map(_.toCharArray))
+      },
       PgpKeys.pgpSigningKey := Credentials.forHost(credentials.value, "pgp").map(_.userName),
       PgpKeys.pgpPublicRing := {
         if (gpgAncient.value)
