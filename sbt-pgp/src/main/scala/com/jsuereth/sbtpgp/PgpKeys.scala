@@ -15,12 +15,11 @@ object PgpKeys {
     settingKey[Option[Array[Char]]]("The passphrase associated with the secret used to sign artifacts.")
   val pgpSelectPassphrase =
     taskKey[Option[Array[Char]]]("The passphrase associated with the secret used to sign artifacts.")
-  val pgpSigningKey = settingKey[Option[Long]](
-    "The key used to sign artifacts in this project.  Must be the full key id (not just lower 32 bits)."
+  val pgpSigningKey = taskKey[Option[String]](
+    "The key used to sign artifacts in this project. Must be the full key id (not just lower 32 bits)."
   )
 
   // PGP Related tasks  (TODO - make these commands?)
-  val pgpReadOnly = settingKey[Boolean]("If set to true, the PGP usage will not modify any public/private keyrings.")
   val pgpStaticContext = settingKey[cli.PgpStaticContext]("Context used for auto-completing PGP commands.")
   val pgpCmdContext = taskKey[cli.PgpCommandContext]("Context used to run PGP commands.")
 

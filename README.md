@@ -148,12 +148,30 @@ max-cache-ttl 7200
 
 You might need to restart the gpg-agent for the setting to take effect.
 
-#### OpenPGP Support
+### Configuration: Signing Key
+
+By default, all signing operations will use `gpg`'s default key. A specific key can be used by setting sbt `Credentials` for the host "gpg".
+
+```scala
+credentials += Credentials(
+  "GnuPG Key ID",
+  "gpg",
+  "2BE67AC00D699E04E840B7FE29967E804D85663F", // key identifier
+  "ignored" // this field is ignored; passwords are supplied by pinentry
+)
+```
+
+or you can use the `usePgpKeyHex` method.
+
+```scala
+usePgpKeyHex("2BE67AC00D699E04E840B7FE29967E804D85663F")
+```
+
+### OpenPGP Support
 
 If you are using a [Yubikey 4](https://www.yubico.com/product/yubikey-4-series/) or another smartcard that [supports OpenPGP](https://incenp.org/notes/2016/openpgp-card-implementations.html), then you may have private keys implemented directly on the smartcard rather than using the gpg keyring.  In this situation, you will use `gpg-agent` and a pinentry (`pinentry-mac`, `pinentry-qt`, `pinentry-curses` etc) rather than a passphrase.  Set `useGpgPinentry := true` in your `build.sbt` settings to configure `sbt-pgp` appropriately.
 
 ```scala
-Global / useGpgAgent := true
 Global / useGpgPinentry := true
 ```
 
@@ -167,40 +185,7 @@ Note that `sbt-pgp` only supports OpenPGP through the GPG command line tool -- i
 Global / gpgCommand := "/path/to/gpg"
 ```
 
-By default `sbt-pgp` will use the default private keys from the standard gpg keyrings.   If you'd like to use a different private key for signing artifacts, add the following to your `~/.sbt/gpg.sbt` file:
-
-```scala
-Global / pgpSecretRing := file("/path/to/my/secring.gpg")
-```
-
-There is currently no way to choose a non-default key from the keyring.
-
-### Configuration: Key Pair Locations
-
-If you'd like to use a key that isn't in the standard location, you can configure it in your `~/.sbt/gpg.sbt` file:
-
-```scala
-Global / pgpSecretRing := file("/tmp/secring.asc")
-Global / pgpPublicRing := file("/tmp/pubring.asc")
-```
-
-### Configuration: Signing Key
-
-If you'd like to use a different private key besides the default, then you can configure it with the `pgpSigningKey` settings. 
-
-You can either configure the key using raw long integer values:
-
-```scala
-Global / pgpSigningKey := Some(9005184038412874530)
-```
-
-or you can use the `usePgpKeyHex` method.
-
-```scala
-Global / usePgpKeyHex("7cf8d72be29df322")
-```
-
-Note:  While it is general practice to drop the higher-order bits of 64-bit integer keys when passing ids around, the PGP plugin requires the full key id currently.
+By default `sbt-pgp` will use the default private keys from the standard gpg keyrings.
 
 ### Configuration: Public Key Ring
 
@@ -231,33 +216,7 @@ The plugin can be used to validate the PGP signatures of the dependencies of the
 
 In the above output, the signature for derby is from an untrusted key (id: `0x98e21827`).  You can import this key into your public key ring, and then the plugin will trust artifacts from that key.   The public, by default, accepts any keys included in your public key ring file.
 
-### Importing and Exporting Keys from Public Key Servers
-
-Note: To import a key, you have to turn off read only mode:
-
-```scala
-Global / pgpReadOnly := false
-```
-
-Use the `receive-key` command to import keys.
-
-```
-pgp-cmd receive-key <key id> hkp://keyserver.ubuntu.com
-```
-
-Use the `send-key` command to export keys.
-
-``scala
-pgp-cmd send-key <key id> hkp://keyserver.ubuntu.com
-```
-
-The value of `key id` is one of the following:
-
-* Hex Key ID
-* "Name" of the key (e.g. "LAMP/EPFL" in the above example)
-* "Email" of the key (e.g. "lamp@gmail.com" in the above example)
-
-### Using Bouncy Castle
+### Using Bouncy Castle (deprecated)
 
 Prior to sbt-pgp 2.0.0, `sbt-pgp` used the [Bouncy Castle](http://www.bouncycastle.org/) library by default. If you cant to use the built-in Bouncy Castle PGP implementation, this can be overriden with:
 
@@ -273,29 +232,6 @@ When using Bouncy Castle modue, `sbt-pgp` will ask for your password once, and c
 Please enter PGP passphrase (or ENTER to abort): ******
 ```
 
-#### PIN entry (passphrase Entry) for Bouncy Castle
+#### PIN entry (passphrase Entry) for Bouncy Castle (deprecated)
 
-`sbt-pgp` has provided a means to store passphrase using `pgpPassphrase`, but we no longer recommend using this method.
-
-```
-Global / pgpPassphrase := Some(Array('M', 'y', 'P', 'a', 's', 's', 'p', 'h', 'r', 'a', 's', 'e'))
-```
-
-Also make sure that the above setting is in a user-specific directory and that you don't advertise your password in the source code repository!
-
-Another alternative for configuring the passphrase is to add it to your credentials, using a host name of `pgp`.  This allows you to globally configure a passphrase without having the pgp plugin installed globally.
-
-For example, create the following file `~/.sbt/pgp.credentials`:
-
-```
-realm=PGP Secret Key
-host=pgp
-user=sbt
-password=MyPassphrase
-```
-
-The `realm` and `user` values can be anything, the `host` must be `pgp`, and `password` must be your passphrase. Now add the this file to your sbt credentials in `~/.sbt/1.0/global.sbt`:
-
-```
-credentials += Credentials(Path.userHome / ".sbt" / "pgp.credentials")
-```
+sbt-pgp 1.x has provided ways of storing passphrase using `pgpPassphrase` or in the credentials, but we no longer recommend using these methods.

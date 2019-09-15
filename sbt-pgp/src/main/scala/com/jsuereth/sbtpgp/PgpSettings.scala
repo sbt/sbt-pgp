@@ -2,11 +2,8 @@ package com.jsuereth.sbtpgp
 
 import sbt._
 import Keys._
-import complete.DefaultParsers._
 import SbtHelpers._
 import PgpKeys._
-import com.jsuereth.pgp._
-import scala.concurrent.duration._
 import sbt.sbtpgp.Compat, Compat._
 
 /**
@@ -20,7 +17,6 @@ object PgpSettings {
   def useGpgPinentry = PgpKeys.useGpgPinentry in Global
   def pgpSigningKey = PgpKeys.pgpSigningKey in Global
   def pgpPassphrase = PgpKeys.pgpPassphrase in Global
-  def pgpReadOnly = PgpKeys.pgpReadOnly in Global
   def pgpPublicRing = PgpKeys.pgpPublicRing in Global
   def pgpSecretRing = PgpKeys.pgpSecretRing in Global
 
@@ -36,45 +32,6 @@ object PgpSettings {
     PgpKeys.useGpgPinentry := false,
     PgpKeys.gpgCommand := (if (isWindows) "gpg.exe" else "gpg")
   )
-
-  lazy val pgpCommand = Command("pgp-cmd") { state =>
-    val extracted = Project.extract(state)
-    val ctx = extracted.get(pgpStaticContext)
-    Space ~> cli.PgpCommand.parser(ctx)
-  } { (state, cmd) =>
-    val extracted = Project.extract(state)
-    val readOnly = extracted get pgpReadOnly
-    if (readOnly && !cmd.isReadOnly)
-      sys.error(
-        "Cannot modify keyrings when in read-only mode.  Run `set pgpReadOnly := false` before running this command."
-      )
-    def runPgpCmd(ctx: cli.PgpCommandContext): Unit =
-      try cmd run ctx
-      catch {
-        case e: Exception =>
-          System.err.println(
-            "Failed to run pgp-cmd: " + cmd + ".   Please report this issue at http://github.com/sbt/sbt-pgp/issues"
-          )
-          throw e
-      }
-    // Create a new task that executes the command.
-    val task = extracted get pgpCmdContext map runPgpCmd named ("pgp-cmd-" + cmd.getClass.getSimpleName)
-    import EvaluateTask._
-    val (newstate, _) = withStreams(extracted.structure, state) { streams =>
-      val config = EvaluateTaskConfig(
-        restrictions = defaultRestrictions(1),
-        checkCycles = false,
-        progressReporter = Compat.defaultProgress,
-        cancelStrategy = TaskCancellationStrategy.Null,
-        forceGarbageCollection = false,
-        minForcegcInterval = 60.seconds
-      )
-      EvaluateTask.runTask(task, state, streams, extracted.structure.index.triggers, config)(
-        nodeView(state, streams, Nil)
-      )
-    }
-    newstate
-  }
 
   /** Configuration for BC JVM-local PGP */
   lazy val nativeConfigurationSettings: Seq[Setting[_]] = {
@@ -95,9 +52,8 @@ object PgpSettings {
       PgpKeys.gpgAncient := !useGpg.value, //I believe the java pgp library does depend on the old implementation.
       PgpKeys.pgpPassphrase := None,
       PgpKeys.pgpSelectPassphrase := PgpKeys.pgpPassphrase.value orElse
-        (Credentials.forHost(credentials.value, "pgp") map (_.passwd.toCharArray)),
-      PgpKeys.pgpSigningKey := None,
-      PgpKeys.pgpReadOnly := true,
+        Credentials.forHost(credentials.value, "pgp").map(_.passwd.toCharArray),
+      PgpKeys.pgpSigningKey := Credentials.forHost(credentials.value, "pgp").map(_.userName),
       PgpKeys.pgpPublicRing := {
         if (gpgAncient.value)
           fallbackFiles(
@@ -248,5 +204,5 @@ object PgpSettings {
     inScope(Global)(gpgConfigurationSettings ++ nativeConfigurationSettings ++ signVerifyConfigurationSettings)
 
   /** Settings this plugin defines. TODO - require manual setting of these... */
-  lazy val projectSettings: Seq[Setting[_]] = signingSettings ++ verifySettings ++ Seq(commands += pgpCommand)
+  lazy val projectSettings: Seq[Setting[_]] = signingSettings ++ verifySettings
 }
