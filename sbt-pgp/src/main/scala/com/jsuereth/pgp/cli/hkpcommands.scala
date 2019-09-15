@@ -16,11 +16,13 @@ trait HkpCommand extends PgpCommand {
 
 case class SendKey(pubKey: String, hkpUrl: String) extends HkpCommand {
   def run(ctx: PgpCommandContext): Unit = {
-    import ctx.{publicKeyRing => pubring, log}
+    import ctx.{ publicKeyRing => pubring, log }
     val key = pubring findPubKeyRing pubKey getOrElse sys.error("Could not find public key: " + pubKey)
     val client = hkpClient
     log.info("Sending " + key + " to " + client)
-    client.pushKeyRing(key, { s: String => log.debug(s) })
+    client.pushKeyRing(key, { s: String =>
+      log.debug(s)
+    })
   }
   override def isReadOnly: Boolean = true
 }
@@ -37,10 +39,12 @@ case class ReceiveKey(pubKeyId: Long, hkpUrl: String) extends HkpCommand {
   import scala.concurrent.ExecutionContext.Implicits._
 
   def run(ctx: PgpCommandContext): Unit = {
-    val f = hkpClient.getKey(pubKeyId).transform(identity, {
-      case e: Throwable =>
-        new RuntimeException("Could not find key: " + pubKeyId + " on server " + hkpUrl, e)
-    })
+    val f = hkpClient
+      .getKey(pubKeyId)
+      .transform(identity, {
+        case e: Throwable =>
+          new RuntimeException("Could not find key: " + pubKeyId + " on server " + hkpUrl, e)
+      })
     val key: PublicKeyRing = Await.result(f, Duration.Inf)
     ctx.log.info("Adding public key: " + key)
     // TODO - Remove if key already exists...
@@ -51,7 +55,7 @@ object ReceiveKey {
   def parser(ctx: PgpStaticContext): Parser[ReceiveKey] = {
     // TODO - More robust...
     (token("recv-key") ~ Space) ~> keyId ~ (Space ~> hkpUrl) map {
-      case key ~ url => ReceiveKey(key,url)
+      case key ~ url => ReceiveKey(key, url)
     }
   }
 }

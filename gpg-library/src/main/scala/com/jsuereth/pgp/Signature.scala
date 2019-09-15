@@ -5,11 +5,12 @@ import org.bouncycastle.openpgp._
 
 /** Wrapper around a PGP signature for convenience. */
 class Signature(val nested: PGPSignature) extends StreamingSaveable {
+
   /** Returns the name-value string pairs in the notation data occurrences of a signature. */
   // TODO - return a map
   // TODO - Ensure string->string is ok for all returned values...
-  object notations extends Traversable[(String,String)] {
-    override def foreach[U](f: ((String,String)) => U): Unit = 
+  object notations extends Traversable[(String, String)] {
+    override def foreach[U](f: ((String, String)) => U): Unit =
       for {
         data <- nested.getHashedSubPackets.getNotationDataOccurrences
       } f(data.getNotationName() -> data.getNotationValue())
@@ -33,16 +34,15 @@ class Signature(val nested: PGPSignature) extends StreamingSaveable {
     case PGPSignature.SUBKEY_REVOCATION        => "Subkey Revocation"
     case PGPSignature.CERTIFICATION_REVOCATION => "Cert. Revocation"
     case PGPSignature.TIMESTAMP                => "Timestamp"
-    case _ => "Not enumerated"
+    case _                                     => "Not enumerated"
   }
-  override def saveTo(output: java.io.OutputStream): Unit = 
+  override def saveTo(output: java.io.OutputStream): Unit =
     nested encode (new ArmoredOutputStream(output))
 
-  override def toString = 
-    "Signature(key=%x,user=%s,notations=%s)" format (
-        keyID, 
-        signerUserID, 
-        notations map { case (k,v) => k + " -> " + v } mkString ",")
+  override def toString =
+    "Signature(key=%x,user=%s,notations=%s)" format (keyID,
+    signerUserID,
+    notations map { case (k, v) => k + " -> " + v } mkString ",")
 }
 
 object Signature {

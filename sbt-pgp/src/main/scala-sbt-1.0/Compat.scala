@@ -38,24 +38,31 @@ object Compat {
   def subMissingOk(c: UpdateConfiguration, ok: Boolean): UpdateConfiguration =
     c.withMissingOk(ok)
 
-  def mkInlineConfiguration(base: ModuleID, deps: Vector[ModuleID],
-    ivyScala: Option[IvyScala], confs: Vector[Configuration]): InlineConfiguration =
+  def mkInlineConfiguration(
+      base: ModuleID,
+      deps: Vector[ModuleID],
+      ivyScala: Option[IvyScala],
+      confs: Vector[Configuration]
+  ): InlineConfiguration =
     ModuleDescriptorConfiguration(base, ModuleInfo(base.name))
       .withDependencies(deps)
       .withScalaModuleInfo(ivyScala)
       .withConfigurations(confs)
 
   def updateEither(
-    module: IvySbt#Module,
-    configuration: UpdateConfiguration,
-    uwconfig: UnresolvedWarningConfiguration,
-    logicalClock: LogicalClock,
-    depDir: Option[File],
-    log: Logger): Either[UnresolvedWarning, UpdateReport] =
+      module: IvySbt#Module,
+      configuration: UpdateConfiguration,
+      uwconfig: UnresolvedWarningConfiguration,
+      logicalClock: LogicalClock,
+      depDir: Option[File],
+      log: Logger
+  ): Either[UnresolvedWarning, UpdateReport] =
     IvyActions.updateEither(module, configuration, uwconfig, log)
 
-
-  private val signedArtifacts = TaskKey[Map[Artifact,File]]("signed-artifacts", "Packages all artifacts for publishing and maps the Artifact definition to the generated file.")
+  private val signedArtifacts = TaskKey[Map[Artifact, File]](
+    "signed-artifacts",
+    "Packages all artifacts for publishing and maps the Artifact definition to the generated file."
+  )
   private val pgpMakeIvy = TaskKey[Option[File]]("pgpMakeIvy", "Generates the Ivy file.")
 
   def publishSignedConfigurationTask = Def.task {
@@ -69,7 +76,8 @@ object Compat {
       checksums = (checksums in publish).value.toVector,
       resolverName = Classpaths.getPublishTo(publishTo.value).name,
       logging = ivyLoggingLevel.value,
-      overwrite = publishConfiguration.value.overwrite)
+      overwrite = publishConfiguration.value.overwrite
+    )
   }
 
   def publishLocalSignedConfigurationTask = Def.task {
@@ -83,7 +91,8 @@ object Compat {
       (checksums in publishLocal).value.toVector,
       resolverName = "local",
       logging = ivyLoggingLevel.value,
-      overwrite = publishConfiguration.value.overwrite)
+      overwrite = publishConfiguration.value.overwrite
+    )
   }
 
   def deliverPattern(outputPath: File): String =

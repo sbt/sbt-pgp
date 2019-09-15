@@ -19,8 +19,8 @@ trait PgpVerifier {
 /** Matcher for an untrusted key. */
 object UntrustedKey {
   val Pattern = new Regex(".*gpg:.*Signature.*key\\s+ID\\s+([A-F0-9]+).*public\\skey\\snot\\sfound.*")
-  
-  def unapply(content: String): Option[Long] = 
+
+  def unapply(content: String): Option[Long] =
     content match {
       case Pattern(id) => catching(classOf[NumberFormatException]) opt (java.lang.Long.parseLong(id, 16))
       case _           => None
@@ -38,18 +38,17 @@ class ProcessGrabber extends ProcessLogger {
 
   def result = sb.toString
 }
-class CommandLineGpgVerifierFactory(command: String, ctx: PgpCommandContext)
-  extends PgpVerifierFactory {
+class CommandLineGpgVerifierFactory(command: String, ctx: PgpCommandContext) extends PgpVerifierFactory {
   override def withVerifier[T](f: PgpVerifier => T): T = {
     IO.withTemporaryDirectory(tempdir => {
-      import ctx.{publicKeyRingFile => ringFile}
+      import ctx.{ publicKeyRingFile => ringFile }
       val ringPath = ringFile.toString
       val gnuPGPath = tempdir.toString
       val args = Seq("--homedir", gnuPGPath, "--import", ringPath)
       val grabber = new ProcessGrabber
       (Process(command, args) ! grabber, grabber.result) match {
         case (0, _) => f(new CommandLineGpgVerifier(tempdir))
-        case _ => f(AlwaysBadGpgVerifier)
+        case _      => f(AlwaysBadGpgVerifier)
       }
     })
   }
@@ -80,7 +79,7 @@ class BouncyCastlePgpVerifierFactory(ctx: PgpCommandContext) extends PgpVerifier
     f(BouncyCastlePgpVerifier)
   object BouncyCastlePgpVerifier extends PgpVerifier {
     // TODO - Figure out how to auto-pull keys from a server.
-    import ctx.{publicKeyRing => ring}
+    import ctx.{ publicKeyRing => ring }
 
     def verifySignature(signature: File, s: TaskStreams): SignatureCheckResult = {
       val original = file(signature.getAbsolutePath.dropRight(gpgExtension.length))

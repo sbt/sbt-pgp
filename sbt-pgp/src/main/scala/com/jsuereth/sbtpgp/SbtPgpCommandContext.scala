@@ -5,9 +5,7 @@ import sbt.Keys.TaskStreams
 import com.jsuereth.pgp._
 import sbt.sbtpgp.Compat._
 
-case class SbtPgpStaticContext(
-    publicKeyRingFile: File,
-    secretKeyRingFile: File) extends cli.PgpStaticContext
+case class SbtPgpStaticContext(publicKeyRingFile: File, secretKeyRingFile: File) extends cli.PgpStaticContext
 
 /** Context used by PGP commands as they execute. */
 case class SbtPgpCommandContext(
@@ -15,32 +13,37 @@ case class SbtPgpCommandContext(
     interaction: InteractionService,
     optPassphrase: Option[Array[Char]],
     s: TaskStreams
-  ) extends cli.PgpCommandContext with cli.DelegatingPgpStaticContext {
+) extends cli.PgpCommandContext
+    with cli.DelegatingPgpStaticContext {
 
   // For binary compatibility
-  def this(ctx: cli.PgpStaticContext,
-           optPassphrase: Option[Array[Char]],
-           s: TaskStreams) = this(ctx, CommandLineUIServices, optPassphrase, s)
+  def this(ctx: cli.PgpStaticContext, optPassphrase: Option[Array[Char]], s: TaskStreams) =
+    this(ctx, CommandLineUIServices, optPassphrase, s)
 
   def readInput(msg: String): String = System.out.synchronized {
-    interaction.readLine(msg, mask=false) getOrElse sys.error("Failed to grab input")
+    interaction.readLine(msg, mask = false) getOrElse sys.error("Failed to grab input")
   }
   def readHidden(msg: String): String = System.out.synchronized {
-    interaction.readLine(msg, mask=true) getOrElse sys.error("Failed to grab input")
+    interaction.readLine(msg, mask = true) getOrElse sys.error("Failed to grab input")
   }
   def inputPassphrase = readHidden("Please enter PGP passphrase (or ENTER to abort): ") match {
     case s: String if !s.isEmpty => s.toCharArray
-    case _ => sys.error("Empty passphrase. aborting...")
+    case _                       => sys.error("Empty passphrase. aborting...")
   }
 
   def withPassphrase[U](key: Long)(f: Array[Char] => U): U = {
-    retry[U, IncorrectPassphraseException](3){
+    retry[U, IncorrectPassphraseException](3) {
       PasswordCache.withValue(
         key = ctx.secretKeyRingFile.getAbsolutePath,
-        default = optPassphrase getOrElse inputPassphrase)(f)
+        default = optPassphrase getOrElse inputPassphrase
+      )(f)
     } match {
       case Right(u) => u
-      case Left(e) => throw new IllegalArgumentException(s"Wrong passphrase for key ${key.toHexString.toUpperCase} in ${ctx.secretKeyRingFile.getAbsolutePath}: ${e.getMessage}. aborting...", e)
+      case Left(e) =>
+        throw new IllegalArgumentException(
+          s"Wrong passphrase for key ${key.toHexString.toUpperCase} in ${ctx.secretKeyRingFile.getAbsolutePath}: ${e.getMessage}. aborting...",
+          e
+        )
     }
   }
 

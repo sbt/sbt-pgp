@@ -21,5 +21,5 @@ object EncryptMessage {
     (token("encrypt-msg") ~ Space) ~> existingKeyIdOrUser(ctx) ~ (Space ~> message) map {
       case key ~ msg => EncryptMessage(msg, key)
     }
-  }  
+  }
 }

@@ -2,6 +2,7 @@ package sbt
 package sbtpgp
 
 import Keys._
+import scala.language.implicitConversions
 
 object Compat {
   type PublishConfiguration = sbt.PublishConfiguration
@@ -23,8 +24,12 @@ object Compat {
   def subMissingOk(c: UpdateConfiguration, ok: Boolean): UpdateConfiguration =
     c.copy(missingOk = ok)
 
-  def mkInlineConfiguration(base: ModuleID, deps: Vector[ModuleID],
-    ivyScala: Option[IvyScala], confs: Vector[Configuration]): InlineConfiguration =
+  def mkInlineConfiguration(
+      base: ModuleID,
+      deps: Vector[ModuleID],
+      ivyScala: Option[IvyScala],
+      confs: Vector[Configuration]
+  ): InlineConfiguration =
     InlineConfiguration(base, ModuleInfo(base.name), deps).copy(ivyScala = ivyScala, configurations = confs)
 
   implicit def log2ProcessLogger(log: Logger): sys.process.ProcessLogger =
@@ -34,15 +39,19 @@ object Compat {
     }
 
   def updateEither(
-    module: IvySbt#Module,
-    configuration: UpdateConfiguration,
-    uwconfig: UnresolvedWarningConfiguration,
-    logicalClock: LogicalClock,
-    depDir: Option[File],
-    log: Logger): Either[UnresolvedWarning, UpdateReport] =
+      module: IvySbt#Module,
+      configuration: UpdateConfiguration,
+      uwconfig: UnresolvedWarningConfiguration,
+      logicalClock: LogicalClock,
+      depDir: Option[File],
+      log: Logger
+  ): Either[UnresolvedWarning, UpdateReport] =
     IvyActions.updateEither(module, configuration, uwconfig, logicalClock, depDir, log)
 
-  private[this] val signedArtifacts = TaskKey[Map[Artifact,File]]("signed-artifacts", "Packages all artifacts for publishing and maps the Artifact definition to the generated file.")
+  private[this] val signedArtifacts = TaskKey[Map[Artifact, File]](
+    "signed-artifacts",
+    "Packages all artifacts for publishing and maps the Artifact definition to the generated file."
+  )
   private[this] val pgpMakeIvy = TaskKey[Option[File]]("pgpMakeIvy", "Generates the Ivy file.")
 
   def publishSignedConfigurationTask = Def.task {
@@ -51,7 +60,8 @@ object Compat {
       pgpMakeIvy.value,
       resolverName = Classpaths.getPublishTo(publishTo.value).name,
       checksums = (checksums in publish).value,
-      logging = ivyLoggingLevel.value)
+      logging = ivyLoggingLevel.value
+    )
   }
 
   def publishLocalSignedConfigurationTask = Def.task {
@@ -59,6 +69,7 @@ object Compat {
       signedArtifacts.value,
       Some(deliverLocal.value),
       (checksums in publishLocal).value,
-      logging = ivyLoggingLevel.value)
+      logging = ivyLoggingLevel.value
+    )
   }
 }
