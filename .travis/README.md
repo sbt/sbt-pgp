@@ -4,7 +4,7 @@
 
 To configure tag driven releases from Travis CI.
 
-Generate a key pair for this repository.
+Do **NOT** use your personal GPG key for CI signing. Create a fresh gpg key that you will share with Travis CI and ONLY use for this project.
 
 ```
 gpg --gen-key
@@ -24,12 +24,47 @@ Export the secret key, and encrypt it.
 ```
 mkdir .travis
 cd .travis
-gpg --export-secret-keys --armor <keyid> > .travis/secret-key.asc
-
+gpg --export-secret-keys --armor <keyid> > secret-key.asc
 REPO=sbt/sbt-something
-travis encrypt-file .travis/secret-key.asc --add --repo $REPO
-rm .travis/secret-key.asc
-git add .travis/secret-key.asc.enc
+travis encrypt-file secret-key.asc --repo $REPO
+rm secret-key.asc
+```
+
+This should output:
+
+```
+encrypting secret-key.asc for sbt/sbt-pgp
+storing result as secret-key.asc.enc
+storing secure env variables for decryption
+
+Please add the following to your build script (before_install stage in your .travis.yml, for instance):
+
+    openssl aes-256-cbc -K $encrypted_1234567890ab_key -iv $encrypted_1234567890ab_iv -in secret-key.asc.enc -out secret-key.asc -d
+
+Pro Tip: You can add it automatically by running with --add.
+
+Make sure to add secret-key.asc.enc to the git repository.
+Make sure not to add secret-key.asc to the git repository.
+Commit all changes to your .travis.yml.
+```
+
+Follow the instruction, and double check that you have deleted `secret-key.asc`.
+
+Edit `publish.sh` to decrypt `.travis/secret-key.asc.enc` to `.travis/secret-key.asc`:
+
+```
+openssl aes-256-cbc -K $encrypted_<1234567890ab>_key -iv $encrypted_<1234567890ab>_iv -in .travis/secret-key.asc.enc -out .travis/secret-key.asc -d
+```
+
+Add the encrypted file.
+
+```
+git add secret-key.asc.enc
+```
+
+Store PGP_PASSPHRASE as an encrypted environment variable:
+
+```
 echo -n 'PGP_PASSPHRASE: ' && read -s PGP_PASSPHRASE
 travis encrypt PGP_PASSPHRASE="$PGP_PASSPHRASE" --add --repo $REPO
 ```
@@ -74,3 +109,12 @@ matrix:
 after_success:
   - .travis/publish.sh
 ```
+
+### Testing
+
+  1. Follow the release process below to create a dummy release (e.g., `v0.1.0-M1`).
+     Confirm that the release was published to Bintray etc.
+
+### Performing a release
+
+  1. Create a git tag (e.g. `v2.0.0`), and push it.

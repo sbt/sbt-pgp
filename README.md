@@ -144,39 +144,7 @@ Next, see [signing key](#configuration-signing-key) section below to set `965F25
 
 ### Publishing from Travis CI
 
-Do **NOT** use your personal GPG key for CI signing. Create a fresh gpg key that you will share with Travis CI and ONLY use for this project.
-
-```
-$ gpg --gen-key
-```
-
-- For real name, use "$PROJECT_NAME bot". For sbt-something use "sbt-something bot"
-- For email, use your own email address
-- For passphrase, generate a random password with a password manager
-
-```
-$ gpg --keyserver pool.sks-keyservers.net --send-keys 2BE67AC00D699E04E840B7FE29967E804D85663F
-```
-
-Next read through [Travis CI's Encryption keys](https://docs.travis-ci.com/user/encryption-keys/) and [Encrypting Files](https://docs.travis-ci.com/user/encrypting-files/).
-
-```
-$ mkdir .travis
-$ cd .travis
-$ gpg --export-secret-keys --armor 965F25CC72DF4F2A4358AC9B77098E6A92692949 > .travis/secret-key.asc
-$ REPO=sbt/sbt-something
-$ travis encrypt-file .travis/secret-key.asc --add --repo $REPO
-$ rm .travis/secret-key.asc
-$ git add .travis/secret-key.asc.enc
-$ echo -n 'PGP_PASSPHRASE: ' && read -s PGP_PASSPHRASE
-$ travis encrypt PGP_PASSPHRASE="$PGP_PASSPHRASE" --add --repo $REPO
-```
-
-Next, add the following to your `.travis.yml`:
-
-```
-before_script: echo $PGP_PASSPHRASE | gpg --passphrase-fd 0 --batch --yes --import .travis/secret-key.asc
-```
+See [Tag Driven Releasing](.travis/).
 
 ### Publishing Artifacts
 
