@@ -154,22 +154,28 @@ $ gpg --gen-key
 - For email, use your own email address
 - For passphrase, generate a random password with a password manager
 
+```
+$ gpg --keyserver pool.sks-keyservers.net --send-keys 2BE67AC00D699E04E840B7FE29967E804D85663F
+```
+
 Next read through [Travis CI's Encryption keys](https://docs.travis-ci.com/user/encryption-keys/) and [Encrypting Files](https://docs.travis-ci.com/user/encrypting-files/).
 
 ```
 $ mkdir .travis
-$ travis encrypt PGP_PASSPHRASE="random passphrase" --add --repo sbt/sbt-something
-$ gpg --export-secret-keys -a 965F25CC72DF4F2A4358AC9B77098E6A92692949 > .travis/secret-key.asc
-$ travis encrypt-file .travis/secret-key.asc --add --repo sbt/sbt-something
+$ cd .travis
+$ gpg --export-secret-keys --armor 965F25CC72DF4F2A4358AC9B77098E6A92692949 > .travis/secret-key.asc
+$ REPO=sbt/sbt-something
+$ travis encrypt-file .travis/secret-key.asc --add --repo $REPO
 $ rm .travis/secret-key.asc
 $ git add .travis/secret-key.asc.enc
-$ git commit
+$ echo -n 'PGP_PASSPHRASE: ' && read -s PGP_PASSPHRASE
+$ travis encrypt PGP_PASSPHRASE="$PGP_PASSPHRASE" --add --repo $REPO
 ```
 
 Next, add the following to your `.travis.yml`:
 
 ```
-before_script: echo $PGP_PASSPHRASE | gpg --passphrase-fd 0 --batch --yes --import .travis/secret-key.asc.enc
+before_script: echo $PGP_PASSPHRASE | gpg --passphrase-fd 0 --batch --yes --import .travis/secret-key.asc
 ```
 
 ### Publishing Artifacts
