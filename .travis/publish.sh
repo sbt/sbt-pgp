@@ -15,7 +15,7 @@
 # Everything after the `#` in the tag name is ignored.
 
 ## cross publish everything when Scala 2.12.x is selected.
-if [[ "$TRAVIS_SCALA_VERSION" =~ 2\.1[2]\..* "${TRAVIS_PULL_REQUEST}" == "false" && "${TRAVIS_BRANCH}" == "master" && "${TRAVIS_REPO_SLUG}" == "sbt/sbt-pgp" ]]; then
+if [[ "$TRAVIS_SCALA_VERSION" =~ 2\.1[2]\..* && "${TRAVIS_PULL_REQUEST}" == "false" && "${TRAVIS_BRANCH}" == "master" && "${TRAVIS_REPO_SLUG}" == "sbt/sbt-pgp" ]]; then
   RELEASE_COMBO=true;
 fi
 
