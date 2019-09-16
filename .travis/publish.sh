@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash -x
 
 # Builds of tagged revisions are published to Bintray
 
@@ -33,8 +33,7 @@ if [[ "$TRAVIS_TAG" =~ $tagPat ]]; then
     echo "Releasing $tagVer with Scala $TRAVIS_SCALA_VERSION"
 
     ## change this to match your encrypted key
-    openssl aes-256-cbc -K $encrypted_fcdd190fa04a_key -iv $encrypted_fcdd190fa04a_iv
-  -in .travis/secret-key.asc.enc -out .travis/secret-key.asc -d
+    openssl aes-256-cbc -K $encrypted_fcdd190fa04a_key -iv $encrypted_fcdd190fa04a_iv -in .travis/secret-key.asc.enc -out .travis/secret-key.asc -d
     echo $PGP_PASSPHRASE | gpg --passphrase-fd 0 --batch --yes --import .travis/secret-key.asc
 
     ## change this to match your build
