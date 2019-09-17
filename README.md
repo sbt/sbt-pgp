@@ -205,7 +205,7 @@ usePgpKeyHex("2BE67AC00D699E04E840B7FE29967E804D85663F")
 
 ### OpenPGP Support
 
-If you are using a [Yubikey 4](https://www.yubico.com/product/yubikey-4-series/) or another smartcard that [supports OpenPGP](https://incenp.org/notes/2016/openpgp-card-implementations.html), then you may have private keys implemented directly on the smartcard rather than using the gpg keyring.  In this situation, you will use `gpg-agent` and a pinentry (`pinentry-mac`, `pinentry-qt`, `pinentry-curses` etc) rather than a passphrase.  Set `useGpgPinentry := true` in your `build.sbt` settings to configure `sbt-pgp` appropriately.
+If you are using a [Yubikey 4](https://support.yubico.com/support/solutions/articles/15000006486-yubikey-4) or another smartcard that [supports OpenPGP](https://incenp.org/notes/2016/openpgp-card-implementations.html), then you may have private keys implemented directly on the smartcard rather than using the gpg keyring.  In this situation, you will use `gpg-agent` and a pinentry (`pinentry-mac`, `pinentry-qt`, `pinentry-curses` etc) rather than a passphrase.  Set `useGpgPinentry := true` in your `build.sbt` settings to configure `sbt-pgp` appropriately.
 
 ```scala
 Global / useGpgPinentry := true
