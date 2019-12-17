@@ -13,6 +13,12 @@ trait PgpSigner {
   def sign(file: File, signatureFile: File, s: TaskStreams): File
 }
 
+object PgpSigner {
+  // This is used to synchronize signing to work around
+  // https://github.com/sbt/sbt-pgp/issues/168
+  private[sbtpgp] val lock = new Object
+}
+
 /** A GpgSigner that uses the command-line to run gpg. */
 class CommandLineGpgSigner(
     command: String,
@@ -21,7 +27,7 @@ class CommandLineGpgSigner(
     optKey: Option[String],
     optPassphrase: Option[Array[Char]]
 ) extends PgpSigner {
-  def sign(file: File, signatureFile: File, s: TaskStreams): File = {
+  def sign(file: File, signatureFile: File, s: TaskStreams): File = PgpSigner.lock.synchronized {
     if (signatureFile.exists) IO.delete(signatureFile)
     val passargs: Seq[String] = (optPassphrase map { passArray =>
       passArray mkString ""
@@ -61,7 +67,7 @@ class CommandLineGpgPinentrySigner(
     optKey: Option[String],
     optPassphrase: Option[Array[Char]]
 ) extends PgpSigner {
-  def sign(file: File, signatureFile: File, s: TaskStreams): File = {
+  def sign(file: File, signatureFile: File, s: TaskStreams): File = PgpSigner.lock.synchronized {
     if (signatureFile.exists) IO.delete(signatureFile)
     // (the PIN code is the passphrase)
     // https://wiki.archlinux.org/index.php/GnuPG#Unattended_passphrase
