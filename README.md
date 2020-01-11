@@ -148,7 +148,15 @@ See [Tag Driven Releasing](.travis/).
 
 ### Publishing Artifacts
 
-To publish signed artifacts, use `publishSigned` or `publishLocalSigned`.
+To publish signed artifacts, use `publishSigned` or `publishLocalSigned`. Given the interactive prompting of a password you should also ensure that the `gpg` command has the ability to write to the console. This can be achieved using the following `export`:
+
+```
+export GPG_TTY=$(tty)
+```
+
+...and then publishing.
+
+> If you receive a message similar to `signing failed: Inappropriate ioctl for device`, then you will need the `GPG_TTY` variable set.
 
 ### Skipping publishing
 
