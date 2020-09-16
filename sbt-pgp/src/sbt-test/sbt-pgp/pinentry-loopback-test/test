@@ -1,0 +1,4 @@
+> show pgpPassphrase
+> show pgpSigner
+> signedArtifacts
+$ exists target/scala-2.13/test_2.13-1.0.jar.asc

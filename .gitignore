@@ -4,3 +4,6 @@ boot/
 .classpath
 .project
 .scala_dependencies
+
+.vscode
+.metals
