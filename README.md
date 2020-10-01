@@ -115,7 +115,7 @@ ssb   rsa2048 2012-02-14 [SEA] [expires: 2028-02-09]
 Since other people need your **public** key to verify your files, you have to distribute your public key to a key server:
 
 ```
-$ gpg --keyserver hkp://pool.sks-keyservers.net --send-keys 2BE67AC00D699E04E840B7FE29967E804D85663F
+$ gpg --keyserver keyserver.ubuntu.com --send-keys 2BE67AC00D699E04E840B7FE29967E804D85663F
 ```
 
 ### Importing key pair
