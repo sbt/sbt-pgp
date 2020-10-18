@@ -1,5 +1,6 @@
 package com.jsuereth.sbtpgp
 
+import scala.sys.process.ProcessLogger
 import sbt._
 import Keys._
 import com.jsuereth.pgp.cli.PgpCommandContext
@@ -43,7 +44,7 @@ class CommandLineGpgSigner(
     val args = passargs ++ ringargs ++ Seq("--detach-sign", "--armor") ++ (if (agent) Seq("--use-agent") else Seq.empty) ++ keyargs
     val allArguments: Seq[String] = args ++ Seq("--output", signatureFile.getAbsolutePath, file.getAbsolutePath)
     import sbt.sbtpgp.Compat._ // needed for sbt 0.13
-    sys.process.Process(command, allArguments) ! s.log match {
+    sys.process.Process(command, allArguments) ! ProcessLogger(s.log.info(_)) match {
       case 0 => ()
       case n => sys.error(s"Failure running '${command + " " + allArguments.mkString(" ")}'.  Exit code: " + n)
     }
