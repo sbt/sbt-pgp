@@ -4,12 +4,17 @@ val LibraryDoc = config("library-doc")
 val PluginDoc = config("plugin-doc")
 
 ThisBuild / scalafmtOnCompile := true
+ThisBuild / dynverSonatypeSnapshots := true
+ThisBuild / version := {
+  val orig = (ThisBuild / version).value
+  if (orig.endsWith("-SNAPSHOT")) "2.0.2-SNAPSHOT"
+  else orig
+}
 
 lazy val root = (project in file("."))
   .enablePlugins(GhpagesPlugin)
   .enablePlugins(JekyllPlugin)
   .enablePlugins(SiteScaladocPlugin)
-  .enablePlugins(GitVersioning)
   .aggregate(library, plugin)
   .settings(
     name := "sbt-pgp root",
@@ -17,8 +22,6 @@ lazy val root = (project in file("."))
     git.remoteRepo := "git@github.com:sbt/sbt-pgp.git",
     SiteScaladocPlugin.scaladocSettings(LibraryDoc, mappings in (Compile, packageDoc) in library, "library/latest/api"),
     SiteScaladocPlugin.scaladocSettings(PluginDoc, mappings in (Compile, packageDoc) in plugin, "plugin/latest/api"),
-    // Release settings
-    Release.settings,
     crossScalaVersions := Vector.empty,
   )
 
@@ -28,7 +31,7 @@ lazy val plugin = (project in file("sbt-pgp"))
   .settings(
     commonSettings,
     name := "sbt-pgp",
-    crossSbtVersions := Seq("0.13.17", "1.1.6"),
+    crossSbtVersions := Seq("0.13.18", "1.1.6"),
     libraryDependencies += gigahorseOkhttp,
     libraryDependencies ++= {
       (sbtBinaryVersion in pluginCrossBuild).value match {
@@ -63,13 +66,14 @@ lazy val commonSettings = Seq(
   publishMavenStyle := false,
   bintrayOrganization := Some("sbt"),
   bintrayRepository := "sbt-plugin-releases",
+  publishTo := (bintray / publishTo).value,
   // Because we're both a library and an sbt plugin, we use crossScalaVersions rather than crossSbtVersions for
   // cross building. So you can use commands like +scripted.
   crossScalaVersions := Seq("2.10.7", "2.12.8"),
   sbtVersion in pluginCrossBuild := {
     scalaBinaryVersion.value match {
-      case "2.10" => "0.13.16"
-      case "2.12" => "1.1.5"
+      case "2.10" => "0.13.18"
+      case "2.12" => "1.1.6"
     }
   }
 )
