@@ -40,6 +40,7 @@ lazy val plugin = (project in file("sbt-pgp"))
       }
     },
     publishLocal := publishLocal.dependsOn(publishLocal in library).value,
+    scriptedBufferLog := false,
     scriptedLaunchOpts += s"-Dproject.version=${version.value}"
   )
 
