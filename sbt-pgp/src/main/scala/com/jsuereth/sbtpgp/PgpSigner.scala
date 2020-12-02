@@ -28,12 +28,37 @@ class CommandLineGpgSigner(
     optKey: Option[String],
     optPassphrase: Option[Array[Char]]
 ) extends PgpSigner {
+  lazy val gpgVersion: String = {
+    import sbt.sbtpgp.Compat._ // needed for sbt 0.13
+    val lines = sys.process.Process(command, List("--version")).!!.linesIterator.toList
+    lines.headOption match {
+      case Some(head) => head.split(" ").last
+      case _          => "0.0.0"
+    }
+  }
+  private val TaggedVersion = """(\d{1,14})([\.\d{1,14}]*)((?:-\w+)*)((?:\+.+)*)""".r
+  lazy val gpgVersionNumber: (Long, Long) = gpgVersion match {
+    case TaggedVersion(m, ns, ts, es) =>
+      // null safe, empty string safe
+      def splitOn[A](s: String, sep: Char): Vector[String] =
+        if (s eq null) Vector()
+        else s.split(sep).filterNot(_ == "").toVector
+      def splitDot(s: String) = splitOn(s, '.') map (_.toLong)
+      (m.toLong, splitDot(ns).headOption.getOrElse(0L))
+    case _ => (0L, 0L)
+  }
+  def isLegacyGpg: Boolean = gpgVersionNumber._1 < 2L
   def sign(file: File, signatureFile: File, s: TaskStreams): File = PgpSigner.lock.synchronized {
     if (signatureFile.exists) IO.delete(signatureFile)
     val passargs: Seq[String] = (optPassphrase map { passArray =>
       passArray mkString ""
     } map { pass =>
-      Seq("--batch", "--passphrase", pass)
+      // https://github.com/sbt/sbt-pgp/issues/173
+      // https://www.gnupg.org/documentation/manuals/gnupg/GPG-Esoteric-Options.html#GPG-Esoteric-Options
+      // --passphrase
+      // Since Version 2.1 the --pinentry-mode also needs to be set to loopback.
+      if (isLegacyGpg) Seq("--batch", "--passphrase", pass)
+      else Seq("--batch", "--pinentry-mode", "loopback", "--passphrase", pass)
     }) getOrElse Seq.empty
     val ringargs: Seq[String] =
       optRing match {
