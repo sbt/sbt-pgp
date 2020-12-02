@@ -63,6 +63,7 @@ lazy val library = (project in file("gpg-library"))
 
 lazy val commonSettings = Seq(
   organization := "com.jsuereth",
+  homepage := Some(url("https://github.com/sbt/sbt-pgp")),
   Compile / scalacOptions := Seq("-feature", "-deprecation", "-Xlint"),
   publishMavenStyle := false,
   bintrayOrganization := Some("sbt"),
