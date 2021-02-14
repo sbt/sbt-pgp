@@ -1,1 +1,1 @@
-addSbtPlugin("com.jsuereth" % "sbt-pgp" % sys.props("project.version"))
+addSbtPlugin("com.github.sbt" % "sbt-pgp" % sys.props("project.version"))
