@@ -8,21 +8,13 @@ Some OSS repositories (e.g. Sonatype) will require that you sign artifacts with 
 Setup
 -----
 
-### For sbt 1.x:
-
-Add the following to your `~/.sbt/1.0/plugins/gpg.sbt` file:
+Add the following to your `project/plugins.sbt` file:
 
 ```scala
-addSbtPlugin("com.jsuereth" % "sbt-pgp" % "2.0.2")
+addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.1.1")
 ```
 
-### For sbt 0.13.x:
-
-Add the following to your `~/.sbt/0.13/plugins/gpg.sbt` file:
-
-```scala
-addSbtPlugin("com.jsuereth" % "sbt-pgp" % "2.0.2")
-```
+**Note**: We changed the organization from `"com.jsuereth"` to `"com.github.sbt"`.
 
 Usage
 -----
