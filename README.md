@@ -11,7 +11,7 @@ Setup
 Add the following to your `project/plugins.sbt` file:
 
 ```scala
-addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.1.1")
+addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.1.2")
 ```
 
 **Note**: We changed the organization from `"com.jsuereth"` to `"com.github.sbt"`.
