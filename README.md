@@ -136,7 +136,7 @@ Next, see [signing key](#configuration-signing-key) section below to set `965F25
 
 ### Publishing from Travis CI
 
-See [Tag Driven Releasing](.travis/).
+See [sbt-ci-release](https://github.com/olafurpg/sbt-ci-release).
 
 ### Publishing Artifacts
 
