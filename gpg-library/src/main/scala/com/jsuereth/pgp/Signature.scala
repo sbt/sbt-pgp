@@ -27,7 +27,7 @@ class Signature(val nested: PGPSignature) extends StreamingSaveable {
     case PGPSignature.STAND_ALONE              => "Stand-alone"
     case PGPSignature.DEFAULT_CERTIFICATION    => "Default Cert."
     case PGPSignature.NO_CERTIFICATION         => "No Cert."
-    case PGPSignature.POSITIVE_CERTIFICATION   => "Positve Cert."
+    case PGPSignature.POSITIVE_CERTIFICATION   => "Positive Cert."
     case PGPSignature.SUBKEY_BINDING           => "Subkey Binding"
     case PGPSignature.PRIMARYKEY_BINDING       => "Primary Key Binding"
     case PGPSignature.KEY_REVOCATION           => "Key Revocation"

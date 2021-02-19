@@ -86,17 +86,21 @@ object PgpSignatureCheck {
 
   def checkSignaturesTask(update: UpdateReport, pgp: PgpVerifierFactory, s: TaskStreams): SignatureCheckReport = {
     val report = SignatureCheckReport(checkArtifactSignatures(update, pgp, s) ++ missingSignatures(update, s))
-    // TODO - Print results in differnt taks, or provide a report as well.
+    // TODO - Print results in different task, or provide a report as well.
     // TODO - Allow different log levels
     // TODO - Does sort-with for pretty print make any sense?
-    prettyPrintSingatureReport(report, s)
+    prettyPrintSignatureReport(report, s)
     if (report.results exists (x => x.result != SignatureCheckResult.OK && x.result != SignatureCheckResult.MISSING))
       sys.error("Some artifacts have bad signatures or are signed by untrusted sources!")
     report
   }
 
-  /** Pretty-prints a report to the logs of all the PGP signature results. */
+  @deprecated(message = "use prettyPrintSignatureReport", since = "2.1.3")
   def prettyPrintSingatureReport(report: SignatureCheckReport, s: TaskStreams): Unit =
+    prettyPrintSignatureReport(report, s)
+
+  /** Pretty-prints a report to the logs of all the PGP signature results. */
+  def prettyPrintSignatureReport(report: SignatureCheckReport, s: TaskStreams): Unit =
     if (report.results.isEmpty) s.log.info("----- No Dependencies for PGP check -----")
     else {
       import report._

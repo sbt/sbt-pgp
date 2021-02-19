@@ -244,7 +244,7 @@ class SecretKey(val nested: PGPSecretKey) {
           val pgpFact = new JcaPGPObjectFactory(compressedStream)
           extractLiteral(pgpFact.nextObject)
         case msg: PGPOnePassSignature => throw new NotEncryptedMessageException("Message is a signature")
-        case _                        => throw new NotEncryptedMessageException("Message is not a simple encyrpted file")
+        case _                        => throw new NotEncryptedMessageException("Message is not a simple encrypted file")
       }
       val msg = extractLiteral(plainFact.nextObject)
       val result = handler(msg)
@@ -263,7 +263,7 @@ class SecretKey(val nested: PGPSecretKey) {
       nested.extractPrivateKey(decryptorFactory)
     } catch {
       case e: PGPException if e.getMessage.contains("checksum mismatch") =>
-        throw new IncorrectPassphraseException("Incorrect passhprase", e)
+        throw new IncorrectPassphraseException("Incorrect passphrase", e)
     }
 
   def userIDs = new Traversable[String] {
