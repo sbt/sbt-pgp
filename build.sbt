@@ -41,15 +41,15 @@ lazy val plugin = (project in file("sbt-pgp"))
     crossSbtVersions := Seq("0.13.18", "1.1.6"),
     libraryDependencies += gigahorseOkhttp,
     libraryDependencies ++= {
-      (sbtBinaryVersion in pluginCrossBuild).value match {
+      (pluginCrossBuild / sbtBinaryVersion).value match {
         case "0.13" => Defaults.sbtPluginExtra("org.scala-sbt" % "sbt-core-next" % "0.1.1", "0.13", scalaBinaryVersion.value) :: Nil
         case _      => Nil
       }
     },
-    publishLocal := publishLocal.dependsOn(publishLocal in library).value,
+    publishLocal := publishLocal.dependsOn(library / publishLocal).value,
     scriptedBufferLog := false,
     scriptedLaunchOpts += s"-Dproject.version=${version.value}",
-    sbtVersion in pluginCrossBuild := {
+    pluginCrossBuild / sbtVersion := {
       scalaBinaryVersion.value match {
         case "2.10" => "0.13.18"
         case "2.12" => "1.1.6"
