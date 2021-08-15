@@ -28,8 +28,8 @@ lazy val root = (project in file("."))
     name := "sbt-pgp root",
     publish / skip := true,
     git.remoteRepo := "git@github.com:sbt/sbt-pgp.git",
-    SiteScaladocPlugin.scaladocSettings(LibraryDoc, mappings in (Compile, packageDoc) in library, "library/latest/api"),
-    SiteScaladocPlugin.scaladocSettings(PluginDoc, mappings in (Compile, packageDoc) in plugin, "plugin/latest/api"),
+    SiteScaladocPlugin.scaladocSettings(LibraryDoc, library / Compile / packageDoc / mappings, "library/latest/api"),
+    SiteScaladocPlugin.scaladocSettings(PluginDoc, plugin / Compile / packageDoc / mappings, "plugin/latest/api"),
     crossScalaVersions := Vector.empty,
   )
 
