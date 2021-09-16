@@ -4,3 +4,5 @@ boot/
 .classpath
 .project
 .scala_dependencies
+/.idea
+/.bsp
