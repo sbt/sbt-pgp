@@ -30,7 +30,7 @@ lazy val root = (project in file("."))
     git.remoteRepo := "git@github.com:sbt/sbt-pgp.git",
     SiteScaladocPlugin.scaladocSettings(LibraryDoc, library / Compile / packageDoc / mappings, "library/latest/api"),
     SiteScaladocPlugin.scaladocSettings(PluginDoc, plugin / Compile / packageDoc / mappings, "plugin/latest/api"),
-    crossScalaVersions := Vector.empty,
+    crossScalaVersions := Vector.empty
   )
 
 lazy val plugin = (project in file("sbt-pgp"))
@@ -42,8 +42,9 @@ lazy val plugin = (project in file("sbt-pgp"))
     libraryDependencies += gigahorseOkhttp,
     libraryDependencies ++= {
       (pluginCrossBuild / sbtBinaryVersion).value match {
-        case "0.13" => Defaults.sbtPluginExtra("org.scala-sbt" % "sbt-core-next" % "0.1.1", "0.13", scalaBinaryVersion.value) :: Nil
-        case _      => Nil
+        case "0.13" =>
+          Defaults.sbtPluginExtra("org.scala-sbt" % "sbt-core-next" % "0.1.1", "0.13", scalaBinaryVersion.value) :: Nil
+        case _ => Nil
       }
     },
     publishLocal := publishLocal.dependsOn(library / publishLocal).value,
@@ -63,8 +64,7 @@ lazy val plugin = (project in file("sbt-pgp"))
 lazy val library = (project in file("gpg-library"))
   .settings(
     name := "pgp-library",
-    libraryDependencies ++= Seq(bouncyCastlePgp, gigahorseOkhttp,
-      specs2 % Test, sbtIo % Test),
+    libraryDependencies ++= Seq(bouncyCastlePgp, gigahorseOkhttp, specs2 % Test, sbtIo % Test),
     libraryDependencies ++= {
       scalaBinaryVersion.value match {
         case "2.10" => Nil
@@ -81,21 +81,23 @@ ThisBuild / scmInfo := Some(
 )
 ThisBuild / developers := List(
   Developer(
-    id    = "jsuereth",
-    name  = "Josh Suereth",
+    id = "jsuereth",
+    name = "Josh Suereth",
     email = "@jsuereth",
-    url   = url("https://github.com/jsuereth")
+    url = url("https://github.com/jsuereth")
   ),
   Developer(
-    id    = "eed3si9n",
-    name  = "Eugene Yokota",
+    id = "eed3si9n",
+    name = "Eugene Yokota",
     email = "@eed3si9n",
-    url   = url("https://eed3si9n.com/")
-  ),
+    url = url("https://eed3si9n.com/")
+  )
 )
 ThisBuild / description := "sbt-pgp provides PGP signing for sbt"
 ThisBuild / licenses := List("BSD-3-Clause" -> new URL("https://github.com/sbt/sbt-pgp/blob/develop/LICENSE"))
-ThisBuild / pomIncludeRepository := { _ => false }
+ThisBuild / pomIncludeRepository := { _ =>
+  false
+}
 ThisBuild / publishTo := {
   val nexus = "https://oss.sonatype.org/"
   if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
