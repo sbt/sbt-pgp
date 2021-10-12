@@ -3,7 +3,7 @@ package com.jsuereth.pgp
 import org.specs2.mutable._
 import sbt.io.IO
 
-import java.io.{BufferedWriter, File, FileWriter}
+import java.io.{ BufferedWriter, File, FileWriter }
 
 class KeyGenSpec extends Specification {
   PGP.init()
@@ -43,7 +43,8 @@ class KeyGenSpec extends Specification {
         bw1.close()
 
         val source1 = scala.io.Source.fromFile(testFile1.getAbsolutePath)
-        val lines1 = try source1.mkString finally source1.close()
+        val lines1 = try source1.mkString
+        finally source1.close()
 //        System.out.println(lines1)
 
         // encrypted -> decrypted file preparation
@@ -57,7 +58,8 @@ class KeyGenSpec extends Specification {
         sec.secretKey.decryptFile(testFileEncrypted, pw)
 
         val source2 = scala.io.Source.fromFile(testFile2.getAbsolutePath)
-        val lines2 = try source2.mkString finally source2.close()
+        val lines2 = try source2.mkString
+        finally source2.close()
 //        System.out.println(lines2)
 
         lines1 must equalTo(lines2)
