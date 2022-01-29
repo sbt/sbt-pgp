@@ -6,8 +6,18 @@ on:
   # 2am EST every Saturday
   - cron: '0 7 * * 6'
 jobs:
-  build_scala2_12:
-    runs-on: ubuntu-latest
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            java: 11
+            distribution: temurin
+          - os: ubuntu-latest
+            java: 8
+            distribution: temurin
+    runs-on: ${{ matrix.os }}
     env:
       # define Java options for both official sbt and sbt-extras
       JAVA_OPTS: -Xms2048M -Xmx2048M -Xss6M -XX:ReservedCodeCacheSize=256M -Dfile.encoding=UTF-8
@@ -15,18 +25,23 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Setup Scala
-      uses: olafurpg/setup-scala@v10
+    - name: Setup JDK
+      uses: actions/setup-java@v2
       with:
-        java-version: "adopt@1.8"
+        distribution: "${{ matrix.distribution }}"
+        java-version: "${{ matrix.java }}"
     - name: Coursier cache
       uses: coursier/cache-action@v5
     - name: Build and test
       run: |
         gpg --import test-key.gpg
         sbt -v clean scalafmtSbtCheck +scalafmtCheckAll +test +scripted
+    - name: Cleanup
+      shell: bash
+      run: |
+        rm -rf "$HOME/.sbt/scripted/" || true
         rm -rf "$HOME/.ivy2/local" || true
         find $HOME/Library/Caches/Coursier/v1        -name "ivydata-*.properties" -delete || true
         find $HOME/.ivy2/cache                       -name "ivydata-*.properties" -delete || true
         find $HOME/.cache/coursier/v1                -name "ivydata-*.properties" -delete || true
-        find $HOME/.sbt
+        find $HOME/.sbt                              -name "*.lock"               -delete || true

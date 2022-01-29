@@ -19,14 +19,14 @@ object SbtPgp extends AutoPlugin {
 
     // TODO - Are these ok for style guide?  We think so.
     @deprecated("useGpg is true by default; Bouncy Castle mode is deprecated", "2.0.0")
-    def useGpg = PgpKeys.useGpg in Global
-    def useGpgAgent = PgpKeys.useGpgAgent in Global
-    def useGpgPinentry = PgpKeys.useGpgPinentry in Global
-    def pgpSigningKey = PgpKeys.pgpSigningKey in Global
-    def pgpPassphrase = PgpKeys.pgpPassphrase in Global
-    def pgpKeyRing = PgpKeys.pgpKeyRing in Global
-    def pgpPublicRing = PgpKeys.pgpPublicRing in Global
-    def pgpSecretRing = PgpKeys.pgpSecretRing in Global
+    def useGpg = (Global / PgpKeys.useGpg)
+    def useGpgAgent = (Global / PgpKeys.useGpgAgent)
+    def useGpgPinentry = (Global / PgpKeys.useGpgPinentry)
+    def pgpSigningKey = (Global / PgpKeys.pgpSigningKey)
+    def pgpPassphrase = (Global / PgpKeys.pgpPassphrase)
+    def pgpKeyRing = (Global / PgpKeys.pgpKeyRing)
+    def pgpPublicRing = (Global / PgpKeys.pgpPublicRing)
+    def pgpSecretRing = (Global / PgpKeys.pgpSecretRing)
 
     def usePgpKeyHex(id: String) = pgpSigningKey := Some(id)
     def signingSettings = PgpSettings.signingSettings

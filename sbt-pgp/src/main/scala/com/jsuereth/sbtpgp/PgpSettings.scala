@@ -124,7 +124,7 @@ object PgpSettings {
    */
   lazy val signVerifyConfigurationSettings: Seq[Setting[_]] = Seq(
     // TODO - move these to the signArtifactSettings?
-    skip in pgpSigner := ((skip in pgpSigner) ?? false).value,
+    (pgpSigner / skip) := ((pgpSigner / skip) ?? false).value,
     pgpSigner := switch(useGpg, switch(useGpgPinentry, gpgPinEntrySigner, gpgSigner), bcPgpSigner).value,
     pgpVerifierFactory := switch(useGpg, gpgVerifierFactory, bcPgpVerifierFactory).value
   )
@@ -140,7 +140,7 @@ object PgpSettings {
     signedArtifacts := {
       val artifacts = packagedArtifacts.value
       val r = pgpSigner.value
-      val skipZ = (skip in pgpSigner).value
+      val skipZ = (pgpSigner / skip).value
       val s = streams.value
       if (!skipZ) {
         artifacts flatMap {
@@ -167,7 +167,7 @@ object PgpSettings {
     Def.taskDyn {
       val s = streams.value
       val ref = thisProjectRef.value
-      val skp = ((skip in publish) ?? false).value
+      val skp = ((publish / skip) ?? false).value
       if (skp) Def.task { s.log.debug(s"Skipping publishSigned for ${ref.project}") } else
         Classpaths.publishTask(config, deliver)
     }
@@ -179,14 +179,14 @@ object PgpSettings {
       val pluginIDs: Seq[ModuleID] = lb.units(ref.build).unit.plugins.fullClasspath.flatMap(_ get moduleID.key)
       GetSignaturesModule(pid, sbtDep +: pluginIDs, Configurations.Default :: Nil)
     },*/
-    signaturesModule in updatePgpSignatures := {
+    (updatePgpSignatures / signaturesModule) := {
       GetSignaturesModule(projectID.value, libraryDependencies.value, Configurations.Default :: Nil)
     },
     updatePgpSignatures := {
       PgpSignatureCheck.resolveSignatures(
         ivySbt.value,
         GetSignaturesConfiguration(
-          (signaturesModule in updatePgpSignatures).value,
+          (updatePgpSignatures / signaturesModule).value,
           updateConfiguration.value,
           ivyScala.value
         ),
