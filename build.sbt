@@ -9,7 +9,9 @@ ThisBuild / Compile / scalacOptions := Seq("-feature", "-deprecation", "-Xlint")
 
 // Because we're both a library and an sbt plugin, we use crossScalaVersions rather than crossSbtVersions for
 // cross building. So you can use commands like +scripted.
-ThisBuild / crossScalaVersions := Seq("2.10.7", "2.12.8")
+lazy val scala212 = "2.12.15"
+ThisBuild / crossScalaVersions := Seq(scala212)
+ThisBuild / scalaVersion := scala212
 
 ThisBuild / scalafmtOnCompile := true
 ThisBuild / dynverSonatypeSnapshots := true
@@ -38,21 +40,12 @@ lazy val plugin = (project in file("sbt-pgp"))
   .dependsOn(library)
   .settings(
     name := "sbt-pgp",
-    crossSbtVersions := Seq("0.13.18", "1.1.6"),
     libraryDependencies += gigahorseOkhttp,
-    libraryDependencies ++= {
-      (pluginCrossBuild / sbtBinaryVersion).value match {
-        case "0.13" =>
-          Defaults.sbtPluginExtra("org.scala-sbt" % "sbt-core-next" % "0.1.1", "0.13", scalaBinaryVersion.value) :: Nil
-        case _ => Nil
-      }
-    },
-    publishLocal := publishLocal.dependsOn(library / publishLocal).value,
+    publishLocal := publishLocal.dependsOn((library / publishLocal)).value,
     scriptedBufferLog := false,
     scriptedLaunchOpts += s"-Dproject.version=${version.value}",
-    pluginCrossBuild / sbtVersion := {
+    (pluginCrossBuild / sbtVersion) := {
       scalaBinaryVersion.value match {
-        case "2.10" => "0.13.18"
         case "2.12" => "1.1.6"
       }
     }
@@ -65,12 +58,7 @@ lazy val library = (project in file("gpg-library"))
   .settings(
     name := "pgp-library",
     libraryDependencies ++= Seq(bouncyCastlePgp, gigahorseOkhttp, specs2 % Test, sbtIo % Test),
-    libraryDependencies ++= {
-      scalaBinaryVersion.value match {
-        case "2.10" => Nil
-        case _      => Seq(parserCombinators)
-      }
-    }
+    libraryDependencies ++= Seq(parserCombinators)
   )
 
 ThisBuild / scmInfo := Some(
