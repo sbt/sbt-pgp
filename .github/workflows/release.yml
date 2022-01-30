@@ -13,6 +13,11 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+    - name: Setup JDK
+      uses: actions/setup-java@v2
+      with:
+        distribution: "temurin"
+        java-version: "8"
     - name: Coursier cache
       uses: coursier/cache-action@v5
     - name: Test
@@ -29,3 +34,12 @@ jobs:
         CI_RELEASE: +publishSigned
       run: |
         sbt ci-release
+    - name: Cleanup
+      shell: bash
+      run: |
+        rm -rf "$HOME/.sbt/scripted/" || true
+        rm -rf "$HOME/.ivy2/local" || true
+        find $HOME/Library/Caches/Coursier/v1        -name "ivydata-*.properties" -delete || true
+        find $HOME/.ivy2/cache                       -name "ivydata-*.properties" -delete || true
+        find $HOME/.cache/coursier/v1                -name "ivydata-*.properties" -delete || true
+        find $HOME/.sbt                              -name "*.lock"               -delete || true
