@@ -47,7 +47,7 @@ class CommandLineGpgSigner(
       (m.toLong, splitDot(ns).headOption.getOrElse(0L))
     case _ => (0L, 0L)
   }
-  def isLegacyGpg: Boolean = gpgVersionNumber._1 < 2L
+  def isLegacyGpg: Boolean = (gpgVersionNumber._1 < 2L) || (gpgVersionNumber._1 >= 2L && gpgVersionNumber._2 == 0L)
   def sign(file: File, signatureFile: File, s: TaskStreams): File = PgpSigner.lock.synchronized {
     if (signatureFile.exists) IO.delete(signatureFile)
     val passargs: Seq[String] = (optPassphrase map { passArray =>
