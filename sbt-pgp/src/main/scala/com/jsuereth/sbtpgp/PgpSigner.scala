@@ -18,6 +18,14 @@ object PgpSigner {
   // This is used to synchronize signing to work around
   // https://github.com/sbt/sbt-pgp/issues/168
   private[sbtpgp] val lock = new Object
+
+  private[sbtpgp] def pathStr(file: File): String =
+    if (!isWindows) file.getPath
+    else
+      sys.env.get("GITHUB_ACTIONS") match {
+        case Some(_) => file.getPath.replace("\\", "/").replace("C:", "/c")
+        case _       => file.getPath
+      }
 }
 
 /** A GpgSigner that uses the command-line to run gpg. */
@@ -62,7 +70,7 @@ class CommandLineGpgSigner(
     }) getOrElse Seq.empty
     val ringargs: Seq[String] =
       optRing match {
-        case Some(ring) => Seq("--no-default-keyring", "--keyring", ring.getPath)
+        case Some(ring) => Seq("--no-default-keyring", "--keyring", PgpSigner.pathStr(ring))
         case _          => Vector.empty
       }
     val keyargs: Seq[String] = optKey map (k => Seq("--default-key", k)) getOrElse Seq.empty
@@ -105,7 +113,7 @@ class CommandLineGpgPinentrySigner(
     }) getOrElse Seq.empty
     val ringargs: Seq[String] =
       optRing match {
-        case Some(ring) => Seq("--no-default-keyring", "--keyring", ring.getPath)
+        case Some(ring) => Seq("--no-default-keyring", "--keyring", PgpSigner.pathStr(ring))
         case _          => Vector.empty
       }
     val keyargs: Seq[String] = optKey map (k => Seq("--default-key", k)) getOrElse Seq.empty
