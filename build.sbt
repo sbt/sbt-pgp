@@ -46,7 +46,7 @@ lazy val plugin = (project in file("sbt-pgp"))
     scriptedLaunchOpts += s"-Dproject.version=${version.value}",
     (pluginCrossBuild / sbtVersion) := {
       scalaBinaryVersion.value match {
-        case "2.12" => "1.1.6"
+        case "2.12" => "1.2.8"
       }
     }
   )
