@@ -8,10 +8,13 @@ Some OSS repositories (e.g. Sonatype) will require that you sign artifacts with 
 Setup
 -----
 
+[![sbt-pgp Scala version support](https://index.scala-lang.org/sbt/sbt-pgp/sbt-pgp/latest-by-scala-version.svg?targetType=Sbt)](https://index.scala-lang.org/sbt/sbt-pgp/sbt-pgp)
+
+
 Add the following to your `project/plugins.sbt` file:
 
 ```scala
-addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.1.2")
+addSbtPlugin("com.github.sbt" % "sbt-pgp" % "x.y.z")
 ```
 
 **Note**: We changed the organization from `"com.jsuereth"` to `"com.github.sbt"`.
