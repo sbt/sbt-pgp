@@ -66,7 +66,7 @@ class CommandLineGpgSigner(
       // --passphrase
       // Since Version 2.1 the --pinentry-mode also needs to be set to loopback.
       if (isLegacyGpg) Seq("--batch", "--passphrase", pass)
-      else Seq("--batch", "--pinentry-mode", "loopback", "--passphrase", pass)
+      else Seq("--batch", "--yes", "--pinentry-mode", "loopback", "--passphrase", pass)
     }) getOrElse Seq.empty
     val ringargs: Seq[String] =
       optRing match {
