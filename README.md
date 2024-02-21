@@ -27,7 +27,7 @@ There are two modes of use:
 - By default sbt-pgp 2.0.0+ will use the `gpg` command-line utility (GNU Privary Guard, "GnuPG"). It provides great support and is available on many platforms.  You'll need to make sure this is installed prior to usage as this dependency is not provided.
 - Prior to sbt-pgp 2.0.0, `sbt-pgp` used the [Bouncy Castle](http://www.bouncycastle.org/) library, an implementation of PGP that is included with the plugin. It is a Java-only solution that gives the plugin great flexibility in what it can do and how it performs it.
 
-### Install GnuPG (or GNU Privary Guard, GPG)
+### Install GnuPG (or GNU Privacy Guard, GPG)
 
 First, please check that you have a recent version of GPG (GNU Privary Guard, "GnuPG") on your system. If not, install it from <http://www.gnupg.org/download/> or your favorite package manager. For macOS, we recommend using [GPG Suite](https://gpgtools.org/).
 
