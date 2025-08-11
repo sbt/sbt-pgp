@@ -3,6 +3,7 @@ package sbtpgp
 
 import sbt.{ librarymanagement => lm }
 import sbt.internal.{ librarymanagement => ilm }
+import scala.annotation.{ meta, StaticAnnotation }
 import Keys._
 import com.jsuereth.sbtpgp.PgpKeys._
 import com.jsuereth.sbtpgp.gpgExtension
@@ -65,4 +66,15 @@ object Compat {
   )
 
   def toFile(x: File, c: xsbti.FileConverter): File = x
+
+  def credentialForHost(cs: Seq[Credentials], host: String) =
+    Credentials.forHost(cs, host)
+
+  implicit class DefOp(singleton: Def.type) {
+    def uncached[A1](a: A1): A1 = a
+  }
+  @meta.getter
+  class cacheLevel(
+      include: Array[String]
+  ) extends StaticAnnotation
 }

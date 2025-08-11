@@ -28,7 +28,7 @@ object SbtPgp extends AutoPlugin {
     def pgpPublicRing = (Global / PgpKeys.pgpPublicRing)
     def pgpSecretRing = (Global / PgpKeys.pgpSecretRing)
 
-    def usePgpKeyHex(id: String) = pgpSigningKey := Some(id)
+    def usePgpKeyHex(id: String) = pgpSigningKey := Def.uncached(Some(id))
     def signingSettings = PgpSettings.signingSettings
   }
   // TODO - Maybe signing settings should be a different plugin...

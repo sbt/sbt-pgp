@@ -49,12 +49,10 @@ object PgpSettings {
 
     Seq(
       pgpPassphrase := None,
-      pgpSelectPassphrase := {
-        pgpPassphrase.value
-          .orElse(Credentials.forHost(credentials.value, "pgp").map(_.passwd.toCharArray))
-          .orElse(scala.util.Properties.envOrNone("PGP_PASSPHRASE").map(_.toCharArray))
-      },
-      pgpSigningKey := Credentials.forHost(credentials.value, "pgp").map(_.userName),
+      pgpSelectPassphrase := pgpPassphrase.value
+        .orElse(credentialForHost(credentials.value, "pgp").map(_.passwd.toCharArray))
+        .orElse(scala.util.Properties.envOrNone("PGP_PASSPHRASE").map(_.toCharArray)),
+      pgpSigningKey := credentialForHost(credentials.value, "pgp").map(_.userName),
       pgpKeyRing := None,
       // Bouncy Castle only
       pgpPublicRing := {
@@ -127,7 +125,7 @@ object PgpSettings {
    */
   lazy val signVerifyConfigurationSettings: Seq[Setting[_]] = Seq(
     // TODO - move these to the signArtifactSettings?
-    (pgpSigner / skip) := ((pgpSigner / skip) ?? false).value,
+    (pgpSigner / skip) := Def.uncached(((pgpSigner / skip) ?? false).value),
     pgpSigner := switch(useGpg, switch(useGpgPinentry, gpgPinEntrySigner, gpgSigner), bcPgpSigner).value,
     pgpVerifierFactory := switch(useGpg, gpgVerifierFactory, bcPgpVerifierFactory).value
   )
