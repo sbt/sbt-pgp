@@ -24,10 +24,12 @@ jobs:
             java: 8
             distribution: temurin
             jobtype: 1
-          - os: windows-latest
-            java: 11
-            distribution: temurin
-            jobtype: 1
+
+          # TODO: This is blocked by https://github.com/sbt/sbt/issues/8203
+          # - os: windows-latest
+          #   java: 11
+          #   distribution: temurin
+          #   jobtype: 1
     runs-on: ${{ matrix.os }}
     env:
       # define Java options for both official sbt and sbt-extras
