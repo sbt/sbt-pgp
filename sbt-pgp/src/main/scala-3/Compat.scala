@@ -67,11 +67,5 @@ object Compat {
     }
   )
 
-  def toFile(vf: xsbti.HashedVirtualFileRef, c: xsbti.FileConverter): File =
-    c.toPath(vf).toFile()
-
-  def credentialForHost(cs: Seq[Credentials], host: String) =
-    sbt.internal.librarymanagement.ivy.IvyCredentials.forHost(cs, host)
-
   type cacheLevel = sbt.util.cacheLevel
 }

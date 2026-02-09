@@ -42,6 +42,7 @@ lazy val plugin = (project in file("sbt-pgp"))
   .settings(
     name := "sbt-pgp",
     libraryDependencies += gigahorseOkhttp.value,
+    addSbtPlugin("com.github.sbt" % "sbt2-compat" % "0.1.0-SNAPSHOT"),
     publishLocal := publishLocal.dependsOn((library / publishLocal)).value,
     scriptedBufferLog := false,
     scriptedLaunchOpts += s"-Dproject.version=${version.value}",

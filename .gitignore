@@ -6,3 +6,10 @@ boot/
 .scala_dependencies
 /.idea
 /.bsp
+
+.metals/
+.vscode/
+.cursor/
+.bloop/
+metals.sbt
+.java-version

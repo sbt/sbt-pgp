@@ -65,14 +65,6 @@ object Compat {
     }
   )
 
-  def toFile(x: File, c: xsbti.FileConverter): File = x
-
-  def credentialForHost(cs: Seq[Credentials], host: String) =
-    Credentials.forHost(cs, host)
-
-  implicit class DefOp(singleton: Def.type) {
-    def uncached[A1](a: A1): A1 = a
-  }
   @meta.getter
   class cacheLevel(
       include: Array[String]
