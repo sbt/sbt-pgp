@@ -5,6 +5,7 @@ import Keys._
 import SbtHelpers._
 import PgpKeys._
 import sbt.sbtpgp.Compat, Compat._
+import sbtcompat.PluginCompat._
 
 /**
  * SBT Settings for doing PGP security tasks.  Signing, verifying, etc.
@@ -144,7 +145,7 @@ object PgpSettings {
     }).value,
     publishSignedConfiguration := {
       val _ = pgpMakeIvy.value
-      val c = fileConverter.value
+      implicit val conv: xsbti.FileConverter = fileConverter.value
       Classpaths.publishConfig(
         publishMavenStyle.value,
         deliverPattern(crossTarget.value),
@@ -152,7 +153,7 @@ object PgpSettings {
         ivyConfigurations.value.map(c => ConfigRef(c.name)).toVector,
         PgpKeys.signedArtifacts.value.toVector.map {
           case (a, x) =>
-            a -> toFile(x, c)
+            a -> toFile(x)
         },
         checksums = (publish / checksums).value.toVector,
         resolverName = Classpaths.getPublishTo(publishTo.value).name,
@@ -163,7 +164,7 @@ object PgpSettings {
     publishSigned := publishSignedTask(publishSignedConfiguration, deliver).value,
     publishLocalSignedConfiguration := {
       val _ = deliverLocal.value
-      val c = fileConverter.value
+      implicit val conv: xsbti.FileConverter = fileConverter.value
       Classpaths.publishConfig(
         publishMavenStyle.value,
         deliverPattern(crossTarget.value),
@@ -171,7 +172,7 @@ object PgpSettings {
         ivyConfigurations.value.map(c => ConfigRef(c.name)).toVector,
         PgpKeys.signedArtifacts.value.toVector.map {
           case (a, x) =>
-            a -> toFile(x, c)
+            a -> toFile(x)
         },
         (publishLocal / checksums).value.toVector,
         resolverName = "local",

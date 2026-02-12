@@ -2,6 +2,7 @@ package com.jsuereth.sbtpgp
 
 import sbt.{ given, * }
 import sbt.sbtpgp.Compat._
+import sbtcompat.PluginCompat._
 
 /**
  * This class is used to control what we expose to
