@@ -5,12 +5,11 @@ val PluginDoc = config("plugin-doc")
 
 ThisBuild / organization := "com.github.sbt"
 ThisBuild / homepage := Some(url("https://github.com/sbt/sbt-pgp"))
-ThisBuild / Compile / scalacOptions := Seq("-feature", "-deprecation", "-Xlint")
 
 // Because we're both a library and an sbt plugin, we use crossScalaVersions rather than crossSbtVersions for
 // cross building. So you can use commands like +scripted.
-lazy val scala212 = "2.12.15"
-lazy val scala3 = "3.7.3"
+lazy val scala212 = "2.12.17"
+lazy val scala3 = "3.8.1"
 ThisBuild / crossScalaVersions := Seq(scala212, scala3)
 ThisBuild / scalaVersion := scala212
 
@@ -22,12 +21,31 @@ ThisBuild / version := {
   else orig
 }
 
+val commonSettings = Def.settings(
+  scalacOptions ++= Seq(
+    "-feature",
+    "-deprecation"
+  ),
+  scalacOptions ++= {
+    scalaBinaryVersion.value match {
+      case "2.12" =>
+        Seq(
+          "-release:8",
+          "-Xlint"
+        )
+      case "3" =>
+        Nil
+    }
+  }
+)
+
 lazy val root = (project in file("."))
   .enablePlugins(GhpagesPlugin)
   .enablePlugins(JekyllPlugin)
   .enablePlugins(SiteScaladocPlugin)
   .aggregate(library, plugin)
   .settings(
+    commonSettings,
     name := "sbt-pgp root",
     publish / skip := true,
     git.remoteRepo := "git@github.com:sbt/sbt-pgp.git",
@@ -40,6 +58,7 @@ lazy val plugin = (project in file("sbt-pgp"))
   .enablePlugins(SbtPlugin)
   .dependsOn(library)
   .settings(
+    commonSettings,
     name := "sbt-pgp",
     libraryDependencies += gigahorseOkhttp.value,
     addSbtPlugin("com.github.sbt" % "sbt2-compat" % "0.1.0"),
@@ -49,7 +68,7 @@ lazy val plugin = (project in file("sbt-pgp"))
     (pluginCrossBuild / sbtVersion) := {
       scalaBinaryVersion.value match {
         case "2.12" => "1.5.8"
-        case _      => "2.0.0-RC6"
+        case _      => "2.0.0-RC9"
       }
     },
     scriptedSbt := {
@@ -65,6 +84,7 @@ lazy val plugin = (project in file("sbt-pgp"))
 // Note:  We're going to just publish this to the sbt repo now.
 lazy val library = (project in file("gpg-library"))
   .settings(
+    commonSettings,
     name := "pgp-library",
     libraryDependencies ++= Seq(bouncyCastlePgp, gigahorseOkhttp.value, specs2 % Test, sbtIo % Test),
     libraryDependencies ++= Seq(parserCombinators.value)
