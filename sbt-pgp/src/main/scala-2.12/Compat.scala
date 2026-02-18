@@ -46,7 +46,7 @@ object Compat {
     "Packages all artifacts for publishing and maps the Artifact definition to the generated file."
   )
 
-  def signingSettings0: Seq[Setting[_]] = Seq(
+  def signingSettings0: Seq[Setting[?]] = Seq(
     // conditional
     signedArtifacts := {
       if (!(pgpSigner / skip).value) {

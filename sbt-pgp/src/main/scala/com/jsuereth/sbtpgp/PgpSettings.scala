@@ -11,17 +11,17 @@ import sbtcompat.PluginCompat._
  * SBT Settings for doing PGP security tasks.  Signing, verifying, etc.
  */
 object PgpSettings {
-  lazy val globalSettings: Seq[Setting[_]] =
+  lazy val globalSettings: Seq[Setting[?]] =
     inScope(Global)(gpgConfigurationSettings ++ bouncyCastleConfigurationSettings ++ signVerifyConfigurationSettings)
 
   /** Settings this plugin defines. TODO - require manual setting of these... */
-  lazy val projectSettings: Seq[Setting[_]] = signingSettings ++ verifySettings
+  lazy val projectSettings: Seq[Setting[?]] = signingSettings ++ verifySettings
 
   def deliverPattern(outputPath: File): String =
     (outputPath / "[artifact]-[revision](-[classifier]).[ext]").absolutePath
 
   /** Configuration for GPG command line */
-  lazy val gpgConfigurationSettings: Seq[Setting[_]] = Seq(
+  lazy val gpgConfigurationSettings: Seq[Setting[?]] = Seq(
     useGpg := {
       sys.props.get("SBT_PGP_USE_GPG") match {
         case Some(_) => java.lang.Boolean.getBoolean("SBT_PGP_USE_GPG")
@@ -34,7 +34,7 @@ object PgpSettings {
   )
 
   /** Configuration for BC JVM-local PGP */
-  lazy val bouncyCastleConfigurationSettings: Seq[Setting[_]] = {
+  lazy val bouncyCastleConfigurationSettings: Seq[Setting[?]] = {
     val gnuPGHome = scala.util.Properties.envOrNone("GNUPGHOME") match {
       case Some(dir) => file(dir)
       case None      => file(System.getProperty("user.home")) / ".gnupg"
@@ -124,7 +124,7 @@ object PgpSettings {
    * for a multi-project build, and can be re-used on
    * ThisBuild or maybe Global.
    */
-  lazy val signVerifyConfigurationSettings: Seq[Setting[_]] = Seq(
+  lazy val signVerifyConfigurationSettings: Seq[Setting[?]] = Seq(
     // TODO - move these to the signArtifactSettings?
     (pgpSigner / skip) := Def.uncached(((pgpSigner / skip) ?? false).value),
     pgpSigner := switch(useGpg, switch(useGpgPinentry, gpgPinEntrySigner, gpgSigner), bcPgpSigner).value,
@@ -138,7 +138,7 @@ object PgpSettings {
    * artifacts.   While this isn't as friendly to other plugins that want to
    * use our signed artifacts in normal publish flow, it should be more user friendly.
    */
-  lazy val signingSettings: Seq[Setting[_]] = signingSettings0 ++ Seq(
+  lazy val signingSettings: Seq[Setting[?]] = signingSettings0 ++ Seq(
     pgpMakeIvy := (Def.taskDyn {
       val style = publishMavenStyle.value
       if (style) Def.task { (None: Option[File]) } else Def.task { Option(deliver.value) }
@@ -183,7 +183,7 @@ object PgpSettings {
     publishLocalSigned := publishSignedTask(publishLocalSignedConfiguration, deliver).value
   )
 
-  def publishSignedTask(config: TaskKey[PublishConfiguration], deliverKey: TaskKey[_]): Def.Initialize[Task[Unit]] =
+  def publishSignedTask(config: TaskKey[PublishConfiguration], deliverKey: TaskKey[?]): Def.Initialize[Task[Unit]] =
     Def.taskDyn {
       val s = streams.value
       val ref = thisProjectRef.value
@@ -193,7 +193,7 @@ object PgpSettings {
     }
 
   /** Settings used to verify signatures on dependent artifacts. */
-  lazy val verifySettings: Seq[Setting[_]] = Seq(
+  lazy val verifySettings: Seq[Setting[?]] = Seq(
     // TODO - This is checking SBT and its plugins signatures..., maybe we can have this be a separate config or something.
     /*signaturesModule in updateClassifiers <<= (projectID, sbtDependency, loadedBuild, thisProjectRef) map { ( pid, sbtDep, lb, ref) =>
       val pluginIDs: Seq[ModuleID] = lb.units(ref.build).unit.plugins.fullClasspath.flatMap(_ get moduleID.key)
