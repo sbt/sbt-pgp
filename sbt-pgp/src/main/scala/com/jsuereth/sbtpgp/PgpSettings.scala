@@ -6,6 +6,7 @@ import SbtHelpers._
 import PgpKeys._
 import sbt.sbtpgp.Compat, Compat._
 import sbtcompat.PluginCompat._
+import scala.annotation.tailrec
 
 /**
  * SBT Settings for doing PGP security tasks.  Signing, verifying, etc.
@@ -40,6 +41,7 @@ object PgpSettings {
       case None      => file(System.getProperty("user.home")) / ".gnupg"
     }
 
+    @tailrec
     def fallbackFiles(fs: File*): File = {
       require(!fs.isEmpty)
       val (h, t) = (fs.head, fs.tail)

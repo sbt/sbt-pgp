@@ -7,6 +7,7 @@ import java.security.{ Security, SecureRandom }
 
 import org.bouncycastle.openpgp.operator.jcajce.{ JcePublicKeyKeyEncryptionMethodGenerator, JcePGPDataEncryptorBuilder }
 
+import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 
 /** This class represents a public PGP key. It can be used to encrypt messages for a person and validate that messages were signed correctly. */
@@ -117,6 +118,7 @@ class PublicKey(val nested: PGPPublicKey) extends PublicKeyLike with StreamingSa
     val lit = new PGPLiteralDataGenerator
     val lOut = lit.open(cOut, PGPLiteralDataGenerator.BINARY, fileName, size, lastMod)
     val buffer = new Array[Byte](1024)
+    @tailrec
     def read(): Unit = data.read(buffer) match {
       case n if n > 0 => lOut.write(buffer, 0, n); read()
       case _          => ()

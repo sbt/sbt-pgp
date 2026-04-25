@@ -15,6 +15,7 @@ import org.bouncycastle.openpgp.operator.jcajce.{
   JcePublicKeyDataDecryptorFactoryBuilder
 }
 
+import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 
 class IncorrectPassphraseException(msg: String, cause: Throwable) extends RuntimeException(msg, cause)
@@ -171,6 +172,7 @@ class SecretKey(val nested: PGPSecretKey) {
       val outfile = new File(file.getParentFile, msg.getFileName)
       val fOut = new BufferedOutputStream(new FileOutputStream(outfile))
       val buf = new Array[Byte](1 << 16)
+      @tailrec
       def read(): Unit = unc.read(buf) match {
         case n if n > 0 => fOut.write(buf, 0, n); read()
         case _          => ()
@@ -200,6 +202,7 @@ class SecretKey(val nested: PGPSecretKey) {
       val unc = msg.getInputStream
       val fOut = new BufferedOutputStream(output)
       val buf = new Array[Byte](1 << 16)
+      @tailrec
       def read(): Unit = unc.read(buf) match {
         case n if n > 0 => fOut.write(buf, 0, n); read()
         case _          => ()
@@ -238,6 +241,7 @@ class SecretKey(val nested: PGPSecretKey) {
       }
       val plainFact = new JcaPGPObjectFactory(clear)
       // Handle compressed + uncompressed data here.
+      @tailrec
       def extractLiteral(x: Any): PGPLiteralData = x match {
         case msg: PGPLiteralData      => msg
         case cData: PGPCompressedData =>
