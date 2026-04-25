@@ -37,7 +37,6 @@ trait PublicKeyLike {
   }
 
   /** Verifies a signature stream against an input stream.
-   * @param msgName the name tied in the signature for this object.  For a file, this is the filename.
    * @param msg  The input stream containing the raw message to verify.
    * @param signature The input stream containing the PGP signature.
    */
