@@ -95,7 +95,7 @@ class SecretKey(val nested: PGPSecretKey) {
     sGen.init(PGPSignature.BINARY_DOCUMENT, pgpPrivKey)
     for (name <- this.publicKey.userIDs) {
       val spGen = new PGPSignatureSubpacketGenerator()
-      spGen.setSignerUserID(false, name)
+      spGen.addSignerUserID(false, name)
       sGen.setHashedSubpackets(spGen.generate())
     }
     val cGen = new PGPCompressedDataGenerator(CompressionAlgorithmTags.ZLIB)
@@ -149,9 +149,9 @@ class SecretKey(val nested: PGPSecretKey) {
     sGen.generateOnePassVersion(false).encode(bOut)
     val spGen = new PGPSignatureSubpacketGenerator()
     val isHumanReadable = true
-    spGen.setNotationData(true, isHumanReadable, notation._1, notation._2)
+    spGen.addNotationData(true, isHumanReadable, notation._1, notation._2)
     // TODO - Embedd this key's signatures?
-    userIDs.headOption foreach (spGen.setSignerUserID(false, _))
+    userIDs.headOption foreach (spGen.addSignerUserID(false, _))
 
     val packetVector = spGen.generate()
     sGen.setHashedSubpackets(packetVector)

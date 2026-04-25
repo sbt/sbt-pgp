@@ -18,13 +18,13 @@ class PublicKey(val nested: PGPPublicKey) extends PublicKeyLike with StreamingSa
   def bitStrength = nested.getBitStrength
   def creationTime = nested.getCreationTime
   def fingerprint = nested.getFingerprint
-  def isRevoked = nested.isRevoked
+  def isRevoked = nested.hasRevocation
   def algorithm = nested.getAlgorithm
   def algorithmName = nested.getAlgorithm match {
     case PublicKeyAlgorithmTags.RSA_ENCRYPT | PublicKeyAlgorithmTags.RSA_GENERAL | PublicKeyAlgorithmTags.RSA_SIGN =>
       "RSA"
     case PublicKeyAlgorithmTags.DSA                                                      => "DSA"
-    case PublicKeyAlgorithmTags.EC                                                       => "EC"
+    case PublicKeyAlgorithmTags.ECDH                                                     => "EC"
     case PublicKeyAlgorithmTags.ELGAMAL_ENCRYPT | PublicKeyAlgorithmTags.ELGAMAL_GENERAL => "ElGamal"
     case PublicKeyAlgorithmTags.ECDSA                                                    => "ECDSA"
     case _                                                                               => "Unknown"
