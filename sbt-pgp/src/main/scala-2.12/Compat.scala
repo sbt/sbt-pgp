@@ -53,13 +53,12 @@ object Compat {
         val artifacts = packagedArtifacts.value
         val r = pgpSigner.value
         val s = streams.value
-        artifacts flatMap {
-          case (art, file) =>
-            Seq(
-              art -> file,
-              art.withExtension(art.extension + gpgExtension) -> r
-                .sign(file, new File(file.getAbsolutePath + gpgExtension), s)
-            )
+        artifacts flatMap { case (art, file) =>
+          Seq(
+            art -> file,
+            art.withExtension(art.extension + gpgExtension) -> r
+              .sign(file, new File(file.getAbsolutePath + gpgExtension), s)
+          )
         }
       } else packagedArtifacts.value
     }

@@ -39,7 +39,7 @@ case class SbtPgpCommandContext(
       )(f)
     } match {
       case Right(u) => u.asInstanceOf[U]
-      case Left(e) =>
+      case Left(e)  =>
         throw new IllegalArgumentException(
           s"Wrong passphrase for key ${key.toHexString.toUpperCase} in ${ctx.secretKeyRingFile.getAbsolutePath}: ${e.getMessage}. aborting...",
           e

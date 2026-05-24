@@ -73,7 +73,8 @@ class CommandLineGpgSigner(
         case _          => Vector.empty
       }
     val keyargs: Seq[String] = optKey map (k => Seq("--default-key", k)) getOrElse Seq.empty
-    val args = passargs ++ ringargs ++ Seq("--detach-sign", "--armor") ++ (if (agent) Seq("--use-agent") else Seq.empty) ++ keyargs
+    val args = passargs ++ ringargs ++ Seq("--detach-sign", "--armor") ++ (if (agent) Seq("--use-agent")
+                                                                           else Seq.empty) ++ keyargs
     val allArguments: Seq[String] = args ++ Seq("--output", signatureFile.getAbsolutePath, file.getAbsolutePath)
     sys.process.Process(command, allArguments) ! ProcessLogger(s.log.info(_)) match {
       case 0 => ()
@@ -85,8 +86,7 @@ class CommandLineGpgSigner(
   override val toString: String = "GPG-Command(" + command + ")"
 }
 
-/**
- * A GpgSigner that uses the command-line to run gpg with a GPG smartcard.
+/** A GpgSigner that uses the command-line to run gpg with a GPG smartcard.
  *
  * Yubikey 4 has OpenPGP support: https://developers.yubico.com/PGP/ so we can call
  * it directly, and the secret key resides on the card.  This means we need pinentry

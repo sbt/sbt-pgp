@@ -18,8 +18,8 @@ case class EncryptFile(file: File, pubKey: String) extends PgpCommand {
 }
 object EncryptFile {
   def parser(ctx: PgpStaticContext): Parser[PgpCommand] = {
-    (token("encrypt-msg") ~ Space) ~> existingKeyIdOrUser(ctx) ~ (Space ~> filename) map {
-      case key ~ file => EncryptFile(file, key)
+    (token("encrypt-msg") ~ Space) ~> existingKeyIdOrUser(ctx) ~ (Space ~> filename) map { case key ~ file =>
+      EncryptFile(file, key)
     }
   }
 }

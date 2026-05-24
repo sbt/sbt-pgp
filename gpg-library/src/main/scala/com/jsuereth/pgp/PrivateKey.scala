@@ -250,7 +250,7 @@ class SecretKey(val nested: PGPSecretKey) {
           val pgpFact = new JcaPGPObjectFactory(compressedStream)
           extractLiteral(pgpFact.nextObject)
         case msg: PGPOnePassSignature => throw new NotEncryptedMessageException("Message is a signature")
-        case _                        => throw new NotEncryptedMessageException("Message is not a simple encrypted file")
+        case _ => throw new NotEncryptedMessageException("Message is not a simple encrypted file")
       }
       val msg = extractLiteral(plainFact.nextObject)
       val result = handler(msg)

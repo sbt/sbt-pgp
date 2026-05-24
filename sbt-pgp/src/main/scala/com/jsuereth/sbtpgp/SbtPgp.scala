@@ -4,8 +4,7 @@ import sbt.{ given, * }
 import sbt.sbtpgp.Compat._
 import sbtcompat.PluginCompat._
 
-/**
- * This class is used to control what we expose to
+/** This class is used to control what we expose to
  * users.   It grants access to all our keys in the
  * common naming sense of plugins.   This is temporary
  * until we clean this plugin up for 0.12.0 usage.

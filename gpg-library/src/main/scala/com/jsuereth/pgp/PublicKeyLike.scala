@@ -113,7 +113,7 @@ trait PublicKeyLike {
     getKey(sig.getKeyID()) match {
       // TODO - special return for key not found.
       case null => throw KeyNotFoundException(sig.getKeyID())
-      case key =>
+      case key  =>
         sig.init(new JcaPGPContentVerifierBuilderProvider().setProvider(Security.getProvider("BC")), key)
         var ch = dIn.read()
         while (ch >= 0) {

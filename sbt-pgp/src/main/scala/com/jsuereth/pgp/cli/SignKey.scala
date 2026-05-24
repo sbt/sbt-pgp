@@ -37,7 +37,7 @@ case class SignKey(pubKey: String, notation: (String, String)) extends PgpComman
 }
 object SignKey {
   def parser(ctx: PgpStaticContext): Parser[PgpCommand] =
-    ((token("sign-key") ~ Space) ~> existingKeyIdOrUserOption(ctx) ~ (Space ~> attribute)) map {
-      case key ~ attr => SignKey(key, attr)
+    ((token("sign-key") ~ Space) ~> existingKeyIdOrUserOption(ctx) ~ (Space ~> attribute)) map { case key ~ attr =>
+      SignKey(key, attr)
     }
 }

@@ -116,11 +116,12 @@ object PgpSignatureCheck {
     else {
       import report._
       s.log.info("----- PGP Signature Results -----")
-      val maxOrgWidth = (results.view map { case SignatureCheck(m, _, _)     => m.organization.size }).max
-      val maxNameWidth = (results.view map { case SignatureCheck(m, _, _)    => m.name.size }).max
+      val maxOrgWidth = (results.view map { case SignatureCheck(m, _, _) => m.organization.size }).max
+      val maxNameWidth = (results.view map { case SignatureCheck(m, _, _) => m.name.size }).max
       val maxVersionWidth = (results.view map { case SignatureCheck(m, _, _) => m.revision.size }).max
-      val maxTypeWidth = (results.view map { case SignatureCheck(_, a, _)    => a.`type`.size }).max
-      val formatString = "  %" + maxOrgWidth + "s : %" + maxNameWidth + "s : %" + maxVersionWidth + "s : %" + maxTypeWidth + "s   [%s]"
+      val maxTypeWidth = (results.view map { case SignatureCheck(_, a, _) => a.`type`.size }).max
+      val formatString =
+        "  %" + maxOrgWidth + "s : %" + maxNameWidth + "s : %" + maxVersionWidth + "s : %" + maxTypeWidth + "s   [%s]"
       def prettify(s: SignatureCheck) =
         formatString format (s.module.organization, s.module.name, s.module.revision, s.artifact.`type`, s.result)
       results sortWith {
@@ -150,14 +151,13 @@ object PgpSignatureCheck {
       pgp: PgpVerifierFactory,
       s: TaskStreams
   ): Seq[SignatureCheck] = {
-    pgp.withVerifier(
-      pgp =>
-        for {
-          config <- update.configurations
-          module <- config.modules
-          (artifact, file) <- module.artifacts
-          if file.getName.endsWith(gpgExtension)
-        } yield SignatureCheck(module.module, artifact, pgp.verifySignature(file, s))
+    pgp.withVerifier(pgp =>
+      for {
+        config <- update.configurations
+        module <- config.modules
+        (artifact, file) <- module.artifacts
+        if file.getName.endsWith(gpgExtension)
+      } yield SignatureCheck(module.module, artifact, pgp.verifySignature(file, s))
     )
   }
 }

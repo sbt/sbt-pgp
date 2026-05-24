@@ -42,9 +42,11 @@ class Signature(val nested: PGPSignature) extends StreamingSaveable {
     nested.encode(new ArmoredOutputStream(output))
 
   override def toString =
-    "Signature(key=%x,user=%s,notations=%s)" format (keyID,
-    signerUserID,
-    notations map { case (k, v) => k + " -> " + v } mkString ",")
+    "Signature(key=%x,user=%s,notations=%s)" format (
+      keyID,
+      signerUserID,
+      notations map { case (k, v) => k + " -> " + v } mkString ","
+    )
 }
 
 object Signature {
