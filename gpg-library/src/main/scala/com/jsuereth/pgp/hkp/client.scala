@@ -42,7 +42,7 @@ private[hkp] class GigahorseClient(serverUrl: String) extends Client {
   // we have to look for ids matching the string, since IDs tend to be sent with lower 32 bits.
   def findId(ring: PublicKeyRing, id: Long): Future[PublicKey] =
     (ring.publicKeys find { k =>
-      idToString(k.keyID) contains idToString(id)
+      idToString(k.keyID).contains(idToString(id))
     }) match {
       case Some(x) => Future.successful(x)
       case _       => Future.failed(new RuntimeException(s"Key $id was not found."))

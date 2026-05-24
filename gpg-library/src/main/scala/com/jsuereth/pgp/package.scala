@@ -25,16 +25,16 @@ object PGP {
   def init(): Unit = ()
 
   /** This can load your local PGP keyring. */
-  def loadPublicKeyRing(file: File) = PublicKeyRing loadFromFile file
+  def loadPublicKeyRing(file: File) = PublicKeyRing.loadFromFile(file)
 
   /** This can load your local PGP keyring. */
-  def loadSecretKeyRing(file: File) = SecretKeyRing loadFromFile file
+  def loadSecretKeyRing(file: File) = SecretKeyRing.loadFromFile(file)
 
   /** Loads a collection of public key rings from a file. */
-  def loadPublicKeyRingCollection(file: File) = PublicKeyRingCollection loadFromFile file
+  def loadPublicKeyRingCollection(file: File) = PublicKeyRingCollection.loadFromFile(file)
 
   /** Loads a collection of public key rings from a file. */
-  def loadSecretKeyRingCollection(file: File) = SecretKeyRingCollection loadFromFile file
+  def loadSecretKeyRingCollection(file: File) = SecretKeyRingCollection.loadFromFile(file)
 
   /** Creates a new public/secret keyring pair in memory. */
   def makeNewKeyRings(identity: String, passPhrase: Array[Char]): (PublicKeyRing, SecretKeyRing) = {
@@ -47,13 +47,13 @@ object PGP {
     // TODO - Should we create the parent directory?
     val (pub, sec) = makeNewKeyRings(identity, passPhrase)
     // TODO - GPG usually saves out key-rings, but I think the file formats are basically the same.
-    pub saveToFile publicKey
-    sec saveToFile secretKey
+    pub.saveToFile(publicKey)
+    sec.saveToFile(secretKey)
   }
 
   def isPublicKeyMatching(value: String)(k: PublicKey) = {
-    val hasKeyId = k.keyID.toHexString contains value
-    val hasUserId = k.userIDs.exists(_ contains value)
+    val hasKeyId = k.keyID.toHexString.contains(value)
+    val hasUserId = k.userIDs.exists(_.contains(value))
     hasKeyId || hasUserId
   }
 }

@@ -141,7 +141,7 @@ object PgpSignatureCheck {
       config <- update.configurations
       module <- config.modules
       artifact <- module.missingArtifacts
-      if artifact.extension endsWith gpgExtension
+      if artifact.extension.endsWith(gpgExtension)
     } yield SignatureCheck(module.module, artifact, SignatureCheckResult.MISSING)
 
   /** Returns the SignatureCheck results for all downloaded signature artifacts. */
@@ -156,7 +156,7 @@ object PgpSignatureCheck {
           config <- update.configurations
           module <- config.modules
           (artifact, file) <- module.artifacts
-          if file.getName endsWith gpgExtension
+          if file.getName.endsWith(gpgExtension)
         } yield SignatureCheck(module.module, artifact, pgp.verifySignature(file, s))
     )
   }

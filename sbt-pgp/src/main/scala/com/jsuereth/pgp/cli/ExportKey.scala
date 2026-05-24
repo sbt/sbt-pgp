@@ -16,6 +16,6 @@ case class ExportPublicKey(id: String) extends PgpCommand {
 }
 object ExportPublicKey {
   def parser(ctx: PgpStaticContext): Parser[ExportPublicKey] = {
-    (token("export-pub-key") ~ Space) ~> existingKeyIdOrUser(ctx) map ExportPublicKey.apply
+    (token("export-pub-key") ~ Space) ~> existingKeyIdOrUser(ctx).map(ExportPublicKey.apply)
   }
 }

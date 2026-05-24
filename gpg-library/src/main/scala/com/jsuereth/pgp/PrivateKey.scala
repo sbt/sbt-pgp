@@ -100,7 +100,7 @@ class SecretKey(val nested: PGPSecretKey) {
       sGen.setHashedSubpackets(spGen.generate())
     }
     val cGen = new PGPCompressedDataGenerator(CompressionAlgorithmTags.ZLIB)
-    val bOut = new BCPGOutputStream(cGen open armoredOut)
+    val bOut = new BCPGOutputStream(cGen.open(armoredOut))
     sGen.generateOnePassVersion(false).encode(bOut)
     val lGen = new PGPLiteralDataGenerator()
     val lOut = lGen.open(bOut, PGPLiteralData.BINARY, name, length, lastMod)
