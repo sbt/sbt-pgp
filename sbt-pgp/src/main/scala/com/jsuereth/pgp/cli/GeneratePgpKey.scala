@@ -20,7 +20,7 @@ case class GeneratePgpKey() extends PgpCommand {
     val pw = ctx.readHidden("Please enter the passphrase for the key: ")
     val pw2 = ctx.readHidden("Please re-enter the passphrase for the key: ")
     if (pw != pw2) sys.error("Passphrases do not match!")
-    val id = "%s <%s>".format(name, email)
+    val id = s"${name} <${email}>"
     log.info("Creating a new PGP key, this could take a long time.")
     PGP.makeKeys(id, pw.toCharArray, pub, sec)
     log.info("Public key := " + pub.getAbsolutePath)

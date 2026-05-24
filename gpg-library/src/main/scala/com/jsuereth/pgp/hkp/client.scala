@@ -91,7 +91,7 @@ Note: Type bits/keyID    Date
           k -> List(v)
       })
 
-  override def toString = "HkpServer(%s)" format (serverUrl)
+  override def toString = s"HkpServer(${serverUrl})"
 }
 
 private class ByteBufferBackedInputStream(buffer: ByteBuffer) extends InputStream {
@@ -117,8 +117,8 @@ object Client {
 
   /** Creates a new HKP client that can push/pull keys from a public server. */
   def apply(url: String): Client = url match {
-    case Hkp(server)               => new GigahorseClient("http://%s:11371" format (server))
-    case HkpWithPort(server, port) => new GigahorseClient("http://%s:%s" format (server, port))
+    case Hkp(server)               => new GigahorseClient(s"http://${server}:11371")
+    case HkpWithPort(server, port) => new GigahorseClient(s"http://${server}:${port}")
     case _                         => new GigahorseClient(url)
   }
 

@@ -37,7 +37,7 @@ object SignatureCheckResult {
 /** The result of checking the signature of a given artifact in a module. */
 case class SignatureCheck(module: ModuleID, artifact: Artifact, result: SignatureCheckResult) {
   override def toString =
-    "%s:%s:%s:%s [%s]" format (module.organization, module.name, module.revision, artifact.`type`, result.toString)
+    s"${module.organization}:${module.name}:${module.revision}:${artifact.`type`} [${result.toString}]"
 }
 
 /** A report of the PGP signature check results. */
