@@ -7,7 +7,7 @@ import DefaultParsers._
 object CommonParsers {
   lazy val hexaDigit = chars("ABCDEFGabcdefg0123456789")
   lazy val hexanum = hexaDigit.+ map { _ mkString "" }
-  lazy val keyId = token(hexanum, "<keyid>") map (java.lang.Long.parseLong(_, 16))
+  lazy val keyId = token(hexanum, "<keyid>").map(java.lang.Long.parseLong(_, 16))
 
   private def hexPublicKeyIds(ctx: PgpStaticContext): Seq[String] =
     try {
@@ -18,7 +18,7 @@ object CommonParsers {
 
   /** Parser for existing public key ids. */
   def existingPublicKeyId(ctx: PgpStaticContext) =
-    token(hexanum, "<keyid>").examples(hexPublicKeyIds(ctx): _*) map (java.lang.Long.parseLong(_, 16))
+    token(hexanum, "<keyid>").examples(hexPublicKeyIds(ctx): _*).map(java.lang.Long.parseLong(_, 16))
 
   lazy val keyIdOrUser: Parser[String] = token(NotSpace, "<key id/user>")
 
