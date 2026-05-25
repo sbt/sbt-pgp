@@ -8,7 +8,7 @@ import org.bouncycastle.openpgp.operator.bc.BcKeyFingerprintCalculator
 
 import scala.collection.JavaConverters._
 
-/** A secret PGP key ring. Can be used to decrypt messages and to sign files/messages.  */
+/** A secret PGP key ring. Can be used to decrypt messages and to sign files/messages. */
 class SecretKeyRingCollection(val nested: PGPSecretKeyRingCollection) extends StreamingSaveable {
 
   /** A collection of all the nested secret key rings. */

@@ -50,24 +50,33 @@ private[hkp] class GigahorseClient(serverUrl: String) extends Client {
 
   /** Pushes a key to the given public key server. */
   def pushKey(key: PublicKey, logger: String => Unit): Unit =
-    http.run(initiateFormPost(AddKey(key)), Gigahorse.asString andThen { (c: String) =>
-      logger("received: " + c)
-    })
+    http.run(
+      initiateFormPost(AddKey(key)),
+      Gigahorse.asString andThen { (c: String) =>
+        logger("received: " + c)
+      }
+    )
 
   /** Pushes a key to the given public key server. */
   def pushKeyRing(key: PublicKeyRing, logger: String => Unit): Unit =
-    http.run(initiateFormPost(AddKey(key)), Gigahorse.asString andThen { (c: String) =>
-      logger("received: " + c)
-    })
+    http.run(
+      initiateFormPost(AddKey(key)),
+      Gigahorse.asString andThen { (c: String) =>
+        logger("received: " + c)
+      }
+    )
 
   /** Searches for a term on the keyserver and returns all the results. */
   def search(term: String): Future[Vector[LookupKeyResult]] =
     http
-      .run(initiateRequest(Find(term)), Gigahorse.asString andThen { (s: String) =>
-        Client.LookupParser.parse(s)
-      })
-      .recover {
-        case _ => Vector()
+      .run(
+        initiateRequest(Find(term)),
+        Gigahorse.asString andThen { (s: String) =>
+          Client.LookupParser.parse(s)
+        }
+      )
+      .recover { case _ =>
+        Vector()
       }
 
   // TODO - Allow search and parse format: http://keyserver.ubuntu.com:11371/pks/lookup?op=index&search=suereth
@@ -86,9 +95,8 @@ Note: Type bits/keyID    Date
   private[this] def initiateFormPost(cmd: HkpCommand): Request =
     Gigahorse
       .url(serverUrl + cmd.url)
-      .post(cmd.vars map {
-        case (k, v) =>
-          k -> List(v)
+      .post(cmd.vars map { case (k, v) =>
+        k -> List(v)
       })
 
   override def toString = s"HkpServer(${serverUrl})"
@@ -97,7 +105,7 @@ Note: Type bits/keyID    Date
 private class ByteBufferBackedInputStream(buffer: ByteBuffer) extends InputStream {
   override def read: Int =
     if (!buffer.hasRemaining) -1
-    else buffer.get & 0xFF
+    else buffer.get & 0xff
 
   override def read(bytes: Array[Byte], offset: Int, len: Int): Int =
     if (!buffer.hasRemaining) -1
@@ -129,17 +137,17 @@ object Client {
     def uid: Parser[String] = "uid"
     def info: Parser[String] = "info"
     def name: Parser[String] = guard(not(info | uid | pub)) ~> ("[^\\:\n\r]*".r)
-    def line: Parser[Seq[String]] = (pub <~ s) ~ rep1sep(name, s) ^^ {
-      case x ~ xs => x +: xs
+    def line: Parser[Seq[String]] = (pub <~ s) ~ rep1sep(name, s) ^^ { case x ~ xs =>
+      x +: xs
     }
-    def userId: Parser[String] = ("uid" ~ s) ~> rep1sep(name, s) ^^ {
-      case Seq(name, date, _*) => name
+    def userId: Parser[String] = ("uid" ~ s) ~> rep1sep(name, s) ^^ { case Seq(name, date, _*) =>
+      name
     }
-    def keyHeader: Parser[(String, java.util.Date)] = line ^? {
-      case Seq("pub", name, _, _, date, _*) => (name, new java.util.Date(date.toLong * 1000L))
+    def keyHeader: Parser[(String, java.util.Date)] = line ^? { case Seq("pub", name, _, _, date, _*) =>
+      (name, new java.util.Date(date.toLong * 1000L))
     }
-    def key: Parser[LookupKeyResult] = keyHeader ~ rep1(userId) ^^ {
-      case (id, ts) ~ users => LookupKeyResult(id, ts, users)
+    def key: Parser[LookupKeyResult] = keyHeader ~ rep1(userId) ^^ { case (id, ts) ~ users =>
+      LookupKeyResult(id, ts, users)
     }
     def infoheader = "info" ~ s ~ rep1sep(name, s)
     def queryresponse: Parser[Seq[LookupKeyResult]] = infoheader ~> rep(key)

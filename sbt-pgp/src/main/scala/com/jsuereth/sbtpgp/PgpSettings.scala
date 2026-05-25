@@ -8,8 +8,7 @@ import sbt.sbtpgp.Compat, Compat._
 import sbtcompat.PluginCompat._
 import scala.annotation.tailrec
 
-/**
- * SBT Settings for doing PGP security tasks.  Signing, verifying, etc.
+/** SBT Settings for doing PGP security tasks.  Signing, verifying, etc.
  */
 object PgpSettings {
   lazy val globalSettings: Seq[Setting[?]] =
@@ -153,9 +152,8 @@ object PgpSettings {
         deliverPattern(crossTarget.value),
         if (isSnapshot.value) "integration" else "release",
         ivyConfigurations.value.map(c => ConfigRef(c.name)).toVector,
-        PgpKeys.signedArtifacts.value.toVector.map {
-          case (a, x) =>
-            a -> toFile(x)
+        PgpKeys.signedArtifacts.value.toVector.map { case (a, x) =>
+          a -> toFile(x)
         },
         checksums = (publish / checksums).value.toVector,
         resolverName = Classpaths.getPublishTo(publishTo.value).name,
@@ -172,9 +170,8 @@ object PgpSettings {
         deliverPattern(crossTarget.value),
         if (isSnapshot.value) "integration" else "release",
         ivyConfigurations.value.map(c => ConfigRef(c.name)).toVector,
-        PgpKeys.signedArtifacts.value.toVector.map {
-          case (a, x) =>
-            a -> toFile(x)
+        PgpKeys.signedArtifacts.value.toVector.map { case (a, x) =>
+          a -> toFile(x)
         },
         (publishLocal / checksums).value.toVector,
         resolverName = "local",
@@ -190,7 +187,8 @@ object PgpSettings {
       val s = streams.value
       val ref = thisProjectRef.value
       val skp = ((publish / skip) ?? false).value
-      if (skp) Def.task { s.log.debug(s"Skipping publishSigned for ${ref.project}") } else
+      if (skp) Def.task { s.log.debug(s"Skipping publishSigned for ${ref.project}") }
+      else
         Classpaths.publishTask(config, deliver)
     }
 

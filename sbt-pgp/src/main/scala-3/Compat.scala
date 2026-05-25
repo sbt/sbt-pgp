@@ -52,16 +52,15 @@ object Compat {
         val r = pgpSigner.value
         val s = streams.value
         val c = fileConverter.value
-        artifacts.flatMap {
-          case (art, file) =>
-            val p = c.toPath(file)
-            val signed = c.toVirtualFile(
-              r.sign(p.toFile(), new File(p.toFile().getAbsolutePath + gpgExtension), s).toPath()
-            )
-            Seq(
-              art -> file,
-              art.withExtension(art.extension + gpgExtension) -> signed
-            )
+        artifacts.flatMap { case (art, file) =>
+          val p = c.toPath(file)
+          val signed = c.toVirtualFile(
+            r.sign(p.toFile(), new File(p.toFile().getAbsolutePath + gpgExtension), s).toPath()
+          )
+          Seq(
+            art -> file,
+            art.withExtension(art.extension + gpgExtension) -> signed
+          )
         }
       } else packagedArtifacts.value
     }
