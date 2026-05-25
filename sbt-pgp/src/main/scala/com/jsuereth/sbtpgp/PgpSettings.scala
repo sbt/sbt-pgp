@@ -46,7 +46,7 @@ object PgpSettings {
       val (h, t) = (fs.head, fs.tail)
       if (t.isEmpty) h
       else if (h.exists) h
-      else fallbackFiles(t: _*)
+      else fallbackFiles(t*)
     }
 
     Seq(

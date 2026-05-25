@@ -90,7 +90,7 @@ uid:Terry Suereth (CE2008) <tsuereth@digipen.edu>:1137516901::
 Note: Type bits/keyID    Date
    */
   private[this] def initiateRequest(cmd: HkpCommand): Request =
-    Gigahorse.url(serverUrl + cmd.url).addQueryString(cmd.vars.toList: _*)
+    Gigahorse.url(serverUrl + cmd.url).addQueryString(cmd.vars.toList*)
 
   private[this] def initiateFormPost(cmd: HkpCommand): Request =
     Gigahorse

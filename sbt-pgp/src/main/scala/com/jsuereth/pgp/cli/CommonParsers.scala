@@ -18,7 +18,7 @@ object CommonParsers {
 
   /** Parser for existing public key ids. */
   def existingPublicKeyId(ctx: PgpStaticContext) =
-    token(hexanum, "<keyid>").examples(hexPublicKeyIds(ctx): _*).map(java.lang.Long.parseLong(_, 16))
+    token(hexanum, "<keyid>").examples(hexPublicKeyIds(ctx)*).map(java.lang.Long.parseLong(_, 16))
 
   lazy val keyIdOrUser: Parser[String] = token(NotSpace, "<key id/user>")
 
@@ -30,7 +30,7 @@ object CommonParsers {
     }
 
   def existingKeyIdOrUser(ctx: PgpStaticContext): Parser[String] =
-    keyIdOrUser.examples((userIds(ctx) ++ hexPublicKeyIds(ctx)): _*)
+    keyIdOrUser.examples((userIds(ctx) ++ hexPublicKeyIds(ctx))*)
   // TODO - ensure urls are urls
   lazy val hkpUrl = token(NotSpace, "<hkp server url>")
 
