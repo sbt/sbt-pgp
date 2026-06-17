@@ -9,7 +9,7 @@ ThisBuild / homepage := Some(url("https://github.com/sbt/sbt-pgp"))
 // Because we're both a library and an sbt plugin, we use crossScalaVersions rather than crossSbtVersions for
 // cross building. So you can use commands like +scripted.
 lazy val scala212 = "2.12.17"
-lazy val scala3 = "3.8.2"
+lazy val scala3 = "3.8.4"
 ThisBuild / crossScalaVersions := Seq(scala212, scala3)
 ThisBuild / scalaVersion := scala212
 
@@ -69,7 +69,7 @@ lazy val plugin = (project in file("sbt-pgp"))
     (pluginCrossBuild / sbtVersion) := {
       scalaBinaryVersion.value match {
         case "2.12" => "1.5.8"
-        case _      => "2.0.0-RC10"
+        case _      => "2.0.0"
       }
     },
     scriptedSbt := {
