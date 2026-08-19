@@ -4,7 +4,6 @@ import sbt._
 import Keys._
 import SbtHelpers._
 import PgpKeys._
-import sbt.sbtpgp.Compat, Compat._
 import sbtcompat.PluginCompat._
 import scala.annotation.tailrec
 
@@ -139,7 +138,24 @@ object PgpSettings {
    * artifacts.   While this isn't as friendly to other plugins that want to
    * use our signed artifacts in normal publish flow, it should be more user friendly.
    */
-  lazy val signingSettings: Seq[Setting[?]] = signingSettings0 ++ Seq(
+  lazy val signingSettings: Seq[Setting[?]] = Seq(
+    // conditional
+    signedArtifacts := {
+      if (!(pgpSigner / skip).value) {
+        implicit val conv: xsbti.FileConverter = fileConverter.value
+        val artifacts = packagedArtifacts.value
+        val r = pgpSigner.value
+        val s = streams.value
+        artifacts.flatMap { case (art, ref) =>
+          val file = toFile(ref)
+          val signed = r.sign(file, new File(file.getAbsolutePath + gpgExtension), s)
+          Seq(
+            art -> ref,
+            art.withExtension(art.extension + gpgExtension) -> toFileRef(signed)
+          )
+        }
+      } else packagedArtifacts.value
+    },
     pgpMakeIvy := (Def.taskDyn {
       val style = publishMavenStyle.value
       if (style) Def.task { (None: Option[File]) } else Def.task { Option(deliver.value) }
@@ -200,15 +216,15 @@ object PgpSettings {
       GetSignaturesModule(pid, sbtDep +: pluginIDs, Configurations.Default :: Nil)
     },*/
     (updatePgpSignatures / signaturesModule) := {
-      GetSignaturesModule(projectID.value, libraryDependencies.value, Configurations.Default :: Nil)
+      GetSignaturesModule(projectID.value, libraryDependencies.value, Configurations.Compile :: Nil)
     },
     updatePgpSignatures := {
       PgpSignatureCheck.resolveSignatures(
-        ivySbt.value,
+        dependencyResolution.value,
         GetSignaturesConfiguration(
           (updatePgpSignatures / signaturesModule).value,
           updateConfiguration.value,
-          ivyScala.value
+          scalaModuleInfo.value
         ),
         streams.value.log
       )

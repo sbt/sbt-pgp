@@ -2,16 +2,21 @@ package com.jsuereth.sbtpgp
 
 import sbt._
 import Keys._
-import sbt.sbtpgp.Compat._
+import sbt.librarymanagement.{
+  DependencyResolution,
+  ScalaModuleInfo,
+  UpdateConfiguration,
+  UnresolvedWarningConfiguration
+}
 
-/** Configuration class for an Ivy module that will pull PGP signatures. */
+/** Configuration class for a module that will pull PGP signatures. */
 final case class GetSignaturesModule(id: ModuleID, modules: Seq[ModuleID], configurations: Seq[Configuration])
 
-/** Configuration class for using Ivy to get PGP signatures. */
+/** Configuration class for resolving PGP signatures via the library management API. */
 final case class GetSignaturesConfiguration(
     module: GetSignaturesModule,
     configuration: UpdateConfiguration,
-    ivyScala: Option[IvyScala]
+    scalaModuleInfo: Option[ScalaModuleInfo]
 )
 
 /** An enumeration for PGP signature verification results. */
@@ -47,11 +52,15 @@ case class SignatureCheckReport(results: Seq[SignatureCheck])
 object PgpSignatureCheck {
 
   /** Downloads PGP signatures so we can test them. */
-  def resolveSignatures(ivySbt: IvySbt, config: GetSignaturesConfiguration, log: Logger): UpdateReport = {
+  def resolveSignatures(
+      dependencyResolution: DependencyResolution,
+      config: GetSignaturesConfiguration,
+      log: Logger
+  ): UpdateReport = {
 
     // lets us ignore configuration for the purposes of resolving signatures.
     def restrictedCopy(m: ModuleID, confs: Boolean) =
-      subConfiguration(m, confs)
+      m.withConfigurations(if (confs) m.configurations else None)
 
     // Converts a module to a module that includes signature artifacts explicitly.
     def signatureArtifacts(m: ModuleID): Option[ModuleID] = {
@@ -61,9 +70,9 @@ object PgpSignatureCheck {
       // Assume no explicit artifact = "jar" artifact.
       if (m.explicitArtifacts.isEmpty)
         Some(
-          subExplicitArtifacts(m, Vector(Artifact(m.name, "jar", "jar"), Artifact(m.name, "jar", "jar" + gpgExtension)))
+          m.withExplicitArtifacts(Vector(Artifact(m.name, "jar", "jar"), Artifact(m.name, "jar", "jar" + gpgExtension)))
         )
-      else Some(subExplicitArtifacts(m, m.explicitArtifacts.toVector flatMap signatureFor))
+      else Some(m.withExplicitArtifacts(m.explicitArtifacts.toVector flatMap signatureFor))
     }
     import config.{ configuration => c, module => mod, _ }
     import mod.{ configurations => confs, _ }
@@ -73,26 +82,41 @@ object PgpSignatureCheck {
     }
     val deps = (baseModules.distinct flatMap signatureArtifacts).toVector
     val base = restrictedCopy(id, true)
-    val module = new ivySbt.Module(
-      mkInlineConfiguration(base, deps, ivyScala, confs.toVector)
+    val module = dependencyResolution.moduleDescriptor(
+      mkInlineConfiguration(base, deps, scalaModuleInfo, confs.toVector)
     )
     val upConf = c.withMissingOk(true)
 
-    updateEither(module, upConf, UnresolvedWarningConfiguration(), LogicalClock.unknown, None, log) match {
+    val report = dependencyResolution.update(module, upConf, UnresolvedWarningConfiguration(), log) match {
       case Right(r) => r
       case Left(w)  => throw w.resolveException
     }
+
+    // Module names can differ from `baseModules` (e.g. cross-version suffixes get applied
+    // during resolution), so we can't match dependencies one-to-one. But zero modules despite
+    // a non-empty request means the resolution config (e.g. an unrecognized configuration
+    // name) is silently matching nothing, rather than these dependencies lacking signatures.
+    val resolvedModuleCount = report.configurations.flatMap(_.modules).map(_.module).distinct.size
+    if (baseModules.nonEmpty && resolvedModuleCount == 0) {
+      sys.error(
+        s"PGP signature resolution returned no modules at all, even though ${baseModules.size} " +
+          "dependencies were requested. This indicates a dependency resolution configuration " +
+          "problem (e.g. an unrecognized configuration), not that these dependencies simply lack a PGP signature."
+      )
+    }
+
+    report
   }
 
   def mkInlineConfiguration(
       base: ModuleID,
       deps: Vector[ModuleID],
-      ivyScala: Option[IvyScala],
+      scalaModuleInfo: Option[ScalaModuleInfo],
       confs: Vector[Configuration]
   ): InlineConfiguration =
     ModuleDescriptorConfiguration(base, ModuleInfo(base.name))
       .withDependencies(deps)
-      .withScalaModuleInfo(ivyScala)
+      .withScalaModuleInfo(scalaModuleInfo)
       .withConfigurations(confs)
 
   def checkSignaturesTask(update: UpdateReport, pgp: PgpVerifierFactory, s: TaskStreams): SignatureCheckReport = {
