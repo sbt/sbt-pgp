@@ -3,7 +3,6 @@ package com.jsuereth.sbtpgp
 import sbt._
 import sbt.Keys.TaskStreams
 import com.jsuereth.pgp._
-import sbt.sbtpgp.Compat._
 
 case class SbtPgpStaticContext(publicKeyRingFile: File, secretKeyRingFile: File) extends cli.PgpStaticContext
 

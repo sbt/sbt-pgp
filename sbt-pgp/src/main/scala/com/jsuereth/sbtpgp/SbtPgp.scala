@@ -1,7 +1,6 @@
 package com.jsuereth.sbtpgp
 
 import sbt.{ given, * }
-import sbt.sbtpgp.Compat._
 import sbtcompat.PluginCompat._
 
 /** This class is used to control what we expose to
@@ -12,7 +11,7 @@ import sbtcompat.PluginCompat._
 object SbtPgp extends AutoPlugin {
 
   override def trigger = allRequirements
-  override def requires = pgpRequires
+  override def requires = sbt.plugins.JvmPlugin
 
   object autoImport {
     val PgpKeys = com.jsuereth.sbtpgp.PgpKeys

@@ -13,3 +13,4 @@ boot/
 .bloop/
 metals.sbt
 .java-version
+.DS_Store
