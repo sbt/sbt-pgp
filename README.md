@@ -173,24 +173,30 @@ You might need to restart the gpg-agent for the setting to take effect.
 
 #### Automating PIN entry (passphrase Entry)
 
-sbt-pgp 1.x has provided ways of storing passphrase using `pgpPassphrase` or in the credentials, but we no longer recommend using these methods on your laptop.
+sbt-pgp 1.x has provided ways of storing passphrase using `pgpPassphrase` or in the credentials. Credentials no longer set the passphrase, and we no longer recommend `pgpPassphrase` on your laptop.
 
 On CI environment like Travis CI, you might want to automate passphrase entry. For that purpose sbt-pgp supports `PGP_PASSPHRASE` environment variable following [olafurpg/sbt-ci-release](https://github.com/olafurpg/sbt-ci-release).
 
 ### Configuration: Signing Key
 
-By default, all signing operations will use `gpg`'s default key. A specific key can be used by setting sbt `Credentials` for the host "gpg".
+By default, all signing operations will use `gpg`'s default key. A specific key can be used by setting `pgpSigningKey`.
 
 ```scala
-credentials += Credentials(
+pgpSigningKey := Some("2BE67AC00D699E04E840B7FE29967E804D85663F")
+```
+
+A build that adds sbt-pgp only for releases, for example in CI, cannot refer to `pgpSigningKey`. It can name the key with sbt `Credentials` for the host "pgp" instead.
+
+```scala
+Global / credentials += Credentials(
   "GnuPG Key ID",
-  "gpg",
+  "pgp",
   "2BE67AC00D699E04E840B7FE29967E804D85663F", // key identifier
-  "ignored" // this field is ignored; passwords are supplied by pinentry
+  "ignored" // not used: the passphrase comes from PGP_PASSPHRASE, or is asked for
 )
 ```
 
-**Note**: This follows the convention set by [jodersky/sbt-gpg](https://github.com/jodersky/sbt-gpg).
+The credentials must be in `Global / credentials`: sbt-pgp does not read the project's `credentials`.
 
 You can also use the `usePgpKeyHex` method.
 
