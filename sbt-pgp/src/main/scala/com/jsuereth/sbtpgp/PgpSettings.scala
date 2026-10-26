@@ -50,8 +50,8 @@ object PgpSettings {
 
     Seq(
       pgpPassphrase := None,
+      // The "pgp" credentials only name the key; their password is not the passphrase.
       pgpSelectPassphrase := pgpPassphrase.value
-        .orElse(credentialForHost(credentials.value, "pgp").map(_.passwd.toCharArray))
         .orElse(scala.util.Properties.envOrNone("PGP_PASSPHRASE").map(_.toCharArray)),
       pgpSigningKey := credentialForHost(credentials.value, "pgp").map(_.userName),
       pgpKeyRing := None,
