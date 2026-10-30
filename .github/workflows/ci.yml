@@ -10,19 +10,19 @@ jobs:
         include:
           - os: ubuntu-latest
             java: 11
-            distribution: temurin
+            distribution: zulu
             jobtype: 1
           - os: ubuntu-latest
             java: 11
-            distribution: temurin
+            distribution: zulu
             jobtype: 2
           - os: ubuntu-latest
             java: 17
-            distribution: temurin
+            distribution: zulu
             jobtype: 3
           - os: ubuntu-latest
             java: 8
-            distribution: temurin
+            distribution: zulu
             jobtype: 1
 
           # TODO: This is blocked by https://github.com/sbt/sbt/issues/8203
@@ -43,6 +43,7 @@ jobs:
       with:
         distribution: "${{ matrix.distribution }}"
         java-version: "${{ matrix.java }}"
+        check-latest: "true"
         cache: sbt
     - uses: sbt/setup-sbt@v1
     - name: Setup key
