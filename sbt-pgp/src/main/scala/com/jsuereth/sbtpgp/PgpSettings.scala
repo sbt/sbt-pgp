@@ -179,7 +179,7 @@ object PgpSettings {
     },
     publishSigned := publishSignedTask(publishSignedConfiguration, deliver).value,
     publishLocalSignedConfiguration := {
-      val _ = deliverLocal.value
+      val _ = pgpMakeIvyLocalTask.value
       implicit val conv: xsbti.FileConverter = fileConverter.value
       Classpaths.publishConfig(
         publishMavenStyle.value,
@@ -197,6 +197,11 @@ object PgpSettings {
     },
     publishLocalSigned := publishSignedTask(publishLocalSignedConfiguration, deliver).value
   )
+
+  private lazy val pgpMakeIvyLocalTask: Def.Initialize[Task[Option[File]]] = Def.taskDyn {
+    val style = publishMavenStyle.value
+    if (style) Def.task { (None: Option[File]) } else Def.task { Option(deliverLocal.value) }
+  }
 
   def publishSignedTask(config: TaskKey[PublishConfiguration], deliverKey: TaskKey[?]): Def.Initialize[Task[Unit]] =
     Def.taskDyn {
