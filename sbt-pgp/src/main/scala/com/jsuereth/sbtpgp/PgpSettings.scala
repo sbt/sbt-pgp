@@ -84,12 +84,12 @@ object PgpSettings {
   }
 
   /** Helper to initialize the BC PgpSigner */
-  private[this] def bcPgpSigner: Def.Initialize[Task[PgpSigner]] = Def.task {
+  private def bcPgpSigner: Def.Initialize[Task[PgpSigner]] = Def.task {
     new BouncyCastlePgpSigner(pgpCmdContext.value, pgpSigningKey.value)
   }
 
   /** Helper to initialize the GPG PgpSigner */
-  private[this] def gpgSigner: Def.Initialize[Task[PgpSigner]] = Def.task {
+  private def gpgSigner: Def.Initialize[Task[PgpSigner]] = Def.task {
     new CommandLineGpgSigner(
       gpgCommand.value,
       useGpgAgent.value,
@@ -100,7 +100,7 @@ object PgpSettings {
   }
 
   /** Helper to initialize the GPG PgpSigner with Pinentry */
-  private[this] def gpgPinEntrySigner: Def.Initialize[Task[PgpSigner]] = Def.task {
+  private def gpgPinEntrySigner: Def.Initialize[Task[PgpSigner]] = Def.task {
     new CommandLineGpgPinentrySigner(
       gpgCommand.value,
       useGpgAgent.value,
@@ -111,12 +111,12 @@ object PgpSettings {
   }
 
   /** Helper to initialize the BC PgpVerifier */
-  private[this] def bcPgpVerifierFactory: Def.Initialize[Task[PgpVerifierFactory]] = Def.task {
+  private def bcPgpVerifierFactory: Def.Initialize[Task[PgpVerifierFactory]] = Def.task {
     new BouncyCastlePgpVerifierFactory(pgpCmdContext.value)
   }
 
   /** Helper to initialize the GPG PgpVerifier */
-  private[this] def gpgVerifierFactory: Def.Initialize[Task[PgpVerifierFactory]] = Def.task {
+  private def gpgVerifierFactory: Def.Initialize[Task[PgpVerifierFactory]] = Def.task {
     new CommandLineGpgVerifierFactory(gpgCommand.value, pgpCmdContext.value)
   }
 

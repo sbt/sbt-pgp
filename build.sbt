@@ -8,8 +8,9 @@ ThisBuild / homepage := Some(url("https://github.com/sbt/sbt-pgp"))
 
 // Because we're both a library and an sbt plugin, we use crossScalaVersions rather than crossSbtVersions for
 // cross building. So you can use commands like +scripted.
-lazy val scala212 = "2.12.17"
+lazy val scala212 = "2.12.21"
 lazy val scala3 = "3.8.4"
+lazy val scala3Sbt = "3.9.0"
 ThisBuild / crossScalaVersions := Seq(scala212, scala3)
 ThisBuild / scalaVersion := scala212
 
@@ -61,6 +62,8 @@ lazy val plugin = (project in file("sbt-pgp"))
   .settings(
     commonSettings,
     name := "sbt-pgp",
+    scalaVersion := scala212,
+    crossScalaVersions := Seq(scala212, scala3Sbt),
     libraryDependencies += gigahorseOkhttp.value,
     addSbtPlugin("com.github.sbt" % "sbt2-compat" % "0.1.0"),
     publishLocal := publishLocal.dependsOn((library / publishLocal)).value,
@@ -69,12 +72,12 @@ lazy val plugin = (project in file("sbt-pgp"))
     (pluginCrossBuild / sbtVersion) := {
       scalaBinaryVersion.value match {
         case "2.12" => "1.5.8"
-        case _      => "2.0.0"
+        case _      => "2.1.0"
       }
     },
     scriptedSbt := {
       scalaBinaryVersion.value match {
-        case "2.12" => "1.10.6"
+        case "2.12" => "1.13.1"
         case _      => (pluginCrossBuild / sbtVersion).value
       }
     }
@@ -87,6 +90,11 @@ lazy val library = (project in file("gpg-library"))
   .settings(
     commonSettings,
     name := "pgp-library",
+    crossScalaVersions := Seq(scala212, scala3),
+    scalaVersion := {
+      if ((LocalProject("plugin") / scalaBinaryVersion).value == "3") scala3
+      else scala212
+    },
     libraryDependencies ++= Seq(bouncyCastlePgp, gigahorseOkhttp.value, specs2 % Test, sbtIo % Test),
     libraryDependencies ++= Seq(parserCombinators.value)
   )

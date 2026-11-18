@@ -29,7 +29,7 @@ object UntrustedKey {
 
 /** Helper class to grab all the output from a process into one string. */
 class ProcessGrabber extends ProcessLogger {
-  private[this] val sb = new StringBuilder
+  private val sb = new StringBuilder
   def buffer[T](f: => T): T = f
   def error(s: => String): Unit = sb append s
   def info(s: => String): Unit = sb append s
