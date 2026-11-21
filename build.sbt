@@ -9,8 +9,7 @@ ThisBuild / homepage := Some(url("https://github.com/sbt/sbt-pgp"))
 // Because we're both a library and an sbt plugin, we use crossScalaVersions rather than crossSbtVersions for
 // cross building. So you can use commands like +scripted.
 lazy val scala212 = "2.12.21"
-lazy val scala3 = "3.8.4"
-lazy val scala3Sbt = "3.9.0"
+lazy val scala3 = "3.9.0"
 ThisBuild / crossScalaVersions := Seq(scala212, scala3)
 ThisBuild / scalaVersion := scala212
 
@@ -63,7 +62,7 @@ lazy val plugin = (project in file("sbt-pgp"))
     commonSettings,
     name := "sbt-pgp",
     scalaVersion := scala212,
-    crossScalaVersions := Seq(scala212, scala3Sbt),
+    crossScalaVersions := Seq(scala212, scala3),
     libraryDependencies += gigahorseOkhttp.value,
     addSbtPlugin("com.github.sbt" % "sbt2-compat" % "0.1.0"),
     publishLocal := publishLocal.dependsOn((library / publishLocal)).value,
