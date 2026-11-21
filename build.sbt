@@ -65,7 +65,7 @@ lazy val plugin = (project in file("sbt-pgp"))
     scalaVersion := scala212,
     crossScalaVersions := Seq(scala212, scala3Sbt),
     libraryDependencies += gigahorseOkhttp.value,
-    addSbtPlugin("com.github.sbt" % "sbt2-compat" % "0.1.0"),
+    addSbtPlugin("com.github.sbt" % "sbt2-compat" % "0.2.0"),
     publishLocal := publishLocal.dependsOn((library / publishLocal)).value,
     scriptedBufferLog := false,
     scriptedLaunchOpts += s"-Dproject.version=${version.value}",
