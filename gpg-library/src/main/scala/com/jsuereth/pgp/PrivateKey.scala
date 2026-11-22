@@ -229,7 +229,7 @@ class SecretKey(val nested: PGPSecretKey) {
         throw new IllegalArgumentException("Secret key for message not found.")
       }
       // TODO - Better exception?
-      if (pbe.getKeyID != this.keyID) throw new KeyNotFoundException(pbe.getKeyID)
+      if (pbe.getKeyIdentifier.getKeyId != this.keyID) throw new KeyNotFoundException(pbe.getKeyIdentifier.getKeyId)
       val privKey = extractPrivateKey(passPhrase)
       val clear = {
         val provider = Security.getProvider("BC")
