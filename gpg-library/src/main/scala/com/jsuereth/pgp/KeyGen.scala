@@ -23,7 +23,7 @@ object KeyGen {
       generator.initialize(bitStrength)
       generator.generateKeyPair()
     }
-    new JcaPGPKeyPair(PublicKeyAlgorithmTags.RSA_GENERAL, rsa, new Date())
+    new JcaPGPKeyPair(PublicKeyPacket.VERSION_4, PublicKeyAlgorithmTags.RSA_GENERAL, rsa, new Date())
   }
 
   /** Constructs a new DSA PGP Pair. (only useful for signing) */
@@ -33,7 +33,7 @@ object KeyGen {
       generator.initialize(bitStrength)
       generator.generateKeyPair()
     }
-    new JcaPGPKeyPair(PublicKeyAlgorithmTags.DSA, dsa, new Date())
+    new JcaPGPKeyPair(PublicKeyPacket.VERSION_4, PublicKeyAlgorithmTags.DSA, dsa, new Date())
   }
 
   /** Make a new El Gamal key for signing/encrypting things. */
@@ -43,8 +43,10 @@ object KeyGen {
       params foreach generator.initialize
       generator.generateKeyPair()
     }
-    if (encryptOnly) new JcaPGPKeyPair(PublicKeyAlgorithmTags.ELGAMAL_ENCRYPT, elg, new Date())
-    else new JcaPGPKeyPair(PublicKeyAlgorithmTags.ELGAMAL_GENERAL, elg, new Date())
+    if (encryptOnly)
+      new JcaPGPKeyPair(PublicKeyPacket.VERSION_4, PublicKeyAlgorithmTags.ELGAMAL_ENCRYPT, elg, new Date())
+    else
+      new JcaPGPKeyPair(PublicKeyPacket.VERSION_4, PublicKeyAlgorithmTags.ELGAMAL_GENERAL, elg, new Date())
   }
 
   /** Makes a new PGP Key ring generator, fully configured with reasonable defaults. */
